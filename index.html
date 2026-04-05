@@ -114,7 +114,7 @@
   .modal-match-result.upcoming-future { color: var(--gold); }
 
   /* BOTTOM NAV */
-  #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; background: var(--surface); border-top: 1px solid var(--border); display: none; grid-template-columns: repeat(6,1fr); padding-bottom: var(--safe-bottom); height: calc(var(--bottom-nav-h) + var(--safe-bottom)); }
+  #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; background: var(--surface); border-top: 1px solid var(--border); display: none; grid-template-columns: repeat(7,1fr); padding-bottom: var(--safe-bottom); height: calc(var(--bottom-nav-h) + var(--safe-bottom)); }
   .tab-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px; cursor: pointer; color: var(--text-dim); transition: color 0.15s; font-family: 'Barlow Condensed', sans-serif; font-size: 0.5rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; -webkit-tap-highlight-color: transparent; position: relative; }
   .tab-btn svg { width: 19px; height: 19px; transition: transform 0.15s; }
   .tab-btn.active { color: var(--gold); }
@@ -122,6 +122,34 @@
   .tab-btn.active::before { content: ''; position: absolute; top: 0; left: 20%; right: 20%; height: 2px; background: var(--gold); border-radius: 0 0 2px 2px; }
   .tab-btn:hover { color: var(--red); }
   .tab-btn:active { color: var(--gold-light); }
+  .tab-btn.spotify:hover { color: #1db954; }
+  .tab-btn.spotify:active { color: #1ed760; }
+
+  /* SPOTIFY MODAL */
+  #spotify-modal-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  #spotify-modal-overlay.open { display: flex; align-items: flex-end; }
+  @media (min-width: 600px) { #spotify-modal-overlay.open { align-items: center; justify-content: center; } }
+  #spotify-modal { background: var(--bg); border-top: 1px solid var(--border); border-radius: 20px 20px 0 0; width: 100%; animation: slideUp 0.28s cubic-bezier(0.32,0.72,0,1) both; padding: 0 0 calc(24px + var(--safe-bottom)); }
+  @media (min-width: 600px) { #spotify-modal { border-radius: 16px; max-width: 400px; border: 1px solid var(--border); animation: fadeUp 0.25s ease both; padding-bottom: 24px; } }
+  .spotify-modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 0; }
+  .spotify-modal-header { display: flex; align-items: center; gap: 12px; padding: 20px 20px 16px; border-bottom: 1px solid var(--border); }
+  .spotify-modal-icon { width: 42px; height: 42px; background: #1db954; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .spotify-modal-icon svg { width: 22px; height: 22px; stroke: #000; }
+  .spotify-modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 0.06em; color: var(--text); line-height: 1; }
+  .spotify-modal-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 2px; }
+  .spotify-modal-close { margin-left: auto; background: none; border: none; color: var(--text-dim); font-size: 1.1rem; cursor: pointer; padding: 6px; flex-shrink: 0; }
+  .spotify-modal-body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+  .spotify-link-btn { display: flex; align-items: center; gap: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-decoration: none; transition: border-color 0.15s, background 0.15s; cursor: pointer; }
+  .spotify-link-btn:active { background: var(--surface2); }
+  .spotify-link-btn.primary { border-color: rgba(29,185,84,0.4); background: rgba(29,185,84,0.06); }
+  .spotify-link-btn.primary:active { background: rgba(29,185,84,0.12); }
+  .spotify-link-icon { width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .spotify-link-icon.green { background: rgba(29,185,84,0.15); }
+  .spotify-link-icon.gold { background: rgba(201,168,76,0.12); }
+  .spotify-link-icon svg { width: 20px; height: 20px; }
+  .spotify-link-text strong { display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--text); letter-spacing: 0.04em; }
+  .spotify-link-text span { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; display: block; }
+  .spotify-link-arrow { margin-left: auto; color: var(--text-dim); font-size: 1rem; flex-shrink: 0; }
 
   /* LOADING / ERROR */
   .loading-state { text-align: center; padding: 50px 20px; }
@@ -233,50 +261,103 @@
   .match-card.makeup-row { background: rgba(193,18,31,0.06); border-color: rgba(193,18,31,0.3); opacity: 1; }
   .match-card.makeup-row::before { background: var(--red); }
 
-  /* PLAYOFF BRACKET */
-  .bracket-wrap { overflow-x: auto; padding-bottom: 12px; }
-  .bracket { display: flex; gap: 0; align-items: stretch; min-width: 320px; width: 100%; }
-  .bracket-round { display: flex; flex-direction: column; justify-content: space-around; flex: 1; min-width: 0; }
-  .bracket-round-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim); text-align: center; padding-bottom: 10px; }
-  .bracket-round-label.final-label { color: var(--gold); }
-  .bracket-matchup { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin: 6px 4px; position: relative; cursor: pointer; transition: border-color 0.15s; }
-  .bracket-matchup:hover { border-color: var(--gold-dim); }
-  .bracket-matchup.expanded { border-color: var(--gold-dim); }
-  .bracket-matchup.championship { border-color: var(--gold-dim); }
-  .bracket-matchup.has-result { border-color: rgba(64,145,108,0.5); }
-  .bracket-team { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-bottom: 1px solid var(--border); font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 600; transition: background 0.15s; }
+  /* PLAYOFF BRACKET — Dart League */
+  .bracket-wrap { padding-bottom: 8px; }
+  .bracket { display: flex; flex-direction: column; gap: 0; width: 100%; }
+  .bracket-round { width: 100%; }
+
+  .bracket-round-label {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.2em;
+    color: #000; background: var(--gold-dim); text-align: center;
+    padding: 7px 16px 5px; margin-bottom: 12px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .bracket-round-label::before, .bracket-round-label::after {
+    content: '◆'; font-size: 0.45rem; opacity: 0.7;
+  }
+  .bracket-round-label.final-label { background: var(--gold); color: #000; }
+  .bracket-round-label.night-label { background: var(--surface2); color: var(--gold); border-top: 2px solid var(--gold-dim); border-bottom: 2px solid var(--gold-dim); }
+
+  .bracket-connector {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.58rem; font-weight: 700; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--text-dim);
+  }
+  .bracket-connector::before { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, transparent, var(--border)); }
+  .bracket-connector::after  { content: ''; flex: 1; height: 1px; background: linear-gradient(to left, transparent, var(--border)); }
+
+  .bracket-matchup {
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 4px solid var(--gold-dim); border-radius: 0;
+    overflow: hidden; margin: 0 0 10px 0; position: relative;
+    cursor: pointer; transition: border-left-color 0.15s, background 0.15s;
+  }
+  .bracket-matchup:hover { border-left-color: var(--gold); background: rgba(201,168,76,0.03); }
+  .bracket-matchup.expanded { border-left-color: var(--gold); }
+  .bracket-matchup.championship { border-left-color: var(--gold); border-left-width: 5px; }
+  .bracket-matchup.has-result { border-left-color: var(--green-light); }
+  .bracket-matchup.basement-match { border-left-color: rgba(193,18,31,0.6); }
+  .bracket-matchup.basement-match:hover { border-left-color: var(--red); }
+
+  .bracket-team {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 14px; border-bottom: 1px solid var(--border);
+    font-family: 'Barlow Condensed', sans-serif; font-size: 1.05rem;
+    font-weight: 700; letter-spacing: 0.03em; transition: background 0.15s;
+  }
   .bracket-team:last-child { border-bottom: none; }
-  .bracket-team.winner { background: rgba(201,168,76,0.08); color: var(--gold-light); }
-  .bracket-team.loser { color: var(--text-dim); }
-  .bracket-team.tbd { color: var(--text-dim); font-style: italic; }
-  .bracket-seed { font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; color: var(--text-dim); min-width: 16px; text-align: center; flex-shrink: 0; }
-  .bracket-seed.top-seed { color: var(--gold); }
-  .bracket-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .bracket-score { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; color: var(--gold); min-width: 18px; text-align: right; flex-shrink: 0; }
+  .bracket-team.winner { background: rgba(201,168,76,0.09); color: var(--gold-light); }
+  .bracket-team.loser { color: var(--text-dim); opacity: 0.65; }
+  .bracket-team.tbd { color: var(--text-dim); font-style: italic; font-weight: 400; }
+
+  .bracket-seed {
+    font-family: 'Bebas Neue', sans-serif; font-size: 0.82rem;
+    color: var(--text-dim); background: var(--surface2); border: 1px solid var(--border);
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center; line-height: 1;
+  }
+  .bracket-seed.top-seed { background: var(--gold); color: #000; border-color: var(--gold); }
+
+  .bracket-name { flex: 1; white-space: normal; word-break: break-word; line-height: 1.25; }
+  .bracket-score { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; color: var(--gold); min-width: 22px; text-align: right; flex-shrink: 0; }
   .bracket-score.loser-score { color: var(--text-dim); }
-  .bracket-expand-toggle { font-family: 'Barlow Condensed', sans-serif; font-size: 0.55rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold-dim); text-align: center; padding: 4px 8px; border-top: 1px solid var(--border); background: var(--surface2); display: flex; align-items: center; justify-content: center; gap: 4px; }
+
+  .bracket-expand-toggle {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 0.55rem; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-dim);
+    text-align: center; padding: 5px 8px; border-top: 1px solid var(--border);
+    background: var(--bg); display: flex; align-items: center; justify-content: center; gap: 4px;
+  }
   .bracket-expand-toggle .chevron { display: inline-block; transition: transform 0.2s; font-style: normal; }
   .bracket-matchup.expanded .bracket-expand-toggle .chevron { transform: rotate(180deg); }
-  .bracket-detail { display: none; padding: 12px 14px; border-top: 1px solid var(--border); background: var(--bg); animation: fadeUp 0.2s ease both; }
+
+  .bracket-detail { display: none; padding: 14px 16px; border-top: 1px solid var(--border); background: var(--bg); animation: fadeUp 0.2s ease both; }
   .bracket-matchup.expanded .bracket-detail { display: block; }
-  .bracket-detail-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 10px; }
-  .bracket-score-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .bracket-score-row .team-lbl { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
-  .bracket-score-row input[type=number] { width: 52px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; text-align: center; padding: 6px 4px; outline: none; -webkit-appearance: none; appearance: none; }
+  .bracket-detail-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 12px; }
+
+  .bracket-score-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .bracket-score-row .team-lbl { font-family: 'Barlow Condensed', sans-serif; font-size: 0.88rem; font-weight: 700; flex: 1; color: var(--text); }
+  .bracket-score-row input[type=number] { width: 56px; background: var(--surface); border: 1px solid var(--border); border-radius: 0; color: var(--text); font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; text-align: center; padding: 7px 4px; outline: none; -webkit-appearance: none; appearance: none; }
   .bracket-score-row input[type=number]:focus { border-color: var(--gold-dim); }
   .bracket-score-row input[type=number]::-webkit-inner-spin-button, .bracket-score-row input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
-  .bracket-detail-btns { display: flex; gap: 8px; margin-top: 10px; }
-  .bracket-save-btn { flex: 1; background: var(--gold); color: #000; border: none; border-radius: 7px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.78rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 9px 10px; cursor: pointer; transition: background 0.15s; }
+
+  .bracket-detail-btns { display: flex; gap: 8px; margin-top: 12px; }
+  .bracket-save-btn { flex: 1; background: var(--gold); color: #000; border: none; border-radius: 0; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 10px; cursor: pointer; transition: background 0.15s; }
   .bracket-save-btn:active { background: var(--gold-light); }
-  .bracket-clear-btn { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); border-radius: 7px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 9px 12px; cursor: pointer; }
-  .bracket-result-display { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 0.06em; text-align: center; color: var(--gold); padding: 6px 0 2px; }
-  .bracket-result-display .result-dash { color: var(--text-dim); margin: 0 4px; font-size: 1.2rem; }
-  .bracket-winner-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; text-align: center; color: var(--text-muted); margin-bottom: 8px; }
+  .bracket-clear-btn { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); border-radius: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 10px 14px; cursor: pointer; }
+
+  .bracket-result-display { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 0.06em; text-align: center; color: var(--gold); padding: 4px 0 2px; }
+  .bracket-result-display .result-dash { color: var(--text-dim); margin: 0 6px; font-size: 1.4rem; }
+  .bracket-winner-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; text-align: center; color: var(--text-muted); margin-bottom: 10px; }
   .bracket-winner-tag span { color: var(--gold-light); }
-  .playoff-info-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
-  .playoff-info-item { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; color: var(--text-muted); }
+
+  .playoff-info-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 0; padding: 14px 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; border-left: 4px solid var(--gold-dim); }
+  .playoff-info-item { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; color: var(--text-muted); }
   .playoff-info-item strong { color: var(--text); display: block; font-size: 0.95rem; }
-  .bracket-trophy { text-align: center; padding: 20px 0 8px; font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.1em; color: var(--gold); }
+
+  .bracket-night-divider { font-family: 'Bebas Neue', sans-serif; font-size: 0.65rem; letter-spacing: 0.3em; color: var(--text-dim); text-align: center; padding: 4px 0 10px; text-transform: uppercase; }
+  .bracket-trophy { text-align: center; padding: 16px 0 6px; font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; letter-spacing: 0.12em; color: var(--gold); }
 
   /* MISC */
   .last-updated { font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.08em; text-align: right; margin-bottom: 14px; font-family: 'Barlow Condensed', sans-serif; }
@@ -400,11 +481,11 @@
       <div class="section-header"><h2>Playoffs</h2><span class="eyebrow">Play-In · Semis · Championship</span></div>
 
       <div class="playoff-info-bar">
-        <div class="playoff-info-item"><strong>April 24, 2026</strong>Play-In + Basement Brawl</div>
-        <div class="playoff-info-item"><strong>May 1, 2026</strong>Semifinals</div>
-        <div class="playoff-info-item"><strong>May 8, 2026</strong>Championship</div>
+        <div class="playoff-info-item"><strong>May 1, 2026</strong>Play-In + Basement Brawl</div>
+        <div class="playoff-info-item"><strong>May 8, 2026</strong>Semifinals</div>
+        <div class="playoff-info-item"><strong>May 15, 2026</strong>Championship</div>
         <div class="playoff-info-item"><strong>#1, #2 &amp; #3 Seeds</strong>Direct to Semifinals</div>
-        <div class="playoff-info-item"><strong>#6 vs #7</strong>Basement Brawl · Apr 24</div>
+        <div class="playoff-info-item"><strong>#6 vs #7</strong>Basement Brawl · May 1</div>
       </div>
 
       <div id="playoffs-content">
@@ -442,6 +523,10 @@
   <button class="tab-btn" onclick="showSection('format',this)" data-section="format">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
     Rules
+  </button>
+  <button class="tab-btn spotify" onclick="openSpotifyModal()" style="color:var(--text-dim)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 11.5c2.5-1 5.5-.8 7.5.5"/><path d="M7 14.5c3-1.3 6.5-1 9 .8"/><path d="M9.5 8.5c2-.7 5-.5 7 1"/></svg>
+    Playlist
   </button>
 </nav>
 
@@ -536,7 +621,7 @@ function renderStandings(rows) {
       <td><div class="avg-bar-wrap"><div class="avg-bar-bg"><div class="avg-bar-fill" style="width:${pct}%"></div></div><span class="avg-val">${t.avg.toFixed(2)}</span></div></td>
     </tr>`;
   }
-  html+=`</tbody></table><p class="playoff-note">Format: #1 &amp; #2 byes to Semis · #3v6 &amp; #4v5 Quarters · Lowest QF loser + #7 Basement Brawl · Quarters 4/24/26 · Semis 5/1/26 · Championship 5/8/26</p>`;
+  html+=`</tbody></table><p class="playoff-note">Format: #1, #2 &amp; #3 direct to Semis · #4v#5 Play-In + #6v#7 Basement Brawl 5/1/26 · Semis 5/8/26 · Championship 5/15/26</p>`;
   document.getElementById('standings-content').innerHTML=html;
 }
 
@@ -565,7 +650,7 @@ function renderSchedule(rows) {
   for(const dk of dates){
     const matches=byDate[dk];if(!matches?.length)continue;
     const isC=dk.includes('championship'),isP=dk.includes('playoffs');
-    let dlbl=isC?'🏆 May 8, 2026 — Championship &amp; Basement Brawl':isP?'April 24, 2026 — Quarterfinals · May 1, 2026 — Semifinals':dk.includes('makeup')?'April 17, 2026 — Make-ups':formatDate(dk);
+    let dlbl=isC?'🏆 May 15, 2026 — Championship':isP?'May 1, 2026 — Play-In &amp; Basement Brawl · May 8, 2026 — Semifinals':dk.includes('makeup')?'April 17, 2026 — Make-ups':formatDate(dk);
     html+=`<div class="schedule-group"><div class="schedule-date-header ${(isC||isP)?'playoff-date':''}">${dlbl}</div>`;
     for(const m of matches){
       if(m.type==='championship'){html+=`<div class="match-card playoff-card" style="border-color:var(--gold)"><div class="match-teams"><span class="match-team home" style="color:var(--gold-light)">Champion</span><span class="match-vs" style="color:var(--gold)">VS</span><span class="match-team away" style="color:var(--gold-light)">Finalist</span></div><div class="match-score" style="color:var(--text-dim);font-size:1rem">–</div><div class="match-label" style="color:var(--gold)">Final</div></div>`;continue;}
@@ -645,9 +730,9 @@ function renderFormat(rows) {
     <div class="format-card"><h3>Season Calendar</h3><ul class="rules-list">
       <li>Season: <strong>2025–2026</strong></li>
       <li>Make-up night: <strong>April 17, 2026</strong></li>
-      <li>Play-In + Basement Brawl: <strong>April 24, 2026</strong></li>
-      <li>Semifinals: <strong>May 1, 2026</strong></li>
-      <li>Championship: <strong>May 8, 2026</strong></li>
+      <li>Play-In + Basement Brawl: <strong>May 1, 2026</strong></li>
+      <li>Semifinals: <strong>May 8, 2026</strong></li>
+      <li>Championship: <strong>May 15, 2026</strong></li>
       <li>Annual dues: <strong>$15 per member</strong></li>
     </ul></div>
   </div>`;
@@ -771,9 +856,9 @@ function clearBracketScore(matchKey) {
 //   #1 → Direct to Semis (plays Play-In winner)
 //   #2 → Direct to Semis (plays #3)
 //   #3 → Direct to Semis (plays #2)
-//   #4 vs #5 → Play-In (Apr 24) — winner faces #1 in Semis
-//   #6 vs #7 → Basement Brawl (Apr 24, same night as Play-In)
-//   SF winners → Championship (May 8)
+//   #4 vs #5 → Play-In (May 1) — winner faces #1 in Semis
+//   #6 vs #7 → Basement Brawl (May 1, same night as Play-In)
+//   SF winners → Championship (May 15)
 // ─────────────────────────────────────────────
 function renderPlayoffs(scheduleRows) {
   // Build standings
@@ -941,44 +1026,36 @@ function renderPlayoffs(scheduleRows) {
 
   const el = document.getElementById('playoffs-content');
   el.innerHTML = `
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:12px">Playoff Bracket · Tap any matchup to view or enter results</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:16px">🎯 Playoff Bracket · Tap any matchup to enter results</div>
 
     <div class="bracket-wrap">
       <div class="bracket">
 
-        <!-- PLAY-IN (Apr 24) -->
+        <!-- NIGHT 1: PLAY-IN -->
         <div class="bracket-round">
-          <div class="bracket-round-label">Play-In · Apr 24</div>
-          <div style="flex:1;display:flex;align-items:center">
-            <div style="width:100%">
-              <div class="bracket-matchup ${playIn?'has-result':''}" onclick="toggleBracketMatchup(this)">
-                ${teamRow(4, s4, playIn, true)}
-                ${teamRow(5, s5, playIn, false)}
-                ${matchupToggle()}
-                ${matchupDetail('playIn', s4, s5, playIn)}
-              </div>
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;color:var(--text-dim);font-style:italic;margin-top:6px;text-align:center">Winner faces #1 in Semis</div>
-            </div>
+          <div class="bracket-round-label night-label">Night 1 · May 1 · Play-In</div>
+          <div class="bracket-matchup ${playIn?'has-result':''}" onclick="toggleBracketMatchup(this)">
+            ${teamRow(4, s4, playIn, true)}
+            ${teamRow(5, s5, playIn, false)}
+            ${matchupToggle()}
+            ${matchupDetail('playIn', s4, s5, playIn)}
           </div>
         </div>
 
-        <!-- CONNECTOR Play-In → SF-A -->
-        <div style="display:flex;flex-direction:column;justify-content:center;width:20px;flex-shrink:0;position:relative;margin-top:28px">
-          <div style="position:absolute;top:calc(50% - 10px);left:0;right:0;border-top:1px solid var(--border)"></div>
-          <div style="position:absolute;top:calc(50% - 10px);bottom:50%;left:50%;border-left:1px solid var(--border)"></div>
-          <div style="position:absolute;top:calc(50% - 10px);left:50%;right:0;border-top:1px solid var(--border)"></div>
-        </div>
+        <div class="bracket-connector">Winner advances to face #1 in Semis</div>
 
-        <!-- SEMIFINALS (May 1) -->
+        <!-- NIGHT 2: SEMIFINALS -->
         <div class="bracket-round">
-          <div class="bracket-round-label">Semifinals · May 1</div>
+          <div class="bracket-round-label night-label">Night 2 · May 8 · Semifinals</div>
+          <div class="bracket-night-divider">#1 Seed vs Play-In Winner</div>
           <div class="bracket-matchup ${sfA?'has-result':''}" onclick="toggleBracketMatchup(this)">
             ${directRow(1, s1, sfA, true)}
-            ${playInWinner ? teamRow(playInWinner.seed, playInWinner, sfA, false) : `<div class="bracket-team tbd"><span class="bracket-seed">?</span><span class="bracket-name" style="font-style:italic">Play-In Winner</span></div>`}
+            ${playInWinner ? teamRow(playInWinner.seed, playInWinner, sfA, false) : `<div class="bracket-team tbd"><span class="bracket-seed">?</span><span class="bracket-name">Play-In Winner</span></div>`}
             ${matchupToggle()}
             ${matchupDetail('sfA', s1, playInWinner, sfA)}
           </div>
-          <div class="bracket-matchup ${sfB?'has-result':''}" onclick="toggleBracketMatchup(this)" style="margin-top:8px">
+          <div class="bracket-night-divider" style="margin-top:4px">#2 Seed vs #3 Seed</div>
+          <div class="bracket-matchup ${sfB?'has-result':''}" onclick="toggleBracketMatchup(this)">
             ${directRow(2, s2, sfB, true)}
             ${directRow(3, s3, sfB, false)}
             ${matchupToggle()}
@@ -986,56 +1063,47 @@ function renderPlayoffs(scheduleRows) {
           </div>
         </div>
 
-        <!-- CONNECTOR SF → CHAMP -->
-        <div style="display:flex;flex-direction:column;justify-content:space-around;width:20px;flex-shrink:0;position:relative;margin-top:28px">
-          <div style="position:absolute;top:25%;bottom:25%;left:50%;border-left:1px solid var(--border)"></div>
-          <div style="position:absolute;top:25%;left:0;right:0;border-top:1px solid var(--border)"></div>
-          <div style="position:absolute;bottom:25%;left:0;right:0;border-top:1px solid var(--border)"></div>
-          <div style="position:absolute;top:50%;left:50%;right:0;border-top:1px solid var(--border)"></div>
-        </div>
+        <div class="bracket-connector">Winners advance to Championship</div>
 
-        <!-- CHAMPIONSHIP (May 8) -->
-        <div class="bracket-round" style="justify-content:space-around">
-          <div class="bracket-round-label final-label">Championship · May 8</div>
+        <!-- NIGHT 3: CHAMPIONSHIP -->
+        <div class="bracket-round">
+          <div class="bracket-round-label final-label">Night 3 · May 15 · Championship</div>
           <div class="bracket-matchup championship ${poFinal?'has-result':''}" onclick="toggleBracketMatchup(this)">
-            ${sfAWinner ? teamRow(sfAWinner.seed, sfAWinner, poFinal, true) : `<div class="bracket-team tbd"><span class="bracket-seed top-seed">🏆</span><span class="bracket-name">SF-A Winner</span></div>`}
-            ${sfBWinner ? teamRow(sfBWinner.seed, sfBWinner, poFinal, false) : `<div class="bracket-team tbd" style="border-top:1px dashed rgba(201,168,76,0.2)"><span class="bracket-seed top-seed">🏆</span><span class="bracket-name">SF-B Winner</span></div>`}
+            ${sfAWinner ? teamRow(sfAWinner.seed, sfAWinner, poFinal, true) : `<div class="bracket-team tbd"><span class="bracket-seed top-seed">🏆</span><span class="bracket-name">Semi A Winner</span></div>`}
+            ${sfBWinner ? teamRow(sfBWinner.seed, sfBWinner, poFinal, false) : `<div class="bracket-team tbd"><span class="bracket-seed top-seed">🏆</span><span class="bracket-name">Semi B Winner</span></div>`}
             ${matchupToggle()}
             ${matchupDetail('final', sfAWinner, sfBWinner, poFinal)}
           </div>
-          <div class="bracket-trophy">${poFinal ? '🏆 ' + (poFinal.topPts > poFinal.botPts ? (sfAWinner||{name:'TBD'}).name : (sfBWinner||{name:'TBD'}).name) : 'Championship Night'}</div>
+          <div class="bracket-trophy">${poFinal ? '🏆 ' + (poFinal.topPts > poFinal.botPts ? (sfAWinner||{name:'TBD'}).name : (sfBWinner||{name:'TBD'}).name) + ' — Champions' : 'Championship TBD'}</div>
         </div>
 
       </div>
     </div>
 
     <!-- DIRECT ENTRY CALLOUT -->
-    <div style="margin-top:16px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:10px">
-      <span style="font-size:1.3rem">🎯</span>
-      <div style="font-family:'Barlow Condensed',sans-serif">
-        <div style="font-size:0.88rem;color:var(--gold);font-weight:600">${s1?s1.name:'#1 Seed'}, ${s2?s2.name:'#2 Seed'} &amp; ${s3?s3.name:'#3 Seed'} — Direct to Semifinals</div>
-        <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px">#1 waits for the Play-In winner. #2 and #3 face each other. All three skip April 24.</div>
-      </div>
+    <div style="margin:20px 0;background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--gold-dim);padding:14px 16px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:0.9rem;letter-spacing:0.15em;color:var(--gold);margin-bottom:4px">🎯 Direct to Semifinals</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.88rem;color:var(--text)">${s1?s1.name:'#1'}, ${s2?s2.name:'#2'} &amp; ${s3?s3.name:'#3'} skip April 24 and go straight to Semis on May 1.</div>
     </div>
 
-    <!-- BASEMENT BRAWL (Apr 24 — same night as Play-In) -->
-    <div style="margin-top:20px">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#e05060;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        🪣 Basement Brawl · Apr 24
-        <span style="font-weight:400;color:var(--text-dim);letter-spacing:0.05em;text-transform:none;font-style:italic">Same night as Play-In</span>
+    <!-- BASEMENT BRAWL — Night 1, same night as Play-In -->
+    <div style="margin-bottom:24px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.15em;color:#e05060;background:rgba(193,18,31,0.08);border-top:2px solid rgba(193,18,31,0.4);border-bottom:2px solid rgba(193,18,31,0.4);padding:7px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
+        <span>🪣</span> Basement Brawl · May 1
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.1em;color:var(--text-dim);margin-left:4px">Same Night as Play-In</span>
       </div>
-      <div class="bracket-matchup ${poBasement?'has-result':''}" style="border-color:rgba(193,18,31,0.35);background:rgba(193,18,31,0.04);" onclick="toggleBracketMatchup(this)">
+      <div class="bracket-matchup basement-match ${poBasement?'has-result':''}" onclick="toggleBracketMatchup(this)">
         ${basementRow(6, s6, poBasement, true)}
         ${basementRow(7, s7, poBasement, false)}
         ${matchupToggle()}
         ${matchupDetail('basement', s6, s7, poBasement)}
       </div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;color:var(--text-dim);font-style:italic;margin-top:6px">#6 and #7 square off for bragging rights while #4 and #5 battle for a Semis spot.</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">#6 and #7 square off for bragging rights while #4 and #5 battle for a spot in the Semis.</div>
     </div>
 
     <!-- FULL STANDINGS -->
-    <div style="margin-top:24px">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:4px;border-bottom:1px solid var(--border);padding-bottom:8px">Full Rankings</div>
+    <div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.15em;color:var(--gold-dim);margin-bottom:4px;border-bottom:2px solid var(--border);padding-bottom:8px">Full Rankings</div>
 
       ${standings.map((t, i) => {
         const isDirect = i < 3;
@@ -1046,33 +1114,33 @@ function renderPlayoffs(scheduleRows) {
         if (i === 4) borderStyle = 'border-bottom:2px dashed rgba(193,18,31,0.35)';
         const seedColor = i < 3 ? 'var(--gold)' : i < 5 ? 'var(--gold-dim)' : '#555';
         let badge = '';
-        if (isDirect) badge = `<span style="font-family:'Barlow Condensed',sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:rgba(201,168,76,0.2);color:var(--gold);border:1px solid rgba(201,168,76,0.3);padding:1px 6px;border-radius:3px">Semis</span>`;
-        else if (isPlayIn) badge = `<span style="font-family:'Barlow Condensed',sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:rgba(201,168,76,0.08);color:var(--gold-dim);border:1px solid rgba(201,168,76,0.15);padding:1px 6px;border-radius:3px">Play-In</span>`;
-        else badge = `<span style="font-family:'Barlow Condensed',sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:rgba(193,18,31,0.1);color:#e05060;border:1px solid rgba(193,18,31,0.25);padding:1px 6px;border-radius:3px">Basement</span>`;
+        if (isDirect) badge = `<span style="font-family:'Barlow Condensed',sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:rgba(201,168,76,0.2);color:var(--gold);border:1px solid rgba(201,168,76,0.3);padding:1px 7px;border-radius:0">Semis</span>`;
+        else if (isPlayIn) badge = `<span style="font-family:'Barlow Condensed',sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:rgba(201,168,76,0.06);color:var(--gold-dim);border:1px solid rgba(201,168,76,0.15);padding:1px 7px;border-radius:0">Play-In</span>`;
+        else badge = `<span style="font-family:'Barlow Condensed',sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:rgba(193,18,31,0.1);color:#e05060;border:1px solid rgba(193,18,31,0.25);padding:1px 7px;border-radius:0">Basement</span>`;
         let tbNote = '';
         if (i > 0 && standings[i-1].pts === t.pts && standings[i-1].w === t.w) {
           const h2hMe = h2h[t.team] && h2h[t.team][standings[i-1].team];
           if (h2hMe) tbNote = `<span style="font-size:0.6rem;color:#e09030;margin-left:6px;font-style:italic">H2H</span>`;
         }
-        return `<div onclick="navigateToTeam('${t.team}')" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:11px 0;${borderStyle};font-family:'Barlow Condensed',sans-serif;${isBasement?'opacity:0.55':''}" title="View ${t.name}">
-          <span style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:${seedColor};min-width:24px;text-align:center">${t.seed}</span>
+        return `<div onclick="navigateToTeam('${t.team}')" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 0;${borderStyle};${isBasement?'opacity:0.5':''}" title="View ${t.name}">
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:${seedColor};min-width:28px;text-align:center">${t.seed}</span>
           <div style="flex:1;min-width:0">
-            <div style="font-size:0.95rem;font-weight:600;color:var(--text);display:flex;align-items:center;flex-wrap:wrap;gap:4px">${t.name} ${badge} ${tbNote}</div>
-            <div style="font-size:0.7rem;color:var(--text-muted)">${t.cap}</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;color:var(--text);display:flex;align-items:center;flex-wrap:wrap;gap:6px">${t.name} ${badge} ${tbNote}</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;color:var(--text-muted)">${t.cap}</div>
           </div>
           <div style="text-align:right;flex-shrink:0">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:${!isBasement?'var(--gold)':'#555'}">${t.pts} pts</div>
-            <div style="font-size:0.7rem;color:var(--text-muted)">${t.w}–${t.l}</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:${!isBasement?'var(--gold)':'#555'}">${t.pts} pts</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;color:var(--text-muted)">${t.w}–${t.l}</div>
           </div>
         </div>`;
       }).join('')}
 
-      ${tiedPairs.length ? `<div style="margin-top:12px;padding:10px 12px;background:rgba(224,144,48,0.08);border:1px solid rgba(224,144,48,0.2);border-radius:8px">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#e09030;margin-bottom:6px">Tiebreakers Applied</div>
-        ${tiedPairs.map(p => `<div style="font-size:0.78rem;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif">${p}</div>`).join('')}
+      ${tiedPairs.length ? `<div style="margin-top:12px;padding:10px 14px;background:rgba(224,144,48,0.06);border-left:3px solid rgba(224,144,48,0.4)">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:0.15em;color:#e09030;margin-bottom:6px">Tiebreakers Applied</div>
+        ${tiedPairs.map(p => `<div style="font-family:'Barlow Condensed',sans-serif;font-size:0.82rem;color:var(--text-muted)">${p}</div>`).join('')}
       </div>` : ''}
 
-      <p style="margin-top:14px;font-size:0.72rem;color:var(--text-dim);font-style:italic;line-height:1.5">#1, #2 &amp; #3 seeds advance directly to Semis on May 1. #4 vs #5 Play-In on April 24 — winner joins #1 in Semis. #2 faces #3 directly. #6 vs #7 Basement Brawl same night as Play-In. Championship May 8. Updates live.</p>
+      <p style="margin-top:14px;font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;color:var(--text-dim);font-style:italic;line-height:1.6">#1, #2 &amp; #3 advance directly to Semis on May 1. #4 vs #5 Play-In on April 24 — winner faces #1. #2 faces #3 directly. #6 vs #7 Basement Brawl same night. Championship May 8. Updates live from Google Sheets.</p>
     </div>
   `;
 }
@@ -1200,7 +1268,14 @@ function closeTeamModal(evt) {
   document.body.style.overflow = '';
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeTeamModal(null); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeTeamModal(null); closeSpotifyModal(); } });
+
+function openSpotifyModal() {
+  document.getElementById('spotify-modal-overlay').classList.add('open');
+}
+function closeSpotifyModal() {
+  document.getElementById('spotify-modal-overlay').classList.remove('open');
+}
 
 let refreshInterval = null;
 </script>
@@ -1308,6 +1383,44 @@ function dismissInstall() { document.getElementById('install-banner').style.disp
       <button class="modal-close" onclick="closeTeamModal(null)">✕</button>
     </div>
     <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<div id="spotify-modal-overlay" onclick="if(event.target===this)closeSpotifyModal()">
+  <div id="spotify-modal">
+    <div class="spotify-modal-handle"></div>
+    <div class="spotify-modal-header">
+      <div class="spotify-modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 11.5c2.5-1 5.5-.8 7.5.5"/><path d="M7 14.5c3-1.3 6.5-1 9 .8"/><path d="M9.5 8.5c2-.7 5-.5 7 1"/></svg>
+      </div>
+      <div>
+        <div class="spotify-modal-title">NHDA Playlist</div>
+        <div class="spotify-modal-sub">North Holmes Dart Association</div>
+      </div>
+      <button class="spotify-modal-close" onclick="closeSpotifyModal()">✕</button>
+    </div>
+    <div class="spotify-modal-body">
+      <a class="spotify-link-btn primary" href="https://open.spotify.com/playlist/3Njc1DbxO8o9PWXyfTuJW7?si=imRX00hcTRiEssAlIIwszg" target="_blank" rel="noopener noreferrer">
+        <div class="spotify-link-icon green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1db954" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 11.5c2.5-1 5.5-.8 7.5.5"/><path d="M7 14.5c3-1.3 6.5-1 9 .8"/><path d="M9.5 8.5c2-.7 5-.5 7 1"/></svg>
+        </div>
+        <div class="spotify-link-text">
+          <strong>Listen to Playlist</strong>
+          <span>Open in Spotify</span>
+        </div>
+        <span class="spotify-link-arrow">↗</span>
+      </a>
+      <a class="spotify-link-btn" href="https://open.spotify.com/playlist/3Njc1DbxO8o9PWXyfTuJW7?si=442e8fb432a3422f&pt=ab8fdcaa18e4ac88701fce581d73fa68" target="_blank" rel="noopener noreferrer">
+        <div class="spotify-link-icon gold">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        </div>
+        <div class="spotify-link-text">
+          <strong>Add Songs</strong>
+          <span>Collaborate on the playlist</span>
+        </div>
+        <span class="spotify-link-arrow">↗</span>
+      </a>
+    </div>
   </div>
 </div>
 
