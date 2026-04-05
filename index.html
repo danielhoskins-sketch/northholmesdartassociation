@@ -160,6 +160,7 @@
   .sp-add-btn.added { background: rgba(64,145,108,0.15); color: var(--green-light); border: 1px solid rgba(64,145,108,0.3); cursor: default; }
   .sp-add-btn.loading { opacity: 0.5; cursor: default; }
   .sp-empty { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; color: var(--text-dim); text-align: center; padding: 16px 0; letter-spacing: 0.05em; }
+  .sp-error-msg { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; color: #e05060; background: rgba(193,18,31,0.08); border: 1px solid rgba(193,18,31,0.25); border-radius: 8px; padding: 10px 12px; margin-top: 10px; line-height: 1.4; display: none; }
   /* connect panel */
   .sp-connect { padding: 28px 20px; text-align: center; }
   .sp-connect-icon { font-size: 2.2rem; margin-bottom: 12px; }
@@ -1418,18 +1419,67 @@ async function spAddTrack(uri, btnId) {
   const btn = document.getElementById(btnId);
   if (!btn || btn.classList.contains('added') || btn.classList.contains('loading')) return;
   btn.classList.add('loading'); btn.textContent = '…';
-  const token = await spGetToken();
-  if (!token) { btn.classList.remove('loading'); btn.textContent = 'Add'; return; }
-  try {
-    const res = await fetch(`https://api.spotify.com/v1/playlists/${SPOTIFY_PLAYLIST_ID}/tracks`, {
+
+  let token = await spGetToken();
+  if (!token) {
+    btn.classList.remove('loading'); btn.textContent = 'Add';
+    spShowError('Session expired — tap Disconnect and reconnect Spotify.');
+    return;
+  }
+
+  async function doAdd(tok) {
+    return fetch(`https://api.spotify.com/v1/playlists/${SPOTIFY_PLAYLIST_ID}/tracks`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      headers: { Authorization: `Bearer ${tok}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ uris: [uri] }),
     });
+  }
+
+  try {
+    let res = await doAdd(token);
+
+    // 401 — token silently expired, try one refresh + retry
+    if (res.status === 401) {
+      const fresh = await spRefresh();
+      if (fresh) { res = await doAdd(fresh); }
+    }
+
     btn.classList.remove('loading');
-    if (res.ok) { spAdded.add(uri); btn.classList.add('added'); btn.textContent = '✓ Added'; }
-    else { btn.textContent = 'Retry'; }
-  } catch(e) { btn.classList.remove('loading'); btn.textContent = 'Retry'; }
+
+    if (res.ok) {
+      spAdded.add(uri);
+      btn.classList.add('added');
+      btn.textContent = '✓ Added';
+      spClearError();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      console.error('Spotify add track failed:', res.status, err);
+      btn.textContent = 'Retry';
+
+      if (res.status === 401) {
+        spShowError('Authentication failed — tap Disconnect below and reconnect.');
+        spotifyLogout();
+        renderSpotifyModal();
+      } else if (res.status === 403) {
+        spShowError('Permission denied (403) — open Spotify, go to your playlist → ··· → Make Collaborative, then try again.');
+      } else {
+        spShowError(`Spotify error ${res.status}${err.error?.message ? ': ' + err.error.message : ''}`);
+      }
+    }
+  } catch(e) {
+    btn.classList.remove('loading'); btn.textContent = 'Retry';
+    spShowError('Network error — check your connection and try again.');
+    console.error('spAddTrack error:', e);
+  }
+}
+
+function spShowError(msg) {
+  const el = document.getElementById('sp-error-msg');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+function spClearError() {
+  const el = document.getElementById('sp-error-msg');
+  if (el) el.style.display = 'none';
 }
 
 // ─────────────────────────────────────────────
@@ -1464,6 +1514,7 @@ function renderSpotifyModal() {
         <div class="sp-results" id="sp-results">
           <div class="sp-empty">Type to search Spotify</div>
         </div>
+        <div id="sp-error-msg" class="sp-error-msg"></div>
       </div>
       <div class="sp-footer">
         <div class="sp-user-info"><div class="sp-user-dot"></div>Connected to Spotify</div>
