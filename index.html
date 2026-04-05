@@ -1434,50 +1434,7 @@ function closeSpotifyModal() {
 }
 
 let refreshInterval = null;
-      const artist = t.artists?.map(a => a.name).join(', ') || '';
-      const uri    = t.uri;
-      const btnId  = 'spbtn-' + t.id;
-      const added  = spAdded.has(uri);
-      return `<div class="sp-track">
-        ${img ? `<img src="${img}" alt="">` : `<div class="sp-track-img-placeholder"></div>`}
-        <div class="sp-track-info">
-          <div class="sp-track-name">${name}</div>
-          <div class="sp-track-artist">${artist}</div>
-        </div>
-        <button id="${btnId}" class="sp-add-btn${added?' added':''}" onclick="spAddTrack('${uri}','${btnId}')">${added?'✓ Added':'Add'}</button>
-      </div>`;
-    }).join('');
-  } catch(e) { el.innerHTML = `<div class="sp-empty">Search failed — try again</div>`; }
-}
 
-async function spAddTrack(uri, btnId) {
-  const btn = document.getElementById(btnId);
-  if (!btn || btn.classList.contains('added') || btn.classList.contains('loading')) return;
-  btn.classList.add('loading'); btn.textContent = '…';
-  const token = await spGetToken();
-  if (!token) { btn.classList.remove('loading'); btn.textContent = 'Add'; spShowError('Token error — admin needs to redo setup.'); return; }
-  try {
-    const res = await fetch(`https://api.spotify.com/v1/playlists/${SPOTIFY_PLAYLIST_ID}/tracks`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uris: [uri] }),
-    });
-    btn.classList.remove('loading');
-    if (res.ok) { spAdded.add(uri); btn.classList.add('added'); btn.textContent = '✓ Added'; spClearError(); }
-    else {
-      const err = await res.json().catch(() => ({}));
-      console.error('Spotify add failed:', res.status, err);
-      btn.textContent = 'Retry';
-      spShowError(`Error ${res.status}${err.error?.message ? ': ' + err.error.message : ''}`);
-    }
-  } catch(e) { btn.classList.remove('loading'); btn.textContent = 'Retry'; spShowError('Network error — try again.'); }
-}
-
-function spShowError(msg) { const el = document.getElementById('sp-error-msg'); if (el) { el.textContent = msg; el.style.display = 'block'; } }
-function spClearError()   { const el = document.getElementById('sp-error-msg'); if (el) el.style.display = 'none'; }
-
-// ─────────────────────────────────────────────
-let refreshInterval = null;
 </script>
 
 <script>
