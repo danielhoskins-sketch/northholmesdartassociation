@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NHDA — Spotify Token Setup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0d0d0d; color: #e8e0d0; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .card { background: #161616; border: 1px solid #2a2a2a; border-radius: 16px; padding: 36px; width: 100%; max-width: 500px; }
+  h1 { font-size: 1.4rem; color: #1db954; margin-bottom: 6px; }
+  .sub { font-size: 0.8rem; color: #888; margin-bottom: 28px; }
+  p { font-size: 0.9rem; color: #aaa; line-height: 1.6; margin-bottom: 20px; }
+  button { background: #1db954; color: #000; border: none; border-radius: 10px; font-weight: 700; font-size: 0.9rem; padding: 14px 24px; cursor: pointer; width: 100%; margin-bottom: 12px; }
+  button:active { background: #1ed760; }
+  .token-box { background: #0d0d0d; border: 1px solid #1db954; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .token-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #1db954; margin-bottom: 8px; }
+  .token-value { font-family: monospace; font-size: 0.75rem; color: #e8e0d0; word-break: break-all; line-height: 1.6; user-select: all; }
+  .copy-btn { background: #1a1a1a; color: #1db954; border: 1px solid #1db954; border-radius: 7px; font-size: 0.75rem; font-weight: 700; padding: 8px 16px; cursor: pointer; width: auto; margin-bottom: 16px; }
+  .note { background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.2); border-radius: 8px; padding: 14px 16px; font-size: 0.8rem; color: #c9a84c; line-height: 1.6; }
+  .error { background: rgba(193,18,31,0.1); border: 1px solid rgba(193,18,31,0.3); border-radius: 8px; padding: 14px 16px; font-size: 0.8rem; color: #e05060; margin-bottom: 16px; }
+  #status { display: none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🎵 Spotify Token Setup</h1>
+  <div class="sub">One-time admin setup · Delete this file after use</div>
+
+  <div id="start">
+    <p>Click below and log in with the <strong>Spotify account that owns the NHDA playlist</strong>. You'll be redirected back with a permanent refresh token.</p>
+    <button onclick="authorize()">Authorize with Spotify</button>
+  </div>
+
+  <div id="status"></div>
+</div>
+
+<script>
+const CLIENT_ID     = '9e0f40d98e6c42c3b70887881e7eca74';
+const CLIENT_SECRET = '20219790db0448f781878fd724b97ed3';
+const REDIRECT      = window.location.origin + '/get-token.html';
+const SCOPES        = 'playlist-modify-public playlist-modify-private';
+
+function authorize() {
+  const params = new URLSearchParams({
+    response_type: 'code',
+    client_id:     CLIENT_ID,
+    scope:         SCOPES,
+    redirect_uri:  REDIRECT,
+  });
+  window.location.href = 'https://accounts.spotify.com/authorize?' + params;
+}
+
+async function handleCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const code   = params.get('code');
+  const error  = params.get('error');
+  const start  = document.getElementById('start');
+  const status = document.getElementById('status');
+
+  if (error) {
+    start.style.display  = 'none';
+    status.style.display = 'block';
+    status.innerHTML = `<div class="error">Authorization failed: ${error}</div>`;
+    return;
+  }
+  if (!code) return;
+
+  start.style.display  = 'none';
+  status.style.display = 'block';
+  status.innerHTML     = '<p>Exchanging code for token…</p>';
+  history.replaceState({}, '', '/get-token.html');
+
+  // Exchange code using client secret (Authorization Code flow — tokens don't rotate)
+  const res = await fetch('https://accounts.spotify.com/api/token', {
+    method:  'POST',
+    headers: {
+      'Content-Type':  'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + btoa(CLIENT_ID + ':' + CLIENT_SECRET),
+    },
+    body: new URLSearchParams({
+      grant_type:   'authorization_code',
+      code:          code,
+      redirect_uri:  REDIRECT,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (!data.refresh_token) {
+    status.innerHTML = `<div class="error">Token exchange failed.<br><pre style="margin-top:8px;font-size:0.7rem">${JSON.stringify(data, null, 2)}</pre></div>`;
+    return;
+  }
+
+  status.innerHTML = `
+    <p style="margin-bottom:16px">✅ Success! Add this to Netlify as <strong>SPOTIFY_REFRESH_TOKEN</strong>:</p>
+    <div class="token-box">
+      <div class="token-label">SPOTIFY_REFRESH_TOKEN — copy the full value below</div>
+      <div class="token-value" id="tok">${data.refresh_token}</div>
+    </div>
+    <button class="copy-btn" onclick="copyToken()">📋 Copy Token</button>
+    <div class="note">✓ This token is permanent and will not rotate. Once saved in Netlify, delete this file from your repo.</div>
+  `;
+}
+
+function copyToken() {
+  const val = document.getElementById('tok').textContent;
+  navigator.clipboard.writeText(val).then(() => {
+    document.querySelector('.copy-btn').textContent = '✓ Copied!';
+    setTimeout(() => document.querySelector('.copy-btn').textContent = '📋 Copy Token', 2000);
+  });
+}
+
+if (window.location.search.includes('code=') || window.location.search.includes('error=')) {
+  handleCallback();
+}
+</script>
+</body>
+</html>
