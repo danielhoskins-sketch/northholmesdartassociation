@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NHDA — Spotify Token Setup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0d0d0d; color: #e8e0d0; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .card { background: #161616; border: 1px solid #2a2a2a; border-radius: 16px; padding: 36px; width: 100%; max-width: 500px; }
+  h1 { font-size: 1.4rem; color: #1db954; margin-bottom: 6px; }
+  .sub { font-size: 0.8rem; color: #888; margin-bottom: 28px; }
+  .step { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #555; margin-bottom: 6px; }
+  p { font-size: 0.9rem; color: #aaa; line-height: 1.6; margin-bottom: 20px; }
+  button { background: #1db954; color: #000; border: none; border-radius: 10px; font-weight: 700; font-size: 0.9rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 14px 24px; cursor: pointer; width: 100%; margin-bottom: 12px; }
+  button:active { background: #1ed760; }
+  .token-box { background: #0d0d0d; border: 1px solid #1db954; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .token-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #1db954; margin-bottom: 8px; }
+  .token-value { font-family: monospace; font-size: 0.75rem; color: #e8e0d0; word-break: break-all; line-height: 1.6; }
+  .copy-btn { background: #1a1a1a; color: #1db954; border: 1px solid #1db954; border-radius: 7px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 16px; cursor: pointer; width: auto; }
+  .note { background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.2); border-radius: 8px; padding: 14px 16px; font-size: 0.8rem; color: #c9a84c; line-height: 1.6; }
+  .error { background: rgba(193,18,31,0.1); border: 1px solid rgba(193,18,31,0.3); border-radius: 8px; padding: 14px 16px; font-size: 0.8rem; color: #e05060; }
+  #status { display: none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🎵 Spotify Token Setup</h1>
+  <div class="sub">One-time admin setup · Delete this file after use</div>
+
+  <div id="start">
+    <div class="step">Step 1 of 2</div>
+    <p>Click the button below and log in with the <strong>Spotify account that owns the NHDA playlist</strong>. You'll be redirected back here with your token.</p>
+    <button onclick="authorize()">Authorize with Spotify</button>
+    <div class="note">⚠️ Make sure <code>https://northholmesdartassociation.com/get-token.html</code> is added as a Redirect URI in your Spotify Developer Dashboard before clicking.</div>
+  </div>
+
+  <div id="status">
+    <div id="status-content"></div>
+  </div>
+</div>
+
+<script>
+const CLIENT_ID   = '9e0f40d98e6c42c3b70887881e7eca74';
+const REDIRECT    = window.location.origin + '/get-token.html';
+const SCOPES      = 'playlist-modify-public playlist-modify-private';
+
+function rand(len) {
+  const c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  return Array.from(crypto.getRandomValues(new Uint8Array(len)), v => c[v % c.length]).join('');
+}
+async function challenge(v) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(v));
+  return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_');
+}
+
+async function authorize() {
+  const verifier = rand(64);
+  sessionStorage.setItem('sp_v', verifier);
+  const ch = await challenge(verifier);
+  const p = new URLSearchParams({
+    response_type: 'code', client_id: CLIENT_ID, scope: SCOPES,
+    code_challenge_method: 'S256', code_challenge: ch, redirect_uri: REDIRECT,
+  });
+  window.location.href = 'https://accounts.spotify.com/authorize?' + p;
+}
+
+async function handleCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  const error = params.get('error');
+  const start = document.getElementById('start');
+  const status = document.getElementById('status');
+  const content = document.getElementById('status-content');
+
+  if (error) {
+    start.style.display = 'none'; status.style.display = 'block';
+    content.innerHTML = `<div class="error">Authorization cancelled or failed: ${error}</div>`;
+    return;
+  }
+  if (!code) return;
+
+  start.style.display = 'none'; status.style.display = 'block';
+  content.innerHTML = '<p>Exchanging code for token…</p>';
+  history.replaceState({}, '', '/get-token.html');
+
+  const verifier = sessionStorage.getItem('sp_v');
+  const res = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id: CLIENT_ID, grant_type: 'authorization_code',
+      code, redirect_uri: REDIRECT, code_verifier: verifier,
+    }),
+  });
+  const data = await res.json();
+
+  if (!data.refresh_token) {
+    content.innerHTML = `<div class="error">Token exchange failed.<br><pre style="margin-top:8px;font-size:0.7rem">${JSON.stringify(data,null,2)}</pre></div>`;
+    return;
+  }
+
+  content.innerHTML = `
+    <div class="step">Step 2 of 2 — Copy this token into Netlify</div>
+    <p style="margin-bottom:16px">Your refresh token is below. Add it to Netlify: <strong>Site Settings → Environment Variables → Add variable</strong></p>
+    <div class="token-box">
+      <div class="token-label">Variable Name</div>
+      <div class="token-value">SPOTIFY_REFRESH_TOKEN</div>
+    </div>
+    <div class="token-box">
+      <div class="token-label">Variable Value — copy this entire string</div>
+      <div class="token-value" id="tok">${data.refresh_token}</div>
+    </div>
+    <button class="copy-btn" style="margin-bottom:20px" onclick="copyToken('${data.refresh_token}')">📋 Copy Token Value</button>
+    <div class="note">✓ Once saved in Netlify, delete <code>get-token.html</code> from your repo and push. You're done — members can now add songs without logging in.</div>
+  `;
+}
+
+function copyToken(val) {
+  navigator.clipboard.writeText(val).then(() => {
+    document.querySelector('.copy-btn').textContent = '✓ Copied!';
+    setTimeout(() => document.querySelector('.copy-btn').textContent = '📋 Copy Token Value', 2000);
+  });
+}
+
+if (window.location.search.includes('code=') || window.location.search.includes('error=')) {
+  handleCallback();
+}
+</script>
+</body>
+</html>
