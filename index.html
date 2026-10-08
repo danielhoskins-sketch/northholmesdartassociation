@@ -370,6 +370,20 @@
   .player-row .contact-btn svg { width: 15px; height: 15px; }
   @media (hover: hover) { .team-card:hover .team-roster-list li.player-row { transform: none; } }
 
+
+  /* GROUP TEXT */
+  .text-group-btn { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; padding: 11px 12px; border-radius: 4px; text-decoration: none;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.82rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold);
+    background: rgba(0,0,0,0.3); border: 1px solid var(--gold-dim); transition: background 0.15s, color 0.15s, transform 0.1s; }
+  .text-group-btn svg { width: 16px; height: 16px; }
+  .text-group-btn:hover { background: rgba(214,164,67,0.12); color: var(--gold-light); }
+  .text-group-btn:active { transform: translateY(1px); }
+  .text-group-btn.big { margin: 0; color: var(--cream); background: var(--green); border-color: #0a5f32; box-shadow: 0 3px 0 #06401f; padding: 12px 18px; font-size: 0.88rem; flex-shrink: 0; }
+  .text-group-btn.big:hover { filter: brightness(1.12); background: var(--green); }
+  .text-all-bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+  .text-all-bar span { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; color: var(--text-muted); letter-spacing: 0.03em; }
+  @media (max-width: 420px) { .text-all-bar .text-group-btn.big { flex: 1; } }
+
   /* TEAMS */
   .teams-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
   @media (min-width: 600px) { .teams-grid { grid-template-columns: repeat(2,1fr); } }
@@ -1083,7 +1097,9 @@ function renderTeams(scheduleRows) {
   const teams=Object.keys(sm).sort((a,b)=>sm[a].rank-sm[b].rank);
   const anyPlayed=teams.some(t=>parseInt(sm[t].gp)>0);
   const lastTeam=anyPlayed?teams[teams.length-1]:null;
-  let html='<div class="teams-grid">';
+  const leagueNums=Object.values(teamRosters).flat().map(phoneOf).filter(Boolean);
+  let html=leagueNums.length?`<div class="text-all-bar"><a class="text-group-btn big" href="${groupSmsHref(leagueNums)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Text Everyone</a><span>Opens a group text to all ${leagueNums.length} players</span></div>`:'';
+  html+='<div class="teams-grid">';
   for(const tk of teams){
     const s=sm[tk],name=teamNames[tk]||tk,cap=teamCaptains[tk]||'',roster=teamRosters[tk]||[],num=Object.keys(teamNames).indexOf(tk)+1;
     const isLast=tk===lastTeam;
@@ -1105,7 +1121,8 @@ function renderTeams(scheduleRows) {
         </div>
         <ul class="team-roster-list">`;
     for(const p of roster) html+=playerRow(p,p===cap,'');
-    html+=`</ul></div></div>`;
+    const teamNums=roster.map(phoneOf).filter(Boolean);
+    html+=`</ul>${teamNums.length>1?`<a class="text-group-btn" href="${groupSmsHref(teamNums)}" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Text ${name}</a>`:''}</div></div>`;
   }
   html+='</div>';
   document.getElementById('teams-content').innerHTML=html;
@@ -1558,6 +1575,13 @@ function parseContacts(rows) {
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const norm = s => String(s).toLowerCase().replace(/\s+/g, ' ').trim();
 function teamOf(name) { for (const [k, list] of Object.entries(teamRosters)) if (list.some(p => norm(p) === norm(name))) return k; return null; }
+function phoneOf(name) { const c = contactFor(name); return c && c.phone ? c.phone.replace(/[^\d+]/g, '') : ''; }
+// Group text link that opens the phone's own messaging app with everyone filled in.
+// iPhone/iPad/Mac use sms:/open?addresses=a,b — Android and others use sms:a,b
+function groupSmsHref(nums) {
+  const list = [...new Set(nums)];
+  return /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent) ? `sms:/open?addresses=${list.join(',')}` : `sms:${list.join(',')}`;
+}
 function contactFor(name) { return contacts.find(c => norm(c.name) === norm(name)) || null; }
 // One roster line: name, captain tag, phone/email, call + text buttons
 function playerRow(name, isCap, kind) {
