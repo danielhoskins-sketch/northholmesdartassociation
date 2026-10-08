@@ -183,7 +183,7 @@
   .modal-match-result.upcoming-future { color: var(--gold); }
 
   /* BOTTOM NAV */
-  #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; background: linear-gradient(180deg,#1c150f,#0f0c09); border-top: 1px solid #3a2d1f; box-shadow: 0 -6px 18px rgba(0,0,0,0.5); display: none; grid-template-columns: repeat(6,1fr); padding-bottom: var(--safe-bottom); height: calc(var(--bottom-nav-h) + var(--safe-bottom)); }
+  #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; background: linear-gradient(180deg,#1c150f,#0f0c09); border-top: 1px solid #3a2d1f; box-shadow: 0 -6px 18px rgba(0,0,0,0.5); display: none; grid-template-columns: repeat(7,1fr); padding-bottom: var(--safe-bottom); height: calc(var(--bottom-nav-h) + var(--safe-bottom)); }
   .tab-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 6px 2px; cursor: pointer; color: var(--text-dim); transition: color 0.15s; font-family: 'Barlow Condensed', sans-serif; font-size: 0.56rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; -webkit-tap-highlight-color: transparent; position: relative; }
   .tab-btn svg { width: 20px; height: 20px; transition: transform 0.15s; }
   .tab-btn.active { color: var(--cream); }
@@ -302,6 +302,28 @@
   .score-chip.on em { color: var(--gold-light); }
   .score-note { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; color: var(--text-muted); text-align: center; margin: 14px 0 2px; letter-spacing: 0.03em; }
   #score-save:disabled { opacity: 0.4; cursor: default; }
+
+
+  /* CONTACTS */
+  .contact-search { width: 100%; margin-bottom: 18px; background: rgba(0,0,0,0.35); border: 1px solid var(--border); border-radius: 4px; color: var(--cream); font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; letter-spacing: 0.03em; padding: 12px 14px; outline: none; -webkit-appearance: none; transition: border-color 0.2s, box-shadow 0.2s; }
+  .contact-search:focus { border-color: var(--gold-dim); box-shadow: 0 0 0 3px rgba(214,164,67,0.12); }
+  .contact-group { margin-bottom: 22px; }
+  .contact-card { display: flex; align-items: center; gap: 12px; background: linear-gradient(180deg, var(--surface2), var(--surface)); border: 1px solid var(--border); border-radius: 4px; padding: 11px 12px; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: border-color 0.2s, transform 0.2s; }
+  .contact-avatar { width: 40px; height: 40px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.04em; color: var(--cream);
+    background: radial-gradient(circle, var(--red) 0 46%, var(--green) 47% 62%, #151311 63%); box-shadow: 0 0 0 2px var(--gold-dim); }
+  .contact-info { flex: 1; min-width: 0; }
+  .contact-name { display: flex; align-items: center; gap: 8px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.05rem; color: var(--cream); letter-spacing: 0.02em; }
+  .contact-name .captain-star { margin-left: 0; }
+  .contact-line { display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.92rem; color: var(--gold); text-decoration: none; letter-spacing: 0.03em; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .contact-line.email { color: var(--text-muted); font-size: 0.82rem; }
+  .contact-line:hover { text-decoration: underline; }
+  .contact-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .contact-btn { width: 38px; height: 38px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: var(--cream); text-decoration: none; transition: transform 0.2s cubic-bezier(.2,1.6,.4,1), filter 0.15s; }
+  .contact-btn svg { width: 17px; height: 17px; }
+  .contact-btn.call { background: var(--green); box-shadow: 0 2px 0 #06401f; }
+  .contact-btn.text { background: rgba(0,0,0,0.35); border: 1px solid var(--gold-dim); color: var(--gold); }
+  .contact-btn:active { transform: scale(0.92); }
+  @media (hover: hover) { .contact-card:hover { border-color: var(--gold-dim); transform: translateX(3px); } .contact-btn:hover { transform: scale(1.12); filter: brightness(1.15); } }
 
   /* TEAMS */
   .teams-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
@@ -602,6 +624,14 @@
     </div>
   </section>
 
+  <section id="contacts" class="section">
+    <div class="container">
+      <div class="section-header"><h2>Contacts</h2><span class="eyebrow">Members</span></div>
+      <input type="search" class="contact-search" id="contact-search" placeholder="Search name or team…" oninput="renderContacts()" autocomplete="off">
+      <div id="contacts-content"><div class="loading-state"><div class="loading-spinner"></div><p>Loading...</p></div></div>
+    </div>
+  </section>
+
   <section id="makeup" class="section">
     <div class="container">
       <div class="section-header">
@@ -667,6 +697,10 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
     Rules
   </button>
+  <button class="tab-btn" onclick="showSection('contacts',this)" data-section="contacts">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    Contacts
+  </button>
 </nav>
 
 <script>
@@ -676,6 +710,8 @@
 // 2026–27 schedule tab ("26-27") of the NHDA Winter League sheet
 const SCHEDULE_URL = 'https://docs.google.com/spreadsheets/d/118o-iPzoDMT0ckZMnK8YFS_r_1dgXU7qCzspJOahIa4/export?format=csv&gid=1613193003';
 const FORMAT_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS4bnxtDfeQH0mSZIbA-L_rJOTFif1UwR4b7sd6GdA5rZhyGJTg7CkIIW78i_nMHsRPOvj0h2Uqevgh/pub?gid=1203791838&single=true&output=csv';
+// Member directory (first tab of the league sheet). Loaded live — never stored in this file.
+const CONTACTS_URL = 'https://docs.google.com/spreadsheets/d/118o-iPzoDMT0ckZMnK8YFS_r_1dgXU7qCzspJOahIa4/export?format=csv&gid=0';
 const PROXY = 'https://corsproxy.io/?url=';
 
 // ─────────────────────────────────────────────
@@ -1417,6 +1453,65 @@ function renderPlayoffs(scheduleRows) {
 }
 
 // ─────────────────────────────────────────────
+// CONTACTS — read live from the member directory tab
+// ─────────────────────────────────────────────
+let contacts = [];
+function parseContacts(rows) {
+  const out = [];
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i]; const name = (r[0] || '').trim();
+    if (!name) continue;
+    if (/^teams?:?$/i.test(name)) break;
+    const phone = (r[1] || '').trim(), email = (r[2] || '').trim();
+    if (!phone && !email) continue;
+    out.push({ name, phone, email });
+  }
+  return out;
+}
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const norm = s => String(s).toLowerCase().replace(/\s+/g, ' ').trim();
+function teamOf(name) { for (const [k, list] of Object.entries(teamRosters)) if (list.some(p => norm(p) === norm(name))) return k; return null; }
+function contactCard(c, isCap) {
+  const digits = c.phone.replace(/[^\d+]/g, '');
+  const initials = c.name.replace(/".*?"/g, '').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  return `<div class="contact-card">
+    <div class="contact-avatar">${esc(initials)}</div>
+    <div class="contact-info">
+      <div class="contact-name">${esc(c.name)}${isCap ? '<span class="captain-star">Captain</span>' : ''}</div>
+      ${c.phone ? `<a class="contact-line" href="tel:${esc(digits)}">${esc(c.phone)}</a>` : ''}
+      ${c.email ? `<a class="contact-line email" href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : ''}
+    </div>
+    <div class="contact-actions">
+      ${c.phone ? `<a class="contact-btn call" href="tel:${esc(digits)}" title="Call ${esc(c.name)}" aria-label="Call ${esc(c.name)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></a>
+      <a class="contact-btn text" href="sms:${esc(digits)}" title="Text ${esc(c.name)}" aria-label="Text ${esc(c.name)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></a>` : ''}
+    </div>
+  </div>`;
+}
+function renderContacts() {
+  const el = document.getElementById('contacts-content'); if (!el) return;
+  if (!contacts.length) { el.innerHTML = '<div class="no-makeup-msg">No contacts found in the league sheet</div>'; return; }
+  const q = norm((document.getElementById('contact-search') || {}).value || '');
+  const match = (c, tk) => !q || norm(c.name).includes(q) || norm(c.phone).includes(q) || (tk && norm(teamNames[tk] || tk).includes(q));
+  const groups = Object.keys(teamNames).map(tk => ({ tk, list: [] }));
+  const other = [];
+  for (const c of contacts) { const tk = teamOf(c.name); const g = groups.find(x => x.tk === tk); (g ? g.list : other).push(c); }
+  let html = '';
+  for (const g of groups) {
+    const roster = teamRosters[g.tk] || [];
+    const list = g.list.filter(c => match(c, g.tk)).sort((a, b) => roster.findIndex(p => norm(p) === norm(a.name)) - roster.findIndex(p => norm(p) === norm(b.name)));
+    if (!list.length) continue;
+    html += `<div class="contact-group"><div class="schedule-date-header">${esc(teamNames[g.tk] || g.tk)}</div>${list.map(c => contactCard(c, norm(c.name) === norm(teamCaptains[g.tk] || ''))).join('')}</div>`;
+  }
+  const o = other.filter(c => match(c, null));
+  if (o.length) html += `<div class="contact-group"><div class="schedule-date-header">Other Members</div>${o.map(c => contactCard(c, false)).join('')}</div>`;
+  el.innerHTML = html || `<div class="no-makeup-msg">No one matches “${esc(q)}”</div>`;
+}
+async function loadContacts() {
+  try { contacts = parseContacts(await fetchCSV(CONTACTS_URL)); renderContacts(); }
+  catch (e) { showError('contacts-content', `Error: ${e.message}`); }
+}
+
+// ─────────────────────────────────────────────
 // ERROR
 // ─────────────────────────────────────────────
 function showError(id, msg) {
@@ -1432,6 +1527,7 @@ async function init() {
     window._sheetRows = scheduleRows;
     renderAll();
     renderFormat(formatRows);
+    loadContacts();
     document.getElementById('live-indicator').style.display='inline-flex';
   } catch(err) {
     console.error(err);
