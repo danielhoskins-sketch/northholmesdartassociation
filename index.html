@@ -234,6 +234,21 @@
   .avg-val { font-size: 0.8rem; color: rgba(239,225,191,0.7); min-width: 28px; font-weight: 600; }
   @media (max-width: 420px) { .standings-table th:last-child, .standings-table td:last-child { display: none; } #standings-content { border-width: 8px; padding: 10px 6px 8px; } }
 
+
+  /* AVG BAR DART POINTER */
+  .avg-bar-wrap { gap: 10px; }
+  .avg-bar-bg { position: relative; overflow: visible; }
+  .avg-bar-bg .avg-bar-fill { border-radius: 3px; }
+  .avg-dart { position: absolute; top: 50%; width: 40px; height: auto; margin-top: -3px; transform-origin: 0 50%; transform: rotate(-38deg); pointer-events: none; filter: drop-shadow(1px 3px 2px rgba(0,0,0,0.6)); z-index: 1; }
+  .avg-mini { display: none; margin-top: 14px; max-width: 170px; }
+  .avg-mini .avg-dart { width: 30px; }
+  .avg-mini .avg-val { font-size: 0.72rem; }
+  @media (max-width: 420px) { .avg-mini { display: block; } }
+  .play-darts .avg-bar-fill { animation: barGrow 0.7s cubic-bezier(.3,.8,.3,1) var(--d,0s) both; }
+  .play-darts .avg-dart { animation: avgDartIn 0.5s cubic-bezier(.3,.9,.4,1.15) var(--d,0s) both; }
+  @keyframes barGrow { from { transform: scaleX(0); transform-origin: left; } to { transform: scaleX(1); transform-origin: left; } }
+  @keyframes avgDartIn { 0% { transform: translate(90px,-70px) rotate(-38deg); opacity: 0; } 30% { opacity: 1; } 80% { transform: translate(0,0) rotate(-33deg); } 90% { transform: translate(0,0) rotate(-41deg); } 100% { transform: translate(0,0) rotate(-38deg); opacity: 1; } }
+
   /* SCHEDULE */
   .schedule-group { margin-bottom: 26px; }
   .schedule-date-header { display: flex; align-items: center; gap: 10px; font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); padding: 4px 0 10px; margin-bottom: 4px; }
@@ -954,22 +969,33 @@ function renderStandings(rows) {
   const anyPlayed=s.some(x=>parseInt(x.gp)>0);
   let html=`<div class="last-updated">Live · ${new Date().toLocaleString()}</div>`;
   html+=`<table class="standings-table"><thead><tr><th style="text-align:center">#</th><th>Team</th><th>W–L</th><th style="text-align:center">Pts</th><th>Avg</th></tr></thead><tbody>`;
-  for(const t of s){
+  s.forEach((t,i)=>{
     const name=teamNames[t.team]||t.team;
     const cap=teamCaptains[t.team]||'';
     const pct=maxAvg>0?Math.round((t.avg/maxAvg)*100):0;
     const top=anyPlayed&&t.rank<=2;
     html+=`<tr onclick="navigateToTeam('${t.team}')" style="cursor:pointer" title="View ${name}">
       <td class="rank-cell">${top?`<span class="rank-disc">${t.rank}</span>`:t.rank}</td>
-      <td class="team-name-cell">${name}${cap?`<span class="team-captain">${cap}</span>`:''}</td>
+      <td class="team-name-cell">${name}${cap?`<span class="team-captain">${cap}</span>`:''}<div class="avg-mini">${avgBar(pct,t.avg,i)}</div></td>
       <td class="record-cell">${t.w}–${t.l}</td>
       <td class="pts-cell" style="text-align:center">${t.pts}</td>
-      <td><div class="avg-bar-wrap"><div class="avg-bar-bg"><div class="avg-bar-fill" style="width:${pct}%"></div></div><span class="avg-val">${t.avg.toFixed(2)}</span></div></td>
+      <td>${avgBar(pct,t.avg,i)}</td>
     </tr>`;
-  }
+  });
   const po=SEASON.playoffs;
   html+=`</tbody></table><p class="playoff-note">Playoffs: #1, #2 &amp; #3 direct to Semis · #4 vs #5 Play-In ${fmtShort(po.playIn)} · Semis ${fmtShort(po.semis)} · Championship ${fmtShort(po.final)}</p>`;
   document.getElementById('standings-content').innerHTML=html;
+  if(!renderStandings._done){ renderStandings._done=true; const intro=document.getElementById('intro'); if(!intro||intro.style.display!=='block') playStandingsDarts(); }
+}
+// Average bar with a dart stuck in it as the pointer
+function avgBar(pct,avg,i){
+  return `<div class="avg-bar-wrap"><div class="avg-bar-bg"><div class="avg-bar-fill" style="width:${pct}%;--d:${i*0.12}s"></div><svg class="avg-dart" viewBox="0 0 150 30" style="left:${pct}%;--d:${0.45+i*0.12}s" aria-hidden="true"><use href="#dart"/></svg></div><span class="avg-val">${avg.toFixed(2)}</span></div>`;
+}
+// Replay the darts whenever Standings comes into view
+function playStandingsDarts(){
+  const el=document.getElementById('standings-content'); if(!el) return;
+  el.classList.remove('play-darts'); void el.offsetWidth; el.classList.add('play-darts');
+  clearTimeout(playStandingsDarts._t); playStandingsDarts._t=setTimeout(()=>el.classList.remove('play-darts'),2600);
 }
 
 // ─────────────────────────────────────────────
@@ -1584,6 +1610,7 @@ function showSection(id, btn) {
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
+  if(id==='standings') playStandingsDarts();
 }
 
 function goToMakeup(home, away) {
@@ -1716,6 +1743,7 @@ function endIntro() {
   clearTimeout(introTimer);
   el.classList.add('done');
   setTimeout(() => { el.style.display = 'none'; el.classList.remove('play', 'done'); }, 450);
+  if (document.getElementById('standings').classList.contains('active')) setTimeout(playStandingsDarts, 150);
 }
 
 function unlockSite() {
