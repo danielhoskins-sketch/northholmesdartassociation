@@ -425,6 +425,19 @@
     .team-card:hover .team-card-board { transform: scale(1.25); }
   }
 
+
+  /* LAST PLACE: the dart misses */
+  .flying-dart { position: fixed; left: 0; top: 0; z-index: 700; pointer-events: none; height: auto; filter: drop-shadow(4px 8px 5px rgba(0,0,0,0.55)); }
+  @media (hover: hover) {
+    .team-card.last-place:hover .board-hit .hit-dart { animation: none; opacity: 0; }
+    .team-card.last-place:hover .board-hit .board-svg { animation: boardFlinch 0.6s ease 0.4s both; }
+    .team-card.last-place:hover .board-hit { animation: none; }
+  }
+  @keyframes boardFlinch { 0%,100% { transform: rotate(0) scale(1); } 25% { transform: rotate(-14deg) scale(0.9); } 55% { transform: rotate(9deg) scale(1.05); } 80% { transform: rotate(-4deg); } }
+  .miss-tag { position: absolute; right: 115%; top: 50%; z-index: 4; pointer-events: none; font-family: 'Alfa Slab One', serif; font-size: 1rem; letter-spacing: 0.06em; color: var(--red-soft);
+    text-shadow: 0 2px 0 #000; white-space: nowrap; line-height: 1; opacity: 0; animation: missPop 1.3s cubic-bezier(.2,1.6,.4,1) 0.45s forwards; }
+  @keyframes missPop { 0% { opacity: 0; transform: translateY(-50%) scale(0.3) rotate(-14deg); } 25% { opacity: 1; transform: translateY(-50%) scale(1.15) rotate(-8deg); } 70% { opacity: 1; transform: translateY(-50%) scale(1) rotate(-8deg); } 100% { opacity: 0; transform: translateY(-80%) scale(1) rotate(-8deg); } }
+
   /* FORMAT / RULES — notices pinned to the board */
   .format-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
   @media (min-width: 640px) { .format-grid { grid-template-columns: 1fr 1fr; } }
@@ -816,6 +829,31 @@ function renderAll() {
   renderStandings(rows); renderSchedule(rows); renderTeams(rows); renderMakeup(rows); renderPlayoffs(rows);
 }
 
+
+// Last place: the dart sails across the screen and misses the board
+function dartMiss(card) {
+  if (!window.matchMedia('(hover: hover)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (card._missing) return; card._missing = true; setTimeout(() => { card._missing = false; }, 1500);
+  const boardEl = card.querySelector('.team-card-board'); if (!boardEl) return;
+  const bd = boardEl.getBoundingClientRect();
+  const W = window.innerWidth, len = Math.max(110, Math.min(170, W * 0.12));
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 150 30'); svg.setAttribute('class', 'flying-dart'); svg.style.width = len + 'px';
+  svg.innerHTML = '<use href="#dart"/>';
+  document.body.appendChild(svg);
+  const y = bd.top - len * 0.2 - 18;                     // sails just over the top of the board
+  const passX = bd.left + bd.width / 2 - len * 0.35;
+  const anim = svg.animate([
+    { transform: `translate(${W + 40}px, ${y + 70}px) rotate(14deg)`, opacity: 1 },
+    { transform: `translate(${passX}px, ${y}px) rotate(6deg)`, offset: 0.5 },
+    { transform: `translate(${-len - 60}px, ${y - 40}px) rotate(-2deg)`, opacity: 1 }
+  ], { duration: 1150, easing: 'cubic-bezier(.25,.1,.25,1)' });
+  anim.onfinish = () => svg.remove();
+  const tag = document.createElement('div'); tag.className = 'miss-tag'; tag.textContent = 'MISS!';
+  boardEl.closest('.board-hit').appendChild(tag);
+  setTimeout(() => tag.remove(), 1500);
+}
+
 // ── Score entry ──
 let scoreKey = null, scorePick = null;
 function openScore(key) {
@@ -998,10 +1036,13 @@ function renderTeams(scheduleRows) {
   const sm={};
   for(let i=1;i<scheduleRows.length;i++){const r=scheduleRows[i];if(!r[5])continue;sm[r[5]]={gp:r[6],w:r[7],l:r[8],pts:r[9],avg:parseFloat(r[10]||0),rank:parseInt(r[11]||99)};}
   const teams=Object.keys(sm).sort((a,b)=>sm[a].rank-sm[b].rank);
+  const anyPlayed=teams.some(t=>parseInt(sm[t].gp)>0);
+  const lastTeam=anyPlayed?teams[teams.length-1]:null;
   let html='<div class="teams-grid">';
   for(const tk of teams){
     const s=sm[tk],name=teamNames[tk]||tk,cap=teamCaptains[tk]||'',roster=teamRosters[tk]||[],num=Object.keys(teamNames).indexOf(tk)+1;
-    html+=`<div class="team-card" id="team-card-${tk.replace(' ','-')}" onclick="navigateToTeam('${tk}')" style="cursor:pointer" title="View ${name}">
+    const isLast=tk===lastTeam;
+    html+=`<div class="team-card${isLast?' last-place':''}" id="team-card-${tk.replace(' ','-')}" onclick="navigateToTeam('${tk}')"${isLast?' onmouseenter="dartMiss(this)"':''} style="cursor:pointer" title="View ${name}">
       <div class="team-card-header">
         <div><div class="team-card-name">${name}</div><div style="font-size:0.72rem;color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-top:4px">Capt. ${cap}</div></div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
