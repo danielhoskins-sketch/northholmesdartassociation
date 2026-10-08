@@ -219,6 +219,21 @@
   .match-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim); flex-shrink: 0; text-align: right; min-width: 48px; }
   @media (max-width: 420px) { .match-label { display: none; } .match-teams { font-size: 0.9rem; } }
 
+
+  /* STATUS DROPDOWN + TOAST */
+  .status-select { flex-shrink: 0; -webkit-appearance: none; appearance: none; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--gold); background: rgba(0,0,0,0.35) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23d6a443' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 8px center;
+    border: 1px solid var(--gold-dim); border-radius: 3px; padding: 6px 24px 6px 9px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+  .status-select:hover, .status-select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(214,164,67,0.15); }
+  .status-select.ppd { color: var(--red-soft); border-color: rgba(208,18,43,0.5); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23e05060' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); }
+  .status-select option { background: #17130f; color: var(--text); }
+  .status-lock { flex-shrink: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red-soft); border: 1px dashed rgba(208,18,43,0.45); border-radius: 3px; padding: 6px 8px; }
+  @media (max-width: 420px) { .match-card { flex-wrap: wrap; } .match-card .match-teams { flex-basis: 100%; } .match-card .match-score { margin-left: auto; } .status-select, .status-lock { order: 3; } }
+  #toast { position: fixed; left: 50%; bottom: calc(var(--bottom-nav-h) + var(--safe-bottom) + 14px); transform: translate(-50%, 20px); opacity: 0; pointer-events: none; z-index: 900;
+    background: #0d7a40; color: var(--cream); font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.06em; padding: 10px 16px; border-radius: 4px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); transition: opacity 0.25s, transform 0.25s; width: max-content; max-width: calc(100% - 32px); text-align: center; }
+  #toast.err { background: var(--red); }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
   /* TEAMS */
   .teams-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
   @media (min-width: 600px) { .teams-grid { grid-template-columns: repeat(2,1fr); } }
@@ -617,6 +632,36 @@ function rowKind(dateRaw) {
 }
 function leadDate(dateRaw) { const m = (dateRaw || '').match(/^(\d{1,2}\.\d{1,2}\.\d{2})/); return m ? m[1] : ''; }
 const isPPD = v => /^ppd$/i.test((v || '').trim());
+
+// Shared postponements (saved on Netlify so every member sees them)
+let overrides = {};
+const mkKey = (date, home, away) => `${date}|${home}|${away}`;
+async function loadOverrides() {
+  try { const r = await fetch('/api/makeups', { cache: 'no-store' }); if (r.ok) overrides = await r.json() || {}; } catch {}
+}
+async function saveOverride(key, patch) {
+  const before = JSON.stringify(overrides);
+  overrides[key] = { ...(overrides[key] || {}), ...patch };
+  rerenderMakeupViews();
+  try {
+    const r = await fetch('/api/makeups', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pw: CORRECT_PASSWORD, key, ...patch }) });
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.status);
+    overrides = await r.json();
+    rerenderMakeupViews();
+    flashToast(patch.postponed === false ? 'Back on the schedule' : 'makeupDate' in patch ? 'Make-up date saved' : 'Postponed · added to Make-Ups');
+  } catch (e) {
+    overrides = JSON.parse(before); rerenderMakeupViews();
+    flashToast('Could not save — check your connection and try again', true);
+  }
+}
+function setMatchStatus(key, value) { saveOverride(key, value === 'ppd' ? { postponed: true } : { postponed: false, makeupDate: '' }); }
+function rerenderMakeupViews() { if (window._scheduleRows) { renderSchedule(window._scheduleRows); renderMakeup(window._scheduleRows); } }
+function flashToast(msg, isErr) {
+  let t = document.getElementById('toast');
+  if (!t) { t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t); }
+  t.textContent = msg; t.className = isErr ? 'show err' : 'show';
+  clearTimeout(flashToast._t); flashToast._t = setTimeout(() => { t.className = isErr ? 'err' : ''; }, 2600);
+}
 function fmtShort(raw) { const p = (raw||'').split('.'); if (p.length!==3) return raw; const m=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return `${m[parseInt(p[0])]} ${parseInt(p[1])}`; }
 function applySeasonText() {
   document.querySelectorAll('[data-season]').forEach(el => el.textContent = SEASON.label);
@@ -736,13 +781,19 @@ function renderSchedule(rows) {
     html+=`<div class="schedule-group"><div class="schedule-date-header">${when}</div>`;
     for(const m of g.items){
       const hn=teamNames[m.home]||m.home, an=teamNames[m.away]||m.away;
-      if(isPPD(m.hPts)||isPPD(m.aPts)){
-        html+=`<div class="match-card upcoming" onclick="goToMakeup('${m.home}','${m.away}')" style="cursor:pointer" title="View make-up match"><div class="match-teams"><span class="match-team home">${hn}</span><span class="match-vs" style="color:var(--red-soft)">VS</span><span class="match-team away">${an}</span></div><div class="match-score" style="color:var(--red-soft);font-size:0.95rem">PPD</div><div class="match-label" style="color:var(--red-soft)">Postponed</div></div>`;
+      const key=mkKey(g.date,m.home,m.away);
+      const sheetPPD=isPPD(m.hPts)||isPPD(m.aPts);
+      const scored=!sheetPPD&&m.hPts!==''&&m.aPts!=='';
+      if(!scored&&(sheetPPD||overrides[key]?.postponed)){
+        const sel=sheetPPD?`<span class="status-lock" title="Marked PPD in the league sheet">PPD in sheet</span>`
+          :`<select class="status-select ppd" onclick="event.stopPropagation()" onchange="setMatchStatus('${key}',this.value)" aria-label="Match status"><option value="sched">Scheduled</option><option value="ppd" selected>Postponed</option></select>`;
+        html+=`<div class="match-card upcoming" onclick="goToMakeup('${m.home}','${m.away}')" style="cursor:pointer" title="View make-up match"><div class="match-teams"><span class="match-team home">${hn}</span><span class="match-vs" style="color:var(--red-soft)">VS</span><span class="match-team away">${an}</span></div><div class="match-score" style="color:var(--red-soft);font-size:0.95rem">PPD</div>${sel}</div>`;
         continue;
       }
+      const statusSel=`<select class="status-select" onclick="event.stopPropagation()" onchange="setMatchStatus('${key}',this.value)" aria-label="Match status"><option value="sched" selected>Scheduled</option><option value="ppd">Postponed</option></select>`;
       const has=m.hPts!==''&&m.aPts!=='', hN=parseInt(m.hPts)||0, aN=parseInt(m.aPts)||0;
       if(has){html+=`<div class="match-card completed"><div class="match-teams"><span class="match-team home">${hn}</span><span class="match-vs">VS</span><span class="match-team away">${an}</span></div><div class="match-score"><span class="${hN>aN?'score-winner':'score-loser'}">${m.hPts}</span><span class="dash">–</span><span class="${aN>hN?'score-winner':'score-loser'}">${m.aPts}</span></div><div class="match-label">Final</div></div>`;}
-      else{const fut=isFutureDate(g.date);html+=`<div class="match-card upcoming${fut?' future-match':''}"><div class="match-teams"><span class="match-team home" style="color:var(--text)">${hn}</span><span class="match-vs" style="color:${fut?'var(--gold)':'var(--red-soft)'}">VS</span><span class="match-team away" style="color:var(--text)">${an}</span></div><div class="match-score" style="color:${fut?'var(--gold)':'var(--red-soft)'};font-size:0.95rem">${fut?'—':'TBD'}</div><div class="match-label" style="color:${fut?'var(--gold)':'var(--red-soft)'}">${fut?'Upcoming':'Awaiting'}</div></div>`;}
+      else{const fut=isFutureDate(g.date);html+=`<div class="match-card upcoming${fut?' future-match':''}"><div class="match-teams"><span class="match-team home" style="color:var(--text)">${hn}</span><span class="match-vs" style="color:${fut?'var(--gold)':'var(--red-soft)'}">VS</span><span class="match-team away" style="color:var(--text)">${an}</span></div><div class="match-score" style="color:${fut?'var(--gold)':'var(--red-soft)'};font-size:0.95rem">${fut?'—':'TBD'}</div>${statusSel}</div>`;}
     }
     if(bye.length) html+=`<div class="bye-note">Bye · ${bye.map(t=>teamNames[t]||t).join(', ')}</div>`;
     html+=`</div>`;
@@ -835,26 +886,30 @@ function renderMakeup(scheduleRows) {
     if (!originalDate || rowKind(originalDate) !== 'match') continue;
     const home = (r[1] || '').trim(), away = (r[3] || '').trim();
     const hRaw = (r[2] || '').trim(), aRaw = (r[4] || '').trim();
-    if (!home || !(isPPD(hRaw) || isPPD(aRaw))) continue;
-    const id = makeupMatches.length + 1;
-    const storeKey = `${originalDate}_${home}_${away}`;
-    makeupMatches.push({ id, storeKey, originalDate, home, away, hPts: '', aPts: '',
-      assignedDate: (()=>{ try { return localStorage.getItem('nhda_makeup_' + storeKey) || ''; } catch { return ''; } })() });
+    if (!home) continue;
+    const key = mkKey(originalDate, home, away);
+    const sheetPPD = isPPD(hRaw) || isPPD(aRaw);
+    if (!sheetPPD && !overrides[key]?.postponed) continue;
+    const scored = !sheetPPD && hRaw !== '' && aRaw !== '';
+    makeupMatches.push({ id: makeupMatches.length + 1, key, originalDate, home, away,
+      hPts: scored ? hRaw : '', aPts: scored ? aRaw : '', fromSheet: sheetPPD,
+      assignedDate: overrides[key]?.makeupDate || '' });
   }
   const label = document.getElementById('makeup-count-label');
-  label.textContent = makeupMatches.length ? `${makeupMatches.length} postponed match${makeupMatches.length===1?'':'es'} to make up` : 'No postponed matches';
+  const played = makeupMatches.filter(m => m.hPts !== '' && m.aPts !== '').length;
+  const left = makeupMatches.length - played;
+  label.textContent = makeupMatches.length ? `${left} to make up${played ? ` · ${played} played` : ''}` : 'No postponed matches';
   renderMakeupCards();
 }
 
 function setMakeupDate(id, val) {
-  const k = 'nhda_makeup_' + makeupMatches[id - 1].storeKey; try { if (val) localStorage.setItem(k, val); else localStorage.removeItem(k); } catch {}
-  makeupMatches[id - 1].assignedDate = val;
-  renderMakeupCards();
+  const m = makeupMatches[id - 1]; if (!m) return;
+  saveOverride(m.key, m.fromSheet ? { makeupDate: val } : { postponed: true, makeupDate: val });
 }
 
 function renderMakeupCards() {
   const el = document.getElementById('makeup-content');
-  if (!makeupMatches.length) { el.innerHTML = '<div class="no-makeup-msg">🎯 Nothing postponed — every match is on the board</div>'; return; }
+  if (!makeupMatches.length) { el.innerHTML = '<div class="no-makeup-msg">🎯 Nothing postponed — every match is on the board<br><span style="text-transform:none;letter-spacing:0.02em">Mark a match Postponed on the Schedule tab and it shows up here.</span></div>'; return; }
   let html = '';
   for (const m of makeupMatches) {
     const hn = m.home ? (teamNames[m.home] || m.home) : 'TBD';
@@ -1217,7 +1272,7 @@ function showError(id, msg) {
 // ─────────────────────────────────────────────
 async function init() {
   try {
-    const [scheduleRows, formatRows] = await Promise.all([fetchCSV(SCHEDULE_URL), fetchCSV(FORMAT_URL)]);
+    const [scheduleRows, formatRows] = await Promise.all([fetchCSV(SCHEDULE_URL), fetchCSV(FORMAT_URL), loadOverrides()]);
     window._scheduleRows = scheduleRows;
     renderStandings(scheduleRows);
     renderSchedule(scheduleRows);
