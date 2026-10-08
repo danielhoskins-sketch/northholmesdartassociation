@@ -344,6 +344,20 @@
   .contact-btn:active { transform: scale(0.92); }
   @media (hover: hover) { .contact-card:hover { border-color: var(--gold-dim); transform: translateX(3px); } .contact-btn:hover { transform: scale(1.12); filter: brightness(1.15); } }
 
+
+  .contact-grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+  @media (min-width: 760px) { .contact-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1100px) { .contact-grid { grid-template-columns: repeat(3, 1fr); } }
+  .contact-team { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.35); align-self: start; }
+  .contact-team-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 13px 14px 15px; background: linear-gradient(180deg,#2a1f15,#1c150f); position: relative; }
+  .contact-team-head::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--ring); }
+  .contact-team-sub { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-top: 3px; }
+  .contact-team-board { width: 32px; height: 32px; flex-shrink: 0; opacity: 0.8; }
+  .contact-team-body { padding: 4px 0; }
+  .contact-team .contact-card { background: none; border: none; border-bottom: 1px dashed var(--border); border-radius: 0; box-shadow: none; margin: 0; padding: 12px 14px; }
+  .contact-team .contact-card:last-child { border-bottom: none; }
+  @media (hover: hover) { .contact-team .contact-card:hover { transform: none; background: rgba(214,164,67,0.05); } }
+
   /* TEAMS */
   .teams-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
   @media (min-width: 600px) { .teams-grid { grid-template-columns: repeat(2,1fr); } }
@@ -1572,9 +1586,15 @@ function renderContacts() {
     const roster = teamRosters[g.tk] || [];
     const list = g.list.filter(c => match(c, g.tk)).sort((a, b) => roster.findIndex(p => norm(p) === norm(a.name)) - roster.findIndex(p => norm(p) === norm(b.name)));
     if (!list.length) continue;
-    html += `<div class="contact-group"><div class="schedule-date-header">${esc(teamNames[g.tk] || g.tk)}</div>${list.map(c => contactCard(c, norm(c.name) === norm(teamCaptains[g.tk] || ''))).join('')}</div>`;
+    html += `<div class="contact-team">
+      <div class="contact-team-head">
+        <div><div class="team-card-name">${esc(teamNames[g.tk] || g.tk)}</div><div class="contact-team-sub">${list.length} player${list.length === 1 ? '' : 's'}</div></div>
+        <svg class="contact-team-board board-svg" viewBox="0 0 200 200" aria-hidden="true"><use href="#dartboard"/></svg>
+      </div>
+      <div class="contact-team-body">${list.map(c => contactCard(c, norm(c.name) === norm(teamCaptains[g.tk] || ''))).join('')}</div>
+    </div>`;
   }
-  el.innerHTML = html || `<div class="no-makeup-msg">No one matches “${esc(q)}”</div>`;
+  el.innerHTML = html ? `<div class="contact-grid">${html}</div>` : `<div class="no-makeup-msg">No one matches “${esc(q)}”</div>`;
 }
 async function loadContacts() {
   try { contacts = parseContacts(await fetchCSV(CONTACTS_URL)); renderContacts(); }
