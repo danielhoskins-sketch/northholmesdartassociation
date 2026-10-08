@@ -143,7 +143,7 @@
   .modal-match-result.upcoming-future { color: var(--gold); }
 
   /* BOTTOM NAV */
-  #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; background: linear-gradient(180deg,#1c150f,#0f0c09); border-top: 1px solid #3a2d1f; box-shadow: 0 -6px 18px rgba(0,0,0,0.5); display: none; grid-template-columns: repeat(7,1fr); padding-bottom: var(--safe-bottom); height: calc(var(--bottom-nav-h) + var(--safe-bottom)); }
+  #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; background: linear-gradient(180deg,#1c150f,#0f0c09); border-top: 1px solid #3a2d1f; box-shadow: 0 -6px 18px rgba(0,0,0,0.5); display: none; grid-template-columns: repeat(6,1fr); padding-bottom: var(--safe-bottom); height: calc(var(--bottom-nav-h) + var(--safe-bottom)); }
   .tab-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 6px 2px; cursor: pointer; color: var(--text-dim); transition: color 0.15s; font-family: 'Barlow Condensed', sans-serif; font-size: 0.56rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; -webkit-tap-highlight-color: transparent; position: relative; }
   .tab-btn svg { width: 20px; height: 20px; transition: transform 0.15s; }
   .tab-btn.active { color: var(--cream); }
@@ -151,46 +151,7 @@
   .tab-btn.active::before { content: ''; position: absolute; top: -1px; left: 18%; right: 18%; height: 3px; background: linear-gradient(90deg, var(--red) 0 33%, #000 33% 36%, var(--green) 36% 64%, #000 64% 67%, var(--red) 67%); border-radius: 0 0 2px 2px; }
   .tab-btn:hover { color: var(--text); }
   .tab-btn:active { color: var(--gold-light); }
-  .tab-btn.spotify:hover { color: #1db954; }
-  .tab-btn.spotify:active { color: #1ed760; }
   @media (min-width: 768px) { .tab-btn { font-size: 0.66rem; } }
-
-  /* SPOTIFY MODAL */
-  #spotify-modal-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.78); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-  #spotify-modal-overlay.open { display: flex; align-items: flex-end; }
-  @media (min-width: 600px) { #spotify-modal-overlay.open { align-items: center; justify-content: center; } }
-  #spotify-modal { background: var(--bg); border-top: 1px solid var(--border); border-radius: 18px 18px 0 0; width: 100%; max-height: 92vh; overflow-y: auto; animation: slideUp 0.28s cubic-bezier(0.32,0.72,0,1) both; padding-bottom: var(--safe-bottom); }
-  @media (min-width: 600px) { #spotify-modal { border-radius: 8px; max-width: 500px; max-height: 88vh; border: 1px solid var(--border); animation: fadeUp 0.25s ease both; padding-bottom: 0; } }
-  .spotify-modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 0; }
-  .spotify-modal-header { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); }
-  .spotify-modal-icon { width: 38px; height: 38px; background: #1db954; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .spotify-modal-icon svg { width: 20px; height: 20px; stroke: #000; }
-  .spotify-modal-title { font-family: 'Alfa Slab One', serif; font-size: 1.25rem; letter-spacing: 0.03em; color: var(--cream); line-height: 1; }
-  .spotify-modal-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 3px; }
-  .spotify-modal-close { margin-left: auto; background: none; border: none; color: var(--text-dim); font-size: 1.1rem; cursor: pointer; padding: 6px; flex-shrink: 0; }
-  .sp-tabs { display: flex; border-bottom: 1px solid var(--border); }
-  .sp-tab { flex: 1; padding: 11px 6px; font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; border: none; border-bottom: 2px solid transparent; margin-bottom: -1px; background: none; cursor: pointer; color: var(--text-dim); transition: color 0.15s; }
-  .sp-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
-  .sp-player-wrap { padding: 16px; }
-  .sp-search-wrap { padding: 14px 16px; }
-  .sp-search-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; padding: 11px 14px; outline: none; -webkit-appearance: none; transition: border-color 0.2s; }
-  .sp-search-input:focus { border-color: var(--gold-dim); }
-  .sp-results { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; min-height: 48px; }
-  .sp-track { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; }
-  .sp-track img { width: 40px; height: 40px; border-radius: 3px; flex-shrink: 0; object-fit: cover; }
-  .sp-track-img-placeholder { width: 40px; height: 40px; border-radius: 3px; background: var(--surface2); flex-shrink: 0; }
-  .sp-track-info { flex: 1; min-width: 0; }
-  .sp-track-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.92rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .sp-track-artist { font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
-  .sp-add-btn { background: #1db954; color: #000; border: none; border-radius: 4px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 10px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, color 0.15s; white-space: nowrap; min-width: 48px; text-align: center; }
-  .sp-add-btn:active { background: #1ed760; }
-  .sp-add-btn.added { background: rgba(47,168,102,0.15); color: var(--green-light); border: 1px solid rgba(47,168,102,0.3); cursor: default; }
-  .sp-add-btn.loading { opacity: 0.5; cursor: default; }
-  .sp-empty { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; color: var(--text-dim); text-align: center; padding: 16px 0; letter-spacing: 0.05em; }
-  .sp-error-msg { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; color: var(--red-soft); background: rgba(208,18,43,0.08); border: 1px solid rgba(208,18,43,0.25); border-radius: 4px; padding: 10px 12px; margin-top: 10px; line-height: 1.4; display: none; }
-  .sp-footer { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px 14px; border-top: 1px solid var(--border); margin-top: 4px; }
-  .sp-user-info { font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
-  .sp-user-dot { width: 6px; height: 6px; border-radius: 50%; background: #1db954; }
 
   /* LOADING / ERROR */
   .loading-state { text-align: center; padding: 50px 20px; }
@@ -539,10 +500,6 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
     Rules
   </button>
-  <button class="tab-btn spotify" onclick="openSpotifyModal()" style="color:var(--text-dim)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 11.5c2.5-1 5.5-.8 7.5.5"/><path d="M7 14.5c3-1.3 6.5-1 9 .8"/><path d="M9.5 8.5c2-.7 5-.5 7 1"/></svg>
-    Playlist
-  </button>
 </nav>
 
 <script>
@@ -553,16 +510,6 @@
 const SCHEDULE_URL = 'https://docs.google.com/spreadsheets/d/118o-iPzoDMT0ckZMnK8YFS_r_1dgXU7qCzspJOahIa4/export?format=csv&gid=1613193003';
 const FORMAT_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS4bnxtDfeQH0mSZIbA-L_rJOTFif1UwR4b7sd6GdA5rZhyGJTg7CkIIW78i_nMHsRPOvj0h2Uqevgh/pub?gid=1203791838&single=true&output=csv';
 const PROXY = 'https://corsproxy.io/?url=';
-
-// ─────────────────────────────────────────────
-// SPOTIFY CONFIG
-// Step 1: Go to https://developer.spotify.com/dashboard
-// Step 2: Create an app, add Redirect URI:
-//         https://northholmesdartassociation.com/
-// Step 3: Paste your Client ID below
-// ─────────────────────────────────────────────
-const SPOTIFY_CLIENT_ID   = '9e0f40d98e6c42c3b70887881e7eca74';
-const SPOTIFY_PLAYLIST_ID = '3Njc1DbxO8o9PWXyfTuJW7';
 
 // ─────────────────────────────────────────────
 // SEASON + TEAM DATA  (update these each season)
@@ -1305,137 +1252,8 @@ function closeTeamModal(evt) {
   document.body.style.overflow = '';
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeTeamModal(null); closeSpotifyModal(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeTeamModal(null); } });
 
-// ─────────────────────────────────────────────
-// SPOTIFY — BACKEND-DRIVEN
-// All token logic lives in /.netlify/functions/spotify-add
-// Members search and add with no login required
-// ─────────────────────────────────────────────
-let _spToken = null, _spExpiry = 0;
-
-async function spGetToken() {
-  if (_spToken && Date.now() < _spExpiry - 60000) return _spToken;
-  try {
-    const res = await fetch('/.netlify/functions/spotify-add');
-    const data = await res.json();
-    if (data.access_token) {
-      _spToken  = data.access_token;
-      _spExpiry = Date.now() + (data.expires_in || 3600) * 1000;
-      return _spToken;
-    }
-  } catch(e) { console.error('spGetToken error:', e); }
-  return null;
-}
-
-let spSearchTimer = null;
-const spAdded = new Set();
-
-async function spSearch(query) {
-  const el = document.getElementById('sp-results'); if (!el) return;
-  if (!query.trim()) { el.innerHTML = `<div class="sp-empty">Type to search Spotify</div>`; return; }
-  el.innerHTML = `<div class="sp-empty">Searching…</div>`;
-  const token = await spGetToken();
-  if (!token) { el.innerHTML = `<div class="sp-empty">Could not connect — try again shortly</div>`; return; }
-  try {
-    const r = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=6`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const data = await r.json();
-    const tracks = data.tracks?.items || [];
-    if (!tracks.length) { el.innerHTML = `<div class="sp-empty">No results for "${query}"</div>`; return; }
-    el.innerHTML = tracks.map(t => {
-      const img    = t.album?.images?.[2]?.url || t.album?.images?.[0]?.url || '';
-      const name   = t.name || '';
-      const artist = t.artists?.map(a => a.name).join(', ') || '';
-      const uri    = t.uri;
-      const btnId  = 'spbtn-' + t.id;
-      const added  = spAdded.has(uri);
-      return `<div class="sp-track">
-        ${img ? `<img src="${img}" alt="">` : `<div class="sp-track-img-placeholder"></div>`}
-        <div class="sp-track-info">
-          <div class="sp-track-name">${name}</div>
-          <div class="sp-track-artist">${artist}</div>
-        </div>
-        <button id="${btnId}" class="sp-add-btn${added?' added':''}" onclick="spAddTrack('${uri}','${btnId}')">${added?'✓ Added':'Add'}</button>
-      </div>`;
-    }).join('');
-  } catch(e) { el.innerHTML = `<div class="sp-empty">Search failed — try again</div>`; }
-}
-
-async function spAddTrack(uri, btnId) {
-  const btn = document.getElementById(btnId);
-  if (!btn || btn.classList.contains('added') || btn.classList.contains('loading')) return;
-  btn.classList.add('loading'); btn.textContent = '…';
-  try {
-    const res = await fetch('/.netlify/functions/spotify-add', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uri }),
-    });
-    btn.classList.remove('loading');
-    if (res.ok) {
-      spAdded.add(uri); btn.classList.add('added'); btn.textContent = '✓ Added'; spClearError();
-    } else {
-      const err = await res.json().catch(() => ({}));
-      console.error('Add track failed:', res.status, err);
-      btn.textContent = 'Retry';
-      spShowError(err.error || `Error ${res.status} — try again`);
-    }
-  } catch(e) {
-    btn.classList.remove('loading'); btn.textContent = 'Retry';
-    spShowError('Network error — check connection and try again');
-  }
-}
-
-function spShowError(msg) { const el = document.getElementById('sp-error-msg'); if (el) { el.textContent = msg; el.style.display = 'block'; } }
-function spClearError()   { const el = document.getElementById('sp-error-msg'); if (el) el.style.display = 'none'; }
-
-// ─────────────────────────────────────────────
-// SPOTIFY — MODAL
-// ─────────────────────────────────────────────
-let spTab = 'player';
-function setSpTab(tab) { spTab = tab; renderSpotifyModal(); }
-
-function renderSpotifyModal() {
-  const body = document.getElementById('spotify-modal-body'); if (!body) return;
-  body.innerHTML = `
-    <div class="sp-tabs">
-      <button class="sp-tab${spTab==='player'?' active':''}" onclick="setSpTab('player')">🎵 Player</button>
-      <button class="sp-tab${spTab==='add'?' active':''}" onclick="setSpTab('add')">＋ Add Songs</button>
-    </div>
-    ${spTab === 'player' ? `
-      <div class="sp-player-wrap">
-        <iframe src="https://open.spotify.com/embed/playlist/${SPOTIFY_PLAYLIST_ID}?utm_source=generator&theme=0"
-          width="100%" height="352" frameborder="0"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy" style="border-radius:12px;display:block;"></iframe>
-      </div>
-    ` : `
-      <div class="sp-search-wrap">
-        <input class="sp-search-input" id="sp-search-input" type="text"
-          placeholder="Search for a song or artist…"
-          oninput="clearTimeout(spSearchTimer);spSearchTimer=setTimeout(()=>spSearch(this.value),380)"
-          onkeydown="if(event.key==='Enter'){clearTimeout(spSearchTimer);spSearch(this.value)}">
-        <div class="sp-results" id="sp-results">
-          <div class="sp-empty">Type to search Spotify</div>
-        </div>
-        <div id="sp-error-msg" class="sp-error-msg"></div>
-      </div>
-      <div class="sp-footer">
-        <div class="sp-user-info"><div class="sp-user-dot"></div>Search and add — no login needed</div>
-      </div>
-    `}`;
-  if (spTab === 'add') setTimeout(() => { const el = document.getElementById('sp-search-input'); if (el) el.focus(); }, 60);
-}
-
-function openSpotifyModal() {
-  renderSpotifyModal();
-  document.getElementById('spotify-modal-overlay').classList.add('open');
-}
-function closeSpotifyModal() {
-  document.getElementById('spotify-modal-overlay').classList.remove('open');
-}
 
 let refreshInterval = null;
 
@@ -1545,23 +1363,6 @@ function dismissInstall() { document.getElementById('install-banner').style.disp
       <button class="modal-close" onclick="closeTeamModal(null)">✕</button>
     </div>
     <div class="modal-body" id="modal-body"></div>
-  </div>
-</div>
-
-<div id="spotify-modal-overlay" onclick="if(event.target===this)closeSpotifyModal()">
-  <div id="spotify-modal">
-    <div class="spotify-modal-handle"></div>
-    <div class="spotify-modal-header">
-      <div class="spotify-modal-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 11.5c2.5-1 5.5-.8 7.5.5"/><path d="M7 14.5c3-1.3 6.5-1 9 .8"/><path d="M9.5 8.5c2-.7 5-.5 7 1"/></svg>
-      </div>
-      <div>
-        <div class="spotify-modal-title">NHDA Playlist</div>
-        <div class="spotify-modal-sub">North Holmes Dart Association</div>
-      </div>
-      <button class="spotify-modal-close" onclick="closeSpotifyModal()">✕</button>
-    </div>
-    <div id="spotify-modal-body"></div>
   </div>
 </div>
 
