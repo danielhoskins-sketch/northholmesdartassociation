@@ -84,6 +84,21 @@
   @keyframes partRight { 0% { transform: translateX(0); } 12% { transform: translateX(-1.5%); } 100% { transform: translateX(125%) skewX(-3deg); } }
   @keyframes introBg { to { background: transparent; } }
 
+
+  /* SMOKE after the curtain opens */
+  .smoke { position: absolute; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; }
+  .puff { position: absolute; left: var(--x); top: var(--y); width: var(--s); height: var(--s); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2); border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, rgba(232,226,214,0.75) 0%, rgba(205,198,186,0.45) 30%, rgba(170,162,150,0.18) 55%, rgba(150,142,130,0) 70%);
+    filter: blur(14px); opacity: 0; transform: scale(0.35); will-change: transform, opacity; }
+  #intro.play .puff { animation: smokeBillow 3.5s cubic-bezier(.2,.6,.3,1) calc(2.7s + var(--d)) forwards; }
+  @keyframes smokeBillow {
+    0%   { opacity: 0; transform: translate(0,0) scale(0.35) rotate(0deg); }
+    14%  { opacity: 0.95; }
+    50%  { opacity: 0.85; }
+    75%  { opacity: 0.45; }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.9) rotate(25deg); }
+  }
+
   /* PASSWORD GATE */
   #password-gate { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 24px; padding-top: calc(24px + var(--safe-top));
     background: radial-gradient(circle at 50% 38%, #2a1f14 0%, #120e0a 55%, #070605 100%); }
@@ -248,6 +263,8 @@
   .avg-mini .avg-dart { width: 30px; }
   .avg-mini .avg-val { font-size: 0.72rem; }
   @media (max-width: 420px) { .avg-mini { display: block; } }
+  .pre-darts .avg-dart { opacity: 0; }
+  .pre-darts .avg-bar-fill { transform: scaleX(0); transform-origin: left; }
   .play-darts .avg-bar-fill { animation: barGrow 0.7s cubic-bezier(.3,.8,.3,1) var(--d,0s) both; }
   .play-darts .avg-dart { animation: avgDartIn 0.5s cubic-bezier(.3,.9,.4,1.15) var(--d,0s) both; }
   @keyframes barGrow { from { transform: scaleX(0); transform-origin: left; } to { transform: scaleX(1); transform-origin: left; } }
@@ -613,6 +630,7 @@
 <div id="intro" aria-hidden="true" onclick="endIntro()">
   <div class="curtain left"><div class="curtain-fabric"></div><div class="intro-words"><span>Shoot</span><span>Well</span></div></div>
   <div class="curtain right"><div class="curtain-fabric"></div><div class="intro-words"><span>Shoot</span><span>Best</span></div></div>
+  <div class="smoke" aria-hidden="true"><i class="puff" style="--x:-30%;--y:10%;--dx:-60vw;--dy:-40vh;--s:70vmax;--d:0.00s"></i><i class="puff" style="--x:20%;--y:15%;--dx:40vw;--dy:-55vh;--s:80vmax;--d:0.08s"></i><i class="puff" style="--x:50%;--y:5%;--dx:70vw;--dy:-30vh;--s:65vmax;--d:0.15s"></i><i class="puff" style="--x:80%;--y:12%;--dx:60vw;--dy:-60vh;--s:75vmax;--d:0.05s"></i><i class="puff" style="--x:-5%;--y:40%;--dx:-70vw;--dy:-20vh;--s:60vmax;--d:0.20s"></i><i class="puff" style="--x:35%;--y:45%;--dx:10vw;--dy:-70vh;--s:90vmax;--d:0.12s"></i><i class="puff" style="--x:70%;--y:40%;--dx:80vw;--dy:-25vh;--s:70vmax;--d:0.25s"></i><i class="puff" style="--x:10%;--y:70%;--dx:-40vw;--dy:-50vh;--s:85vmax;--d:0.18s"></i><i class="puff" style="--x:55%;--y:75%;--dx:50vw;--dy:-45vh;--s:80vmax;--d:0.10s"></i><i class="puff" style="--x:90%;--y:70%;--dx:30vw;--dy:-35vh;--s:60vmax;--d:0.22s"></i><i class="puff" style="--x:30%;--y:95%;--dx:-20vw;--dy:-60vh;--s:75vmax;--d:0.28s"></i><i class="puff" style="--x:75%;--y:100%;--dx:20vw;--dy:-55vh;--s:70vmax;--d:0.16s"></i></div>
   <div class="intro-skip">Tap to skip</div>
 </div>
 
@@ -1017,7 +1035,8 @@ function renderStandings(rows) {
   });
   const po=SEASON.playoffs;
   html+=`</tbody></table><p class="playoff-note">Playoffs: #1, #2 &amp; #3 direct to Semis · #4 vs #5 Play-In ${fmtShort(po.playIn)} · Semis ${fmtShort(po.semis)} · Championship ${fmtShort(po.final)}</p>`;
-  document.getElementById('standings-content').innerHTML=html;
+  const sc=document.getElementById('standings-content'); sc.innerHTML=html;
+  if(!renderStandings._done) sc.classList.add('pre-darts');
   if(!renderStandings._done){ renderStandings._done=true; const intro=document.getElementById('intro'); if(!intro||intro.style.display!=='block') playStandingsDarts(); }
 }
 // Average bar with a dart stuck in it as the pointer
@@ -1027,7 +1046,7 @@ function avgBar(pct,avg,i){
 // Replay the darts whenever Standings comes into view
 function playStandingsDarts(){
   const el=document.getElementById('standings-content'); if(!el) return;
-  el.classList.remove('play-darts'); void el.offsetWidth; el.classList.add('play-darts');
+  el.classList.remove('play-darts','pre-darts'); void el.offsetWidth; el.classList.add('play-darts');
   clearTimeout(playStandingsDarts._t); playStandingsDarts._t=setTimeout(()=>el.classList.remove('play-darts'),2600);
 }
 
@@ -1774,7 +1793,7 @@ function playIntro() {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   el.classList.remove('play', 'done'); void el.offsetWidth;
   el.style.display = 'block'; el.classList.add('play');
-  clearTimeout(introTimer); introTimer = setTimeout(endIntro, 3650);
+  clearTimeout(introTimer); introTimer = setTimeout(endIntro, 5500);
 }
 function endIntro() {
   const el = document.getElementById('intro'); if (!el || el.style.display === 'none') return;
