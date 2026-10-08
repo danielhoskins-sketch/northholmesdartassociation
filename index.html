@@ -637,7 +637,7 @@ const PROXY = 'https://corsproxy.io/?url=';
 const SEASON = {
   label: '2026–27',
   makeupNight: '4.9.27',          // M.D.YY, same style as the sheet
-  playoffs: { playIn: '4.23.27', semis: '4.23.27', final: '4.23.27' },
+  playoffs: { playIn: '4.23.27', semis: 'TBA', final: 'TBA' },   // use 'TBA' until a date is set
   dues: '$15 per member'
 };
 const teamNames = { 'Fagen':'Team Fagan', 'Hoskins':'Team Hoskins', 'Byrne':'Team Byrne', 'Williams':'Team Williams', 'Keller':'Team Keller' };
@@ -876,8 +876,8 @@ function renderSchedule(rows) {
     }
     if(g.kind==='playoff'||g.kind==='championship'){
       const isC=g.kind==='championship';
-      html+=`<div class="schedule-group"><div class="schedule-date-header playoff-date">${isC?'🏆 ':''}${when} — ${isC?'Championship':'Playoffs'}</div>
-        <div class="match-card playoff-card" onclick="showSection('playoffs',document.querySelector('[data-section=&quot;playoffs&quot;]'))" style="cursor:pointer;border-color:rgba(214,164,67,0.35)"><div class="match-teams"><span class="match-team" style="color:var(--gold-light);text-align:left">${isC?'Championship Night':'Play-In, Semis &amp; Championship'}</span></div><div class="match-label" style="color:var(--gold)">Bracket →</div></div></div>`;
+      html+=`<div class="schedule-group"><div class="schedule-date-header playoff-date">${isC?'🏆 ':''}${when} — ${isC?'Championship':(SEASON.playoffs.semis===SEASON.playoffs.playIn?'Playoffs':'Play-In')}</div>
+        <div class="match-card playoff-card" onclick="showSection('playoffs',document.querySelector('[data-section=&quot;playoffs&quot;]'))" style="cursor:pointer;border-color:rgba(214,164,67,0.35)"><div class="match-teams"><span class="match-team" style="color:var(--gold-light);text-align:left">${isC?'Championship Night':(SEASON.playoffs.semis===SEASON.playoffs.playIn?'Play-In, Semis &amp; Championship':'Play-In · #4 vs #5 · Semis &amp; Final TBA')}</span></div><div class="match-label" style="color:var(--gold)">Bracket →</div></div></div>`;
       continue;
     }
     if(!g.items.length) continue;
@@ -973,7 +973,9 @@ function renderFormat(rows) {
       <li>Season: <strong>${SEASON.label}</strong></li>
       <li>Teams: <strong>${Object.keys(teamNames).length} teams of 3</strong></li>
       <li>Make-up night: <strong>${formatDate(SEASON.makeupNight)}</strong></li>
-      <li>Playoffs: <strong>${formatDate(SEASON.playoffs.playIn)}</strong></li>
+      <li>Play-In (#4 vs #5): <strong>${formatDate(SEASON.playoffs.playIn)}</strong></li>
+      <li>Semifinals: <strong>${formatDate(SEASON.playoffs.semis)}</strong></li>
+      <li>Championship: <strong>${formatDate(SEASON.playoffs.final)}</strong></li>
       <li>Annual dues: <strong>${SEASON.dues}</strong></li>
     </ul></div>
   </div>`;
