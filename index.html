@@ -225,7 +225,11 @@
   .rank-cell { color: rgba(239,225,191,0.55); }
   .rank-disc { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--red); color: var(--cream); box-shadow: 0 0 0 3px var(--green), 0 0 0 4px #000; font-size: 1.05rem; line-height: 1; }
   .team-name-cell { font-weight: 700; font-size: 1.05rem; letter-spacing: 0.02em; }
-  .team-captain { display: block; font-size: 0.72rem; color: rgba(239,225,191,0.55); font-weight: 500; margin-top: 1px; letter-spacing: 0.04em; }
+  .team-captain { display: block; font-size: 0.74rem; color: rgba(239,225,191,0.6); font-weight: 500; margin-top: 2px; letter-spacing: 0.03em; line-height: 1.35; }
+  .team-captain b { font-weight: 700; color: rgba(239,225,191,0.85); }
+  .team-captain b, .team-captain span { white-space: nowrap; }
+  .standings-table th { white-space: nowrap; }
+  .team-captain i { font-style: normal; color: var(--red-soft); }
   .pts-cell { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: #fff7e3 !important; text-shadow: 0 0 1px rgba(255,255,255,0.6), 0 0 8px rgba(255,255,255,0.12); }
   .record-cell { color: rgba(239,225,191,0.75) !important; font-size: 0.95rem; font-weight: 600; white-space: nowrap; }
   .avg-bar-wrap { display: flex; align-items: center; gap: 8px; min-width: 84px; }
@@ -976,7 +980,7 @@ function renderStandings(rows) {
     const top=anyPlayed&&t.rank<=2;
     html+=`<tr onclick="navigateToTeam('${t.team}')" style="cursor:pointer" title="View ${name}">
       <td class="rank-cell">${top?`<span class="rank-disc">${t.rank}</span>`:t.rank}</td>
-      <td class="team-name-cell">${name}${cap?`<span class="team-captain">${cap}</span>`:''}<div class="avg-mini">${avgBar(pct,t.avg,i)}</div></td>
+      <td class="team-name-cell">${name}<span class="team-captain">${(teamRosters[t.team]||[cap]).filter(Boolean).map(p=>p===cap?`<b>${p}</b>`:`<span>${p}</span>`).join('<i> · </i>')}</span><div class="avg-mini">${avgBar(pct,t.avg,i)}</div></td>
       <td class="record-cell">${t.w}–${t.l}</td>
       <td class="pts-cell" style="text-align:center">${t.pts}</td>
       <td>${avgBar(pct,t.avg,i)}</td>
@@ -1500,7 +1504,7 @@ function renderPlayoffs(scheduleRows) {
           <span style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:${seedColor};min-width:28px;text-align:center">${t.seed}</span>
           <div style="flex:1;min-width:0">
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;color:var(--text);display:flex;align-items:center;flex-wrap:wrap;gap:6px">${t.name} ${badge} ${tbNote}</div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;color:var(--text-muted)">${t.cap}</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;color:var(--text-muted)">${(teamRosters[t.team]||[t.cap]).filter(Boolean).join(' · ')}</div>
           </div>
           <div style="text-align:right;flex-shrink:0">
             <div style="font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:${!isBasement?'var(--gold)':'#555'}">${t.pts} pts</div>
