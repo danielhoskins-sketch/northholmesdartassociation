@@ -9,6 +9,12 @@ const HEADERS = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store
 const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: HEADERS });
 
 export default async (req) => {
+  if (req.method === 'GET') {
+    // Status only — no names or numbers
+    let count = 0, ok = true;
+    try { count = JSON.parse(process.env.NHDA_CONTACTS || '[]').length; } catch { ok = false; }
+    return json({ configured: !!process.env.NHDA_CONTACTS, valid: ok, count });
+  }
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
   let body;
   try { body = await req.json(); } catch { return json({ error: 'Bad request' }, 400); }
