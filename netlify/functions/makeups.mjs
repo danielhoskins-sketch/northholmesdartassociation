@@ -1,10 +1,10 @@
 // netlify/functions/makeups.mjs
 // Shared make-up board for the NHDA site.
-// Stores which matches are postponed and their make-up dates in Netlify Blobs,
-// so every member sees the same make-up schedule.
+// Stores postponements, make-up dates and website-entered scores in Netlify Blobs,
+// so every member sees the same schedule, make-ups and standings.
 //
-//   GET  /api/makeups  → { "<date>|<home>|<away>": { postponed: true, makeupDate: "2027-04-09" }, ... }
-//   POST /api/makeups  ← { pw, key, postponed?, makeupDate? }
+//   GET  /api/makeups  → { "<date>|<home>|<away>": { postponed, makeupDate, score: { h, a } }, ... }
+//   POST /api/makeups  ← { pw, key, postponed?, makeupDate?, score? }   (score: { h, a } or null to clear)
 
 import { getStore } from '@netlify/blobs';
 
@@ -43,7 +43,18 @@ export default async (req) => {
     entry.makeupDate = d;
   }
 
-  if (!entry.postponed && !entry.makeupDate) delete data[key];
+  if ('score' in body) {
+    const sc = body.score;
+    if (sc === null) delete entry.score;
+    else {
+      const h = sc && sc.h, a = sc && sc.a;
+      const ok = Number.isInteger(h) && Number.isInteger(a) && h >= 0 && a >= 0 && h <= 5 && a <= 5 && h + a === 5;
+      if (!ok) return json({ error: 'Scores must be 0–5 and add up to 5' }, 400);
+      entry.score = { h, a, at: new Date().toISOString() };
+    }
+  }
+
+  if (!entry.postponed && !entry.makeupDate && !entry.score) delete data[key];
   else data[key] = entry;
 
   await store.setJSON(SEASON_KEY, data);

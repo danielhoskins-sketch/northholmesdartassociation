@@ -234,6 +234,34 @@
   #toast.err { background: var(--red); }
   #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
+
+  /* SCORE ENTRY */
+  .score-btn { flex-shrink: 0; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--cream); background: var(--green); border: 1px solid #0a5f32; border-radius: 3px; padding: 6px 10px; box-shadow: 0 2px 0 #06401f; transition: transform 0.1s, filter 0.15s; }
+  .score-btn:hover { filter: brightness(1.15); }
+  .score-btn:active { transform: translateY(2px); box-shadow: 0 0 0 #06401f; }
+  .score-btn.edit { background: rgba(0,0,0,0.35); color: var(--text-muted); border-color: var(--border); box-shadow: none; }
+  .score-btn.edit:hover { color: var(--gold); border-color: var(--gold-dim); }
+  @media (max-width: 420px) { .score-btn { order: 4; } }
+  #score-modal-overlay { display: none; position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.78); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  #score-modal-overlay.open { display: flex; align-items: flex-end; }
+  @media (min-width: 600px) { #score-modal-overlay.open { align-items: center; justify-content: center; } }
+  #score-modal { background: var(--bg); border-top: 1px solid var(--border); border-radius: 18px 18px 0 0; width: 100%; max-height: 92vh; overflow-y: auto; animation: slideUp 0.28s cubic-bezier(0.32,0.72,0,1) both; padding-bottom: var(--safe-bottom); }
+  @media (min-width: 600px) { #score-modal { border-radius: 8px; max-width: 460px; border: 1px solid var(--border); animation: fadeUp 0.25s ease both; padding-bottom: 0; } }
+  .score-teams { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-family: 'Alfa Slab One', serif; font-size: 1rem; color: var(--cream); margin-bottom: 14px; }
+  .score-teams span:last-child { text-align: right; }
+  .score-teams-vs { font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; color: var(--text-dim); }
+  .score-chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .score-chip { cursor: pointer; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 4px; padding: 10px 4px 8px; background: var(--chalk); border: 1px solid #2a3a30; border-radius: 4px; color: var(--cream);
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; line-height: 1; box-shadow: inset 0 0 12px rgba(0,0,0,0.5); transition: transform 0.15s cubic-bezier(.2,1.6,.4,1), border-color 0.15s, box-shadow 0.15s; }
+  .score-chip i { font-style: normal; color: rgba(239,225,191,0.35); font-size: 1.1rem; }
+  .score-chip em { flex-basis: 100%; text-align: center; font-style: normal; font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(239,225,191,0.5); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .score-chip:hover { border-color: var(--gold-dim); transform: translateY(-2px); }
+  .score-chip.on { border-color: var(--gold); box-shadow: inset 0 0 12px rgba(0,0,0,0.5), 0 0 0 2px var(--gold); transform: scale(1.04); }
+  .score-chip.on em { color: var(--gold-light); }
+  .score-note { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; color: var(--text-muted); text-align: center; margin: 14px 0 2px; letter-spacing: 0.03em; }
+  #score-save:disabled { opacity: 0.4; cursor: default; }
+
   /* TEAMS */
   .teams-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
   @media (min-width: 600px) { .teams-grid { grid-template-columns: repeat(2,1fr); } }
@@ -648,14 +676,91 @@ async function saveOverride(key, patch) {
     if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.status);
     overrides = await r.json();
     rerenderMakeupViews();
-    flashToast(patch.postponed === false ? 'Back on the schedule' : 'makeupDate' in patch ? 'Make-up date saved' : 'Postponed · added to Make-Ups');
+    flashToast('score' in patch ? (patch.score ? 'Score saved · standings updated' : 'Score cleared') : patch.postponed === false ? 'Back on the schedule' : 'makeupDate' in patch ? 'Make-up date saved' : 'Postponed · added to Make-Ups');
   } catch (e) {
     overrides = JSON.parse(before); rerenderMakeupViews();
     flashToast('Could not save — check your connection and try again', true);
   }
 }
+// Merge website-entered scores into the sheet rows, then recompute the
+// standings columns (Team, GP, W, L, Pts, Avg, Rank) the rest of the page reads.
+// Ranking: wins, then total points, then head-to-head points.
+let sheetPPDKeys = new Set();
+let matchIndex = {};
+function mergeRows(sheet) {
+  const rows = sheet.map(r => { const c = r.slice(); while (c.length < 12) c.push(''); return c; });
+  sheetPPDKeys = new Set(); matchIndex = {};
+  const results = [];
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i]; const d = (r[0] || '').trim();
+    if (!d || rowKind(d) !== 'match') continue;
+    const home = (r[1] || '').trim(), away = (r[3] || '').trim(); if (!home || !away) continue;
+    const key = mkKey(d, home, away);
+    if (isPPD(r[2]) || isPPD(r[4])) sheetPPDKeys.add(key);
+    const sc = overrides[key] && overrides[key].score;
+    if (sc) { r[2] = String(sc.h); r[4] = String(sc.a); }
+    const hp = parseInt(r[2]), ap = parseInt(r[4]);
+    const scored = Number.isFinite(hp) && Number.isFinite(ap);
+    matchIndex[key] = { key, date: d, home, away, h: scored ? hp : null, a: scored ? ap : null, site: !!sc };
+    if (scored) results.push({ home, away, h: hp, a: ap });
+  }
+  const order = Object.keys(teamNames);
+  const st = {}; order.forEach(t => st[t] = { team: t, gp: 0, w: 0, l: 0, pts: 0 });
+  const h2h = {};
+  for (const m of results) {
+    for (const [me, them, mp, tp] of [[m.home, m.away, m.h, m.a], [m.away, m.home, m.a, m.h]]) {
+      const s = st[me] || (st[me] = { team: me, gp: 0, w: 0, l: 0, pts: 0 });
+      s.gp++; s.pts += mp; if (mp > tp) s.w++; else if (mp < tp) s.l++;
+      (h2h[me] = h2h[me] || {})[them] = ((h2h[me] || {})[them] || 0) + mp;
+    }
+  }
+  const idx = t => { const i = order.indexOf(t); return i < 0 ? 99 : i; };
+  const list = Object.values(st).sort((x, y) => (y.w - x.w) || (y.pts - x.pts)
+    || (((h2h[y.team] || {})[x.team] || 0) - ((h2h[x.team] || {})[y.team] || 0)) || (idx(x.team) - idx(y.team)));
+  for (let i = 1; i < rows.length; i++) for (let c = 5; c <= 11; c++) rows[i][c] = '';
+  list.forEach((s, i) => {
+    let r = rows[i + 1]; if (!r) { r = rows[i + 1] = ['', '', '', '', '', '', '', '', '', '', '', '']; }
+    r[5] = s.team; r[6] = String(s.gp); r[7] = String(s.w); r[8] = String(s.l); r[9] = String(s.pts);
+    r[10] = String(s.gp ? s.pts / s.gp : 0); r[11] = String(i + 1);
+  });
+  return rows;
+}
+function renderAll() {
+  if (!window._sheetRows) return;
+  const rows = mergeRows(window._sheetRows);
+  window._scheduleRows = rows;
+  renderStandings(rows); renderSchedule(rows); renderTeams(rows); renderMakeup(rows); renderPlayoffs(rows);
+}
+
+// ── Score entry ──
+let scoreKey = null, scorePick = null;
+function openScore(key) {
+  const m = matchIndex[key]; if (!m) return;
+  scoreKey = key; scorePick = m.h !== null ? m.h : null;
+  const hn = teamNames[m.home] || m.home, an = teamNames[m.away] || m.away;
+  document.getElementById('score-sub').textContent = formatDate(m.date);
+  document.getElementById('score-home').textContent = hn;
+  document.getElementById('score-away').textContent = an;
+  const chips = [5, 4, 3, 2, 1, 0].map(hp => `<button class="score-chip${scorePick === hp ? ' on' : ''}" data-h="${hp}" onclick="pickScore(${hp})"><span>${hp}</span><i>–</i><span>${5 - hp}</span><em>${hp > 2 ? hn : an} win</em></button>`).join('');
+  document.getElementById('score-chips').innerHTML = chips;
+  const note = m.site ? 'Entered on the website' : (m.h !== null ? 'From the league sheet · saving here overrides it' : 'Best of 5 games · pick the final score');
+  document.getElementById('score-note').textContent = note;
+  document.getElementById('score-clear').style.display = m.site ? '' : 'none';
+  document.getElementById('score-save').disabled = scorePick === null;
+  document.getElementById('score-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function pickScore(hp) {
+  scorePick = hp;
+  document.querySelectorAll('.score-chip').forEach(b => b.classList.toggle('on', +b.dataset.h === hp));
+  document.getElementById('score-save').disabled = false;
+}
+function closeScore() { document.getElementById('score-modal-overlay').classList.remove('open'); document.body.style.overflow = ''; scoreKey = null; }
+function saveScore() { if (scoreKey === null || scorePick === null) return; const k = scoreKey; closeScore(); saveOverride(k, { score: { h: scorePick, a: 5 - scorePick } }); }
+function clearScore() { if (scoreKey === null) return; const k = scoreKey; closeScore(); saveOverride(k, { score: null }); }
+
 function setMatchStatus(key, value) { saveOverride(key, value === 'ppd' ? { postponed: true } : { postponed: false, makeupDate: '' }); }
-function rerenderMakeupViews() { if (window._scheduleRows) { renderSchedule(window._scheduleRows); renderMakeup(window._scheduleRows); } }
+function rerenderMakeupViews() { renderAll(); }
 function flashToast(msg, isErr) {
   let t = document.getElementById('toast');
   if (!t) { t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t); }
@@ -787,13 +892,14 @@ function renderSchedule(rows) {
       if(!scored&&(sheetPPD||overrides[key]?.postponed)){
         const sel=sheetPPD?`<span class="status-lock" title="Marked PPD in the league sheet">PPD in sheet</span>`
           :`<select class="status-select ppd" onclick="event.stopPropagation()" onchange="setMatchStatus('${key}',this.value)" aria-label="Match status"><option value="sched">Scheduled</option><option value="ppd" selected>Postponed</option></select>`;
-        html+=`<div class="match-card upcoming" onclick="goToMakeup('${m.home}','${m.away}')" style="cursor:pointer" title="View make-up match"><div class="match-teams"><span class="match-team home">${hn}</span><span class="match-vs" style="color:var(--red-soft)">VS</span><span class="match-team away">${an}</span></div><div class="match-score" style="color:var(--red-soft);font-size:0.95rem">PPD</div>${sel}</div>`;
+        html+=`<div class="match-card upcoming" onclick="goToMakeup('${m.home}','${m.away}')" style="cursor:pointer" title="View make-up match"><div class="match-teams"><span class="match-team home">${hn}</span><span class="match-vs" style="color:var(--red-soft)">VS</span><span class="match-team away">${an}</span></div><div class="match-score" style="color:var(--red-soft);font-size:0.95rem">PPD</div>${sel}<button class="score-btn" onclick="event.stopPropagation();openScore('${key}')" title="Enter make-up score">+ Score</button></div>`;
         continue;
       }
       const statusSel=`<select class="status-select" onclick="event.stopPropagation()" onchange="setMatchStatus('${key}',this.value)" aria-label="Match status"><option value="sched" selected>Scheduled</option><option value="ppd">Postponed</option></select>`;
       const has=m.hPts!==''&&m.aPts!=='', hN=parseInt(m.hPts)||0, aN=parseInt(m.aPts)||0;
-      if(has){html+=`<div class="match-card completed"><div class="match-teams"><span class="match-team home">${hn}</span><span class="match-vs">VS</span><span class="match-team away">${an}</span></div><div class="match-score"><span class="${hN>aN?'score-winner':'score-loser'}">${m.hPts}</span><span class="dash">–</span><span class="${aN>hN?'score-winner':'score-loser'}">${m.aPts}</span></div><div class="match-label">Final</div></div>`;}
-      else{const fut=isFutureDate(g.date);html+=`<div class="match-card upcoming${fut?' future-match':''}"><div class="match-teams"><span class="match-team home" style="color:var(--text)">${hn}</span><span class="match-vs" style="color:${fut?'var(--gold)':'var(--red-soft)'}">VS</span><span class="match-team away" style="color:var(--text)">${an}</span></div><div class="match-score" style="color:${fut?'var(--gold)':'var(--red-soft)'};font-size:0.95rem">${fut?'—':'TBD'}</div>${statusSel}</div>`;}
+      const scoreBtn=`<button class="score-btn${has?' edit':''}" onclick="event.stopPropagation();openScore('${key}')" title="${has?'Edit score':'Enter score'}">${has?'✎ Edit':'+ Score'}</button>`;
+      if(has){html+=`<div class="match-card completed"><div class="match-teams"><span class="match-team home">${hn}</span><span class="match-vs">VS</span><span class="match-team away">${an}</span></div><div class="match-score"><span class="${hN>aN?'score-winner':'score-loser'}">${m.hPts}</span><span class="dash">–</span><span class="${aN>hN?'score-winner':'score-loser'}">${m.aPts}</span></div>${scoreBtn}</div>`;}
+      else{const fut=isFutureDate(g.date);html+=`<div class="match-card upcoming${fut?' future-match':''}"><div class="match-teams"><span class="match-team home" style="color:var(--text)">${hn}</span><span class="match-vs" style="color:${fut?'var(--gold)':'var(--red-soft)'}">VS</span><span class="match-team away" style="color:var(--text)">${an}</span></div><div class="match-score" style="color:${fut?'var(--gold)':'var(--red-soft)'};font-size:0.95rem">${fut?'—':'TBD'}</div>${statusSel}${scoreBtn}</div>`;}
     }
     if(bye.length) html+=`<div class="bye-note">Bye · ${bye.map(t=>teamNames[t]||t).join(', ')}</div>`;
     html+=`</div>`;
@@ -888,9 +994,9 @@ function renderMakeup(scheduleRows) {
     const hRaw = (r[2] || '').trim(), aRaw = (r[4] || '').trim();
     if (!home) continue;
     const key = mkKey(originalDate, home, away);
-    const sheetPPD = isPPD(hRaw) || isPPD(aRaw);
+    const sheetPPD = sheetPPDKeys.has(key);
     if (!sheetPPD && !overrides[key]?.postponed) continue;
-    const scored = !sheetPPD && hRaw !== '' && aRaw !== '';
+    const scored = hRaw !== '' && aRaw !== '' && !isPPD(hRaw) && !isPPD(aRaw);
     makeupMatches.push({ id: makeupMatches.length + 1, key, originalDate, home, away,
       hPts: scored ? hRaw : '', aPts: scored ? aRaw : '', fromSheet: sheetPPD,
       assignedDate: overrides[key]?.makeupDate || '' });
@@ -1022,8 +1128,8 @@ function renderPlayoffs(scheduleRows) {
 
   // Sort: pts → wins → head-to-head
   rawStandings.sort((a, b) => {
-    if (b.pts !== a.pts) return b.pts - a.pts;
     if (b.w !== a.w) return b.w - a.w;
+    if (b.pts !== a.pts) return b.pts - a.pts;
     const h2hA = h2h[a.team] && h2h[a.team][b.team];
     const h2hB = h2h[b.team] && h2h[b.team][a.team];
     if (h2hA && h2hB && h2hA.myPts !== h2hB.myPts) return h2hB.myPts - h2hA.myPts;
@@ -1273,13 +1379,9 @@ function showError(id, msg) {
 async function init() {
   try {
     const [scheduleRows, formatRows] = await Promise.all([fetchCSV(SCHEDULE_URL), fetchCSV(FORMAT_URL), loadOverrides()]);
-    window._scheduleRows = scheduleRows;
-    renderStandings(scheduleRows);
-    renderSchedule(scheduleRows);
-    renderTeams(scheduleRows);
+    window._sheetRows = scheduleRows;
+    renderAll();
     renderFormat(formatRows);
-    renderMakeup(scheduleRows);
-    renderPlayoffs(scheduleRows);
     document.getElementById('live-indicator').style.display='inline-flex';
   } catch(err) {
     console.error(err);
@@ -1384,7 +1486,7 @@ function closeTeamModal(evt) {
   document.body.style.overflow = '';
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeTeamModal(null); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeTeamModal(null); closeScore(); } });
 
 
 let refreshInterval = null;
@@ -1498,5 +1600,23 @@ function dismissInstall() { document.getElementById('install-banner').style.disp
   </div>
 </div>
 
+<div id="score-modal-overlay" onclick="if(event.target===this)closeScore()">
+  <div id="score-modal" role="dialog" aria-label="Enter score">
+    <div class="modal-drag-handle"></div>
+    <div class="modal-header">
+      <div><div class="modal-team-name">Enter Score</div><div class="modal-team-sub" id="score-sub"></div></div>
+      <button class="modal-close" onclick="closeScore()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="score-teams"><span id="score-home"></span><span class="score-teams-vs">vs</span><span id="score-away"></span></div>
+      <div class="score-chips" id="score-chips"></div>
+      <div class="score-note" id="score-note"></div>
+      <div class="bracket-detail-btns">
+        <button class="bracket-save-btn" id="score-save" onclick="saveScore()">Save Score</button>
+        <button class="bracket-clear-btn" id="score-clear" onclick="clearScore()">Clear</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
