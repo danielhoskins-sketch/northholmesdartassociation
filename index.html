@@ -183,7 +183,7 @@
   .modal-match-result.upcoming-future { color: var(--gold); }
 
   /* BOTTOM NAV */
-  #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; background: linear-gradient(180deg,#1c150f,#0f0c09); border-top: 1px solid #3a2d1f; box-shadow: 0 -6px 18px rgba(0,0,0,0.5); display: none; grid-template-columns: repeat(7,1fr); padding-bottom: var(--safe-bottom); height: calc(var(--bottom-nav-h) + var(--safe-bottom)); }
+  #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; background: linear-gradient(180deg,#1c150f,#0f0c09); border-top: 1px solid #3a2d1f; box-shadow: 0 -6px 18px rgba(0,0,0,0.5); display: none; grid-template-columns: repeat(6,1fr); padding-bottom: var(--safe-bottom); height: calc(var(--bottom-nav-h) + var(--safe-bottom)); }
   .tab-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 6px 2px; cursor: pointer; color: var(--text-dim); transition: color 0.15s; font-family: 'Barlow Condensed', sans-serif; font-size: 0.56rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; -webkit-tap-highlight-color: transparent; position: relative; }
   .tab-btn svg { width: 20px; height: 20px; transition: transform 0.15s; }
   .tab-btn.active { color: var(--cream); }
@@ -357,6 +357,18 @@
   .contact-team .contact-card { background: none; border: none; border-bottom: 1px dashed var(--border); border-radius: 0; box-shadow: none; margin: 0; padding: 12px 14px; }
   .contact-team .contact-card:last-child { border-bottom: none; }
   @media (hover: hover) { .contact-team .contact-card:hover { transform: none; background: rgba(214,164,67,0.05); } }
+
+
+  /* Roster rows with contact info (Teams tab + team popup) */
+  .team-roster-list li.player-row, .modal-roster li.player-row { align-items: center; gap: 10px; padding: 10px 0; }
+  .player-info { flex: 1; min-width: 0; }
+  .player-name { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; color: var(--text); }
+  .player-name .captain-star, .player-name .modal-cap-tag { margin-left: 0; }
+  .player-row .contact-line { font-size: 0.86rem; }
+  .player-row .contact-line.email { font-size: 0.78rem; }
+  .player-row .contact-btn { width: 34px; height: 34px; }
+  .player-row .contact-btn svg { width: 15px; height: 15px; }
+  @media (hover: hover) { .team-card:hover .team-roster-list li.player-row { transform: none; } }
 
   /* TEAMS */
   .teams-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
@@ -670,13 +682,6 @@
     </div>
   </section>
 
-  <section id="contacts" class="section">
-    <div class="container">
-      <div class="section-header"><h2>Contacts</h2><span class="eyebrow" data-season></span></div>
-      <input type="search" class="contact-search" id="contact-search" placeholder="Search name or team…" oninput="renderContacts()" autocomplete="off">
-      <div id="contacts-content"><div class="loading-state"><div class="loading-spinner"></div><p>Loading...</p></div></div>
-    </div>
-  </section>
 
   <section id="makeup" class="section">
     <div class="container">
@@ -742,10 +747,6 @@
   <button class="tab-btn" onclick="showSection('format',this)" data-section="format">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
     Rules
-  </button>
-  <button class="tab-btn" onclick="showSection('contacts',this)" data-section="contacts">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-    Contacts
   </button>
 </nav>
 
@@ -1103,7 +1104,7 @@ function renderTeams(scheduleRows) {
           <div class="team-stat"><div class="val">${s.gp}</div><div class="lbl">GP</div></div>
         </div>
         <ul class="team-roster-list">`;
-    for(const p of roster) html+=`<li><div class="player-dot"></div>${p}${p===cap?'<span class="captain-star">Captain</span>':''}</li>`;
+    for(const p of roster) html+=playerRow(p,p===cap,'');
     html+=`</ul></div></div>`;
   }
   html+='</div>';
@@ -1557,45 +1558,28 @@ function parseContacts(rows) {
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const norm = s => String(s).toLowerCase().replace(/\s+/g, ' ').trim();
 function teamOf(name) { for (const [k, list] of Object.entries(teamRosters)) if (list.some(p => norm(p) === norm(name))) return k; return null; }
-function contactCard(c, isCap) {
-  const digits = c.phone.replace(/[^\d+]/g, '');
-  const initials = c.name.replace(/".*?"/g, '').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
-  return `<div class="contact-card">
-    <div class="contact-avatar">${esc(initials)}</div>
-    <div class="contact-info">
-      <div class="contact-name">${esc(c.name)}${isCap ? '<span class="captain-star">Captain</span>' : ''}</div>
-      ${c.phone ? `<a class="contact-line" href="tel:${esc(digits)}">${esc(c.phone)}</a>` : ''}
-      ${c.email ? `<a class="contact-line email" href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : ''}
+function contactFor(name) { return contacts.find(c => norm(c.name) === norm(name)) || null; }
+// One roster line: name, captain tag, phone/email, call + text buttons
+function playerRow(name, isCap, kind) {
+  const c = contactFor(name);
+  const digits = c && c.phone ? c.phone.replace(/[^\d+]/g, '') : '';
+  const stop = 'onclick="event.stopPropagation()"';
+  const dot = kind === 'modal' ? '<div class="modal-player-dot"></div>' : '<div class="player-dot"></div>';
+  const tag = isCap ? (kind === 'modal' ? '<span class="modal-cap-tag">Captain</span>' : '<span class="captain-star">Captain</span>') : '';
+  return `<li class="player-row">${dot}
+    <div class="player-info">
+      <div class="player-name">${esc(name)}${tag}</div>
+      ${c && c.phone ? `<a class="contact-line" href="tel:${esc(digits)}" ${stop}>${esc(c.phone)}</a>` : ''}
+      ${c && c.email ? `<a class="contact-line email" href="mailto:${esc(c.email)}" ${stop}>${esc(c.email)}</a>` : ''}
     </div>
-    <div class="contact-actions">
-      ${c.phone ? `<a class="contact-btn call" href="tel:${esc(digits)}" title="Call ${esc(c.name)}" aria-label="Call ${esc(c.name)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></a>
-      <a class="contact-btn text" href="sms:${esc(digits)}" title="Text ${esc(c.name)}" aria-label="Text ${esc(c.name)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></a>` : ''}
-    </div>
-  </div>`;
+    ${digits ? `<div class="contact-actions">
+      <a class="contact-btn call" href="tel:${esc(digits)}" ${stop} title="Call ${esc(name)}" aria-label="Call ${esc(name)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></a>
+      <a class="contact-btn text" href="sms:${esc(digits)}" ${stop} title="Text ${esc(name)}" aria-label="Text ${esc(name)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></a>
+    </div>` : ''}
+  </li>`;
 }
-function renderContacts() {
-  const el = document.getElementById('contacts-content'); if (!el) return;
-  if (!contacts.length) { el.innerHTML = '<div class="no-makeup-msg">No contacts found in the league sheet</div>'; return; }
-  const q = norm((document.getElementById('contact-search') || {}).value || '');
-  const match = (c, tk) => !q || norm(c.name).includes(q) || norm(c.phone).includes(q) || (tk && norm(teamNames[tk] || tk).includes(q));
-  const groups = Object.keys(teamNames).map(tk => ({ tk, list: [] }));
-  const other = [];
-  for (const c of contacts) { const tk = teamOf(c.name); const g = groups.find(x => x.tk === tk); (g ? g.list : other).push(c); }
-  let html = '';
-  for (const g of groups) {
-    const roster = teamRosters[g.tk] || [];
-    const list = g.list.filter(c => match(c, g.tk)).sort((a, b) => roster.findIndex(p => norm(p) === norm(a.name)) - roster.findIndex(p => norm(p) === norm(b.name)));
-    if (!list.length) continue;
-    html += `<div class="contact-team">
-      <div class="contact-team-head">
-        <div><div class="team-card-name">${esc(teamNames[g.tk] || g.tk)}</div><div class="contact-team-sub">${list.length} player${list.length === 1 ? '' : 's'}</div></div>
-        <svg class="contact-team-board board-svg" viewBox="0 0 200 200" aria-hidden="true"><use href="#dartboard"/></svg>
-      </div>
-      <div class="contact-team-body">${list.map(c => contactCard(c, norm(c.name) === norm(teamCaptains[g.tk] || ''))).join('')}</div>
-    </div>`;
-  }
-  el.innerHTML = html ? `<div class="contact-grid">${html}</div>` : `<div class="no-makeup-msg">No one matches “${esc(q)}”</div>`;
-}
+function renderContacts() { if (window._scheduleRows) renderTeams(window._scheduleRows); }
+
 async function loadContacts() {
   // 1) Private list kept on Netlify (served after the site password)
   try {
@@ -1604,7 +1588,7 @@ async function loadContacts() {
   } catch {}
   // 2) Fallback: the member tab of the league sheet
   try { contacts = parseContacts(await fetchCSV(CONTACTS_URL)); renderContacts(); }
-  catch (e) { showError('contacts-content', `Error: ${e.message}`); }
+  catch (e) { console.warn('Contacts unavailable:', e.message); }
 }
 
 // ─────────────────────────────────────────────
@@ -1700,7 +1684,7 @@ function navigateToTeam(teamKey) {
   </div>`;
   if (roster.length) {
     html += `<div class="modal-section-label">Roster</div><ul class="modal-roster">`;
-    for (const p of roster) html += `<li><div class="modal-player-dot"></div>${p}${p===cap?'<span class="modal-cap-tag">Captain</span>':''}</li>`;
+    for (const p of roster) html += playerRow(p, p===cap, 'modal');
     html += `</ul>`;
   }
   if (matches.length) {
