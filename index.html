@@ -4,15 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>NHDA Winter League</title>
-<meta name="theme-color" content="#0d0d0d">
+<meta name="theme-color" content="#0d0b09">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="NHDA">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="NHDA">
 <meta name="description" content="North Holmes Dart Association Winter League 2026–27">
-<link rel="manifest" href="data:application/json,{%22name%22:%22NHDA%20Winter%20League%22,%22short_name%22:%22NHDA%22,%22description%22:%22North%20Holmes%20Dart%20Association%20Winter%20League%202026-27%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%230d0d0d%22,%22theme_color%22:%22%230d0d0d%22,%22orientation%22:%22portrait%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A//www.w3.org/2000/svg'%20viewBox%3D'0%200%20512%20512'%3E%3Crect%20width%3D'512'%20height%3D'512'%20rx%3D'80'%20fill%3D'%230d0d0d'/%3E%3Ccircle%20cx%3D'256'%20cy%3D'256'%20r%3D'220'%20fill%3D'%231a1a1a'%20stroke%3D'%23c9a84c'%20stroke-width%3D'8'/%3E%3Ccircle%20cx%3D'256'%20cy%3D'256'%20r%3D'180'%20fill%3D'%23c1121f'/%3E%3Ccircle%20cx%3D'256'%20cy%3D'256'%20r%3D'145'%20fill%3D'%231a1a1a'/%3E%3Ccircle%20cx%3D'256'%20cy%3D'256'%20r%3D'110'%20fill%3D'%23c9a84c'/%3E%3Ccircle%20cx%3D'256'%20cy%3D'256'%20r%3D'75'%20fill%3D'%231a1a1a'/%3E%3Ccircle%20cx%3D'256'%20cy%3D'256'%20r%3D'45'%20fill%3D'%23c1121f'/%3E%3Ccircle%20cx%3D'256'%20cy%3D'256'%20r%3D'18'%20fill%3D'%23c9a84c'/%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22any%20maskable%22}]}">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%230d0d0d'/><circle cx='90' cy='90' r='78' fill='%231a1a1a' stroke='%23c9a84c' stroke-width='3'/><circle cx='90' cy='90' r='64' fill='%23c1121f'/><circle cx='90' cy='90' r='50' fill='%231a1a1a'/><circle cx='90' cy='90' r='38' fill='%23c9a84c'/><circle cx='90' cy='90' r='26' fill='%231a1a1a'/><circle cx='90' cy='90' r='14' fill='%23c1121f'/><circle cx='90' cy='90' r='6' fill='%23c9a84c'/></svg>">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   /* ═══════════════════════════════════════════
@@ -43,6 +44,28 @@
   .board-svg { display: block; }
   .ring-strip { height: 5px; background: var(--ring); opacity: 0.95; }
 
+
+
+  /* BULLSEYE: gate + launch */
+  .bull-flash { position: absolute; left: 50%; top: 50%; width: 8%; height: 8%; margin: -4% 0 0 -4%; border-radius: 50%; pointer-events: none; opacity: 0;
+    box-shadow: 0 0 0 3px rgba(241,199,104,0.9), 0 0 24px 8px rgba(208,18,43,0.7); }
+  .gate-logo .bull-flash { animation: bullFlash 0.7s ease-out 0.78s both; }
+  .gate-logo .board-svg { animation: boardThud 0.25s ease 0.82s; }
+  @keyframes bullFlash { 0% { opacity: 0; transform: scale(0.4); } 15% { opacity: 1; } 100% { opacity: 0; transform: scale(5); } }
+  #launch { display: none; position: fixed; inset: 0; z-index: 10001; align-items: center; justify-content: center; flex-direction: column; gap: 26px;
+    background: radial-gradient(circle at 50% 40%, #33261a 0%, #0d0b09 70%); }
+  #launch.play { display: flex; }
+  #launch.out { opacity: 0; transition: opacity 0.35s ease; }
+  .launch-board { position: relative; width: min(64vw, 320px); aspect-ratio: 1; animation: launchZoom 0.5s cubic-bezier(.2,1.2,.4,1) both; }
+  .launch-board .board-svg { width: 100%; height: 100%; filter: drop-shadow(0 18px 30px rgba(0,0,0,0.7)); animation: boardThud 0.25s ease 0.95s; }
+  .launch-board .bull-flash { animation: bullFlash 0.75s ease-out 0.92s both; }
+  .launch-dart { position: absolute; left: 50%; top: 50%; width: 88%; height: auto; margin-top: -8.8%; transform-origin: 0 50%; pointer-events: none;
+    filter: drop-shadow(4px 8px 6px rgba(0,0,0,0.6)); animation: launchDart 0.55s cubic-bezier(.3,.9,.4,1.15) 0.42s both; }
+  @keyframes launchZoom { from { transform: scale(0.28); border-radius: 22%; opacity: 0.6; } to { transform: scale(1); opacity: 1; } }
+  @keyframes launchDart { 0% { transform: translate(120vw, 60vh) rotate(-32deg); opacity: 0; } 20% { opacity: 1; }
+    80% { transform: translate(-1%, 1%) rotate(-29deg); } 90% { transform: translate(0,0) rotate(-35deg); } 100% { transform: translate(0,0) rotate(-32deg); opacity: 1; } }
+  .launch-word { font-family: 'Alfa Slab One', serif; font-size: clamp(1.6rem, 7vw, 2.6rem); letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold-light);
+    text-shadow: 0 3px 0 #000, 0 0 24px rgba(241,199,104,0.35); opacity: 0; animation: wordHit 0.45s cubic-bezier(.2,1.5,.4,1) 1.0s forwards; }
 
   /* OPENING CURTAIN */
   #intro { display: none; position: fixed; inset: 0; z-index: 10000; background: #050403; overflow: hidden; cursor: pointer; }
@@ -105,7 +128,7 @@
   .gate-inner { width: 100%; max-width: 360px; text-align: center; animation: fadeUp 0.4s ease both; }
   .gate-logo { position: relative; width: 210px; height: 210px; margin: 0 auto 26px; }
   .gate-logo .board-svg { width: 100%; height: 100%; filter: drop-shadow(0 18px 30px rgba(0,0,0,0.7)) drop-shadow(0 0 40px rgba(214,164,67,0.12)); }
-  .gate-dart { position: absolute; width: 150px; left: 49%; top: 44%; transform-origin: 0 50%; transform: rotate(-32deg); animation: dartIn 0.55s cubic-bezier(.2,.9,.3,1.2) 0.35s both; pointer-events: none; filter: drop-shadow(4px 8px 6px rgba(0,0,0,0.6)); }
+  .gate-dart { position: absolute; width: 150px; left: 50%; top: calc(50% - 15px); transform-origin: 0 50%; transform: rotate(-32deg); animation: dartIn 0.55s cubic-bezier(.2,.9,.3,1.2) 0.35s both; pointer-events: none; filter: drop-shadow(4px 8px 6px rgba(0,0,0,0.6)); }
   @keyframes dartIn { 0%{ transform: translate(180px,-120px) rotate(-32deg); opacity: 0; } 70%{ opacity: 1; } 85%{ transform: translate(-3px,2px) rotate(-30deg); } 100%{ transform: translate(0,0) rotate(-32deg); opacity: 1; } }
   .gate-inner h2 { font-family: 'Alfa Slab One', serif; font-weight: 400; font-size: 3rem; letter-spacing: 0.06em; color: var(--cream); line-height: 1; text-shadow: 0 3px 0 #000, 0 0 24px rgba(214,164,67,0.25); }
   .gate-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin: 10px 0 28px; }
@@ -626,6 +649,16 @@
 <g class="board-nums" fill="#efe1bf" font-family="Barlow Condensed,sans-serif" font-weight="700" font-size="10" text-anchor="middle" dominant-baseline="central"><text x="100.0" y="12.0" transform="rotate(0 100.0 12.0)">20</text><text x="127.2" y="16.3" transform="rotate(18 127.2 16.3)">1</text><text x="151.7" y="28.8" transform="rotate(36 151.7 28.8)">18</text><text x="171.2" y="48.3" transform="rotate(54 171.2 48.3)">4</text><text x="183.7" y="72.8" transform="rotate(72 183.7 72.8)">13</text><text x="188.0" y="100.0" transform="rotate(90 188.0 100.0)">6</text><text x="183.7" y="127.2" transform="rotate(-72 183.7 127.2)">10</text><text x="171.2" y="151.7" transform="rotate(-54 171.2 151.7)">15</text><text x="151.7" y="171.2" transform="rotate(-36 151.7 171.2)">2</text><text x="127.2" y="183.7" transform="rotate(-18 127.2 183.7)">17</text><text x="100.0" y="188.0" transform="rotate(0 100.0 188.0)">3</text><text x="72.8" y="183.7" transform="rotate(18 72.8 183.7)">19</text><text x="48.3" y="171.2" transform="rotate(36 48.3 171.2)">7</text><text x="28.8" y="151.7" transform="rotate(54 28.8 151.7)">16</text><text x="16.3" y="127.2" transform="rotate(72 16.3 127.2)">8</text><text x="12.0" y="100.0" transform="rotate(270 12.0 100.0)">11</text><text x="16.3" y="72.8" transform="rotate(288 16.3 72.8)">14</text><text x="28.8" y="48.3" transform="rotate(306 28.8 48.3)">9</text><text x="48.3" y="28.8" transform="rotate(324 48.3 28.8)">12</text><text x="72.8" y="16.3" transform="rotate(342 72.8 16.3)">5</text></g>
 </symbol><symbol id="dart" viewBox="0 0 150 30"><path d="M0 15 L14 13.6 L14 16.4 Z" fill="#cfd3d6"/><rect x="14" y="11.5" width="34" height="7" rx="2" fill="#8c9196"/><g stroke="#5d6267" stroke-width="1.2"><line x1="20" y1="11.5" x2="20" y2="18.5"/><line x1="25" y1="11.5" x2="25" y2="18.5"/><line x1="30" y1="11.5" x2="30" y2="18.5"/><line x1="35" y1="11.5" x2="35" y2="18.5"/><line x1="40" y1="11.5" x2="40" y2="18.5"/></g><rect x="48" y="12.8" width="44" height="4.4" rx="1.5" fill="#5a5f64"/><rect x="48" y="13.2" width="44" height="1.2" rx=".6" fill="#b9bec3"/><path d="M88 15 L112 1 L146 1 L128 15 Z" fill="#d0122b"/><path d="M88 15 L112 29 L146 29 L128 15 Z" fill="#0d7a40"/><path d="M88 15 L146 15" stroke="#efe1bf" stroke-width="1.4"/></symbol></defs></svg>
 
+<!-- LAUNCH: dart into the bull -->
+<div id="launch" aria-hidden="true">
+  <div class="launch-board">
+    <svg class="board-svg" viewBox="0 0 200 200"><use href="#dartboard"/></svg>
+    <span class="bull-flash"></span>
+    <svg class="launch-dart" viewBox="0 0 150 30"><use href="#dart"/></svg>
+  </div>
+  <div class="launch-word">Bullseye!</div>
+</div>
+
 <!-- OPENING CURTAIN: "Shoot Well Shoot Best" -->
 <div id="intro" aria-hidden="true" onclick="endIntro()">
   <div class="curtain left"><div class="curtain-fabric"></div><div class="intro-words"><span>Shoot</span><span>Well</span></div></div>
@@ -639,6 +672,7 @@
   <div class="gate-inner">
     <div class="gate-logo">
       <svg class="board-svg" viewBox="0 0 200 200" aria-hidden="true"><use href="#dartboard"/></svg>
+      <span class="bull-flash"></span>
       <svg class="gate-dart" viewBox="0 0 150 30" aria-hidden="true">
         <path d="M0 15 L14 13.6 L14 16.4 Z" fill="#cfd3d6"/>
         <rect x="14" y="11.5" width="34" height="7" rx="2" fill="#8c9196"/>
@@ -1786,6 +1820,15 @@ function checkPassword() {
   }
 }
 
+// Launch: tapping the home-screen icon opens on the board and a dart flies into the bull
+function playLaunch(then) {
+  const el = document.getElementById('launch');
+  if (!el || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) { then && then(); return; }
+  el.classList.remove('out'); el.classList.add('play');
+  setTimeout(() => { then && then(); el.classList.add('out'); setTimeout(() => el.classList.remove('play', 'out'), 380); }, 1650);
+  el.onclick = () => { el.classList.remove('play', 'out'); then && then(); then = null; };
+}
+
 // Opening curtain — dark, the phrase lands word by word, the curtains light up and part
 let introTimer = null;
 function playIntro() {
@@ -1822,7 +1865,7 @@ function unlockSite() {
 }
 
 if (sessionStorage.getItem(SESSION_KEY) === '1') {
-  playIntro();
+  playLaunch(playIntro);
   document.getElementById('password-gate').style.display = 'none';
   document.getElementById('app-content').style.display = 'block';
   document.getElementById('bottom-nav').style.display = 'grid';
