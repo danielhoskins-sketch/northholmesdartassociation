@@ -626,7 +626,7 @@
 
   <section id="contacts" class="section">
     <div class="container">
-      <div class="section-header"><h2>Contacts</h2><span class="eyebrow">Members</span></div>
+      <div class="section-header"><h2>Contacts</h2><span class="eyebrow" data-season></span></div>
       <input type="search" class="contact-search" id="contact-search" placeholder="Search name or team…" oninput="renderContacts()" autocomplete="off">
       <div id="contacts-content"><div class="loading-state"><div class="loading-spinner"></div><p>Loading...</p></div></div>
     </div>
@@ -1453,7 +1453,8 @@ function renderPlayoffs(scheduleRows) {
 }
 
 // ─────────────────────────────────────────────
-// CONTACTS — read live from the member directory tab
+// CONTACTS — read live from the member directory tab;
+// only players on this season's rosters (teamRosters) are shown
 // ─────────────────────────────────────────────
 let contacts = [];
 function parseContacts(rows) {
@@ -1502,8 +1503,6 @@ function renderContacts() {
     if (!list.length) continue;
     html += `<div class="contact-group"><div class="schedule-date-header">${esc(teamNames[g.tk] || g.tk)}</div>${list.map(c => contactCard(c, norm(c.name) === norm(teamCaptains[g.tk] || ''))).join('')}</div>`;
   }
-  const o = other.filter(c => match(c, null));
-  if (o.length) html += `<div class="contact-group"><div class="schedule-date-header">Other Members</div>${o.map(c => contactCard(c, false)).join('')}</div>`;
   el.innerHTML = html || `<div class="no-makeup-msg">No one matches “${esc(q)}”</div>`;
 }
 async function loadContacts() {
