@@ -756,7 +756,7 @@
 // 2026–27 schedule tab ("26-27") of the NHDA Winter League sheet
 const SCHEDULE_URL = 'https://docs.google.com/spreadsheets/d/118o-iPzoDMT0ckZMnK8YFS_r_1dgXU7qCzspJOahIa4/export?format=csv&gid=1613193003';
 const FORMAT_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS4bnxtDfeQH0mSZIbA-L_rJOTFif1UwR4b7sd6GdA5rZhyGJTg7CkIIW78i_nMHsRPOvj0h2Uqevgh/pub?gid=1203791838&single=true&output=csv';
-// Member directory (first tab of the league sheet). Loaded live — never stored in this file.
+// Member directory fallback (first tab of the league sheet). The main list is served by /api/contacts.
 const CONTACTS_URL = 'https://docs.google.com/spreadsheets/d/118o-iPzoDMT0ckZMnK8YFS_r_1dgXU7qCzspJOahIa4/export?format=csv&gid=0';
 const PROXY = 'https://corsproxy.io/?url=';
 
@@ -1597,6 +1597,12 @@ function renderContacts() {
   el.innerHTML = html ? `<div class="contact-grid">${html}</div>` : `<div class="no-makeup-msg">No one matches “${esc(q)}”</div>`;
 }
 async function loadContacts() {
+  // 1) Private list kept on Netlify (served after the site password)
+  try {
+    const r = await fetch('/api/contacts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pw: CORRECT_PASSWORD }), cache: 'no-store' });
+    if (r.ok) { const d = await r.json(); if (d.contacts && d.contacts.length) { contacts = d.contacts; renderContacts(); return; } }
+  } catch {}
+  // 2) Fallback: the member tab of the league sheet
   try { contacts = parseContacts(await fetchCSV(CONTACTS_URL)); renderContacts(); }
   catch (e) { showError('contacts-content', `Error: ${e.message}`); }
 }
