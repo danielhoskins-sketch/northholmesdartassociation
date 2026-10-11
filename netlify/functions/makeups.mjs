@@ -4,7 +4,8 @@
 // so every member sees the same schedule, make-ups and standings.
 //
 //   GET  /api/makeups  → { "<date>|<home>|<away>": { postponed, makeupDate, score: { h, a } }, ... }
-//   POST /api/makeups  ← { pw, key, postponed?, makeupDate?, score? }   (score: { h, a } or null to clear)
+//   POST /api/makeups  ← { pw, key, postponed?, makeupDate?, proposedBy?, confirmed?, score? }
+//   (score: { h, a } or null to clear; a new makeupDate resets confirmed; proposedBy must be one of the two teams)
 
 import { getStore } from '@netlify/blobs';
 
@@ -41,6 +42,19 @@ export default async (req) => {
     const d = body.makeupDate || '';
     if (d && !DATE_RE.test(d)) return json({ error: 'Bad date' }, 400);
     entry.makeupDate = d;
+    entry.confirmed = false;
+    if (!d) delete entry.proposedBy;
+  }
+  if ('proposedBy' in body) {
+    const [, home, away] = key.split('|');
+    const t = body.proposedBy || '';
+    if (t && t !== home && t !== away) return json({ error: 'Unknown team' }, 400);
+    if (t) entry.proposedBy = t; else delete entry.proposedBy;
+  }
+  if ('confirmed' in body) {
+    if (typeof body.confirmed !== 'boolean') return json({ error: 'Bad confirmed value' }, 400);
+    if (body.confirmed && !entry.makeupDate) return json({ error: 'Set a date first' }, 400);
+    entry.confirmed = body.confirmed;
   }
 
   if ('score' in body) {
