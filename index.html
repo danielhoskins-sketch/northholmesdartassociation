@@ -1119,7 +1119,8 @@ function renderSchedule(rows) {
     const bye=allTeams.filter(t=>!playing.has(t));
     html+=`<div class="schedule-group"><div class="schedule-date-header">${when}</div>`;
     for(const m of g.items){
-      const hn=teamNames[m.home]||m.home, an=teamNames[m.away]||m.away;
+      const shortName=t=>(teamNames[t]||t).replace(/^Team\s+/i,'');
+      const hn=shortName(m.home), an=shortName(m.away);
       const key=mkKey(g.date,m.home,m.away);
       const sheetPPD=isPPD(m.hPts)||isPPD(m.aPts);
       const scored=!sheetPPD&&m.hPts!==''&&m.aPts!=='';
