@@ -556,6 +556,21 @@
   .rules-list li:last-child { border-bottom: none; }
   .rules-list li::before { content: ''; flex-shrink: 0; width: 7px; height: 7px; margin-top: 7px; border-radius: 50%; background: radial-gradient(circle, var(--red) 0 35%, var(--green) 36%); }
 
+
+  /* RULES — clean layout */
+  .games-table th { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-dim); text-align: left; padding: 0 0 6px; }
+  .games-table th:last-child, .games-table td:last-child { text-align: right; }
+  .games-table td:nth-child(2) { white-space: nowrap; }
+  .games-table tr.games-total { border-top: 2px solid var(--gold-dim); border-bottom: none; }
+  .games-table tr.games-total td { color: var(--gold-light) !important; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.95rem; letter-spacing: 0.04em; padding-top: 10px; }
+  .rules-list.clean li::before { display: none; }
+  .rules-list.clean li.rule-row { display: grid; grid-template-columns: 112px 1fr; gap: 12px; align-items: baseline; padding: 10px 0; }
+  .rule-key { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); line-height: 1.4; }
+  .rule-val { font-size: 0.92rem; line-height: 1.45; color: var(--text-muted); }
+  .rule-val strong { color: var(--cream); font-weight: 600; }
+  .rules-list.clean li.rule-row:has(.rule-num) { grid-template-columns: 26px 1fr; align-items: center; }
+  .rule-num { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; color: var(--cream); background: var(--red); box-shadow: 0 0 0 2px var(--green); }
+
   /* MAKE-UP */
   .makeup-card { background: linear-gradient(180deg, rgba(208,18,43,0.10), rgba(208,18,43,0.04)); border: 1px solid rgba(208,18,43,0.38); border-radius: 4px; display: flex; align-items: center; padding: 14px 14px 14px 16px; margin-bottom: 10px; gap: 10px; position: relative; overflow: hidden; }
   .makeup-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--red); }
@@ -1185,40 +1200,47 @@ function renderTeams(scheduleRows) {
 // ─────────────────────────────────────────────
 // RENDER FORMAT
 // ─────────────────────────────────────────────
-function renderFormat(rows) {
-  const get = (i) => (rows[i] && rows[i][0]) ? rows[i][0].trim() : '';
-  const getCol = (i, col) => (rows[i] && rows[i][col]) ? rows[i][col].trim() : '';
-  const rulesParagraph = get(10);
-  const timeRule = get(16);
-  const tb1 = get(13);
-  const tb2 = get(14);
-  const gameRows = [20, 21, 22, 23, 24];
-  const games = gameRows.map(i => ({game: get(i), format: getCol(i, 1), pts: getCol(i, 2)})).filter(g => g.game);
-  let gH = games.map(g => `<tr><td>${g.game}</td><td>${g.format || 'Best of 3'}</td><td>${g.pts || '1 point'}</td></tr>`).join('');
-  gH += `<tr style="border-top:2px solid var(--gold-dim)"><td style="color:var(--gold);font-weight:700">Total</td><td></td><td style="color:var(--gold);font-weight:700">5 points</td></tr>`;
-  let rulesHtml = '';
-  if (rulesParagraph) {
-    const sentences = rulesParagraph.split(/(?<=\.)\s+/).filter(s => s.trim().length > 3);
-    const allRules = [...sentences];
-    if (timeRule) allRules.unshift(timeRule);
-    rulesHtml = allRules.map(r => `<li>${r.trim()}</li>`).join('');
-  } else {
-    rulesHtml = `<li>All matches on Friday evenings, start time 8:30 PM unless otherwise noted</li><li>Home team is the first team listed and gets pick of "see or show" on all games</li><li>Visiting team must post competitors of each game first</li><li>Team member substitutions may be made during a 2 out of 3 match, however no substitutions will be allowed mid game</li>`;
-  }
-  const tbHtml = tb1 && tb2 ? `<li>${tb1}</li><li>${tb2}</li>` : `<li>Head-to-head record &amp; point totals</li><li>If equal, a playoff match will ensue</li>`;
+// League rules — edit here. (The sheet's rules paragraph came through as run-on
+// text split at every period, so the wording now lives in the site.)
+const RULES = {
+  games: [
+    { game: '501',              format: 'Best of 3',   pts: 1 },
+    { game: 'Around the World', format: 'Best of 3',   pts: 1 },
+    { game: 'Cricket',          format: 'Best of 3',   pts: 1 },
+    { game: '301',              format: 'Best of 3',   pts: 1 },
+    { game: 'Minnesota',        format: 'Single game', pts: 1 }
+  ],
+  matchNight: [
+    ['Night & time', 'Fridays at <strong>8:30 PM</strong>, unless noted otherwise'],
+    ['Home team', 'Listed first on the schedule; picks <strong>“see or show”</strong> on every game'],
+    ['Lineups', 'The visiting team posts its players for each game <strong>first</strong>'],
+    ['Substitutions', 'Allowed <strong>between games</strong> of a best-of-3 — never mid-game']
+  ],
+  tiebreakers: [
+    'Head-to-head record and point totals',
+    'Still tied? A <strong>playoff match</strong> decides it'
+  ]
+};
+function renderFormat() {
+  const total = RULES.games.reduce((n, g) => n + g.pts, 0);
+  const games = RULES.games.map(g => `<tr><td>${g.game}</td><td>${g.format}</td><td>${g.pts} pt</td></tr>`).join('')
+    + `<tr class="games-total"><td>Total</td><td>${RULES.games.length} games</td><td>${total} pts</td></tr>`;
+  const night = RULES.matchNight.map(([k, v]) => `<li class="rule-row"><span class="rule-key">${k}</span><span class="rule-val">${v}</span></li>`).join('');
+  const tb = RULES.tiebreakers.map((t, i) => `<li class="rule-row"><span class="rule-num">${i + 1}</span><span class="rule-val">${t}</span></li>`).join('');
+  const cal = [
+    ['Season', SEASON.label],
+    ['Teams', `${Object.keys(teamNames).length} teams of 3`],
+    ['Make-up night', formatDate(SEASON.makeupNight)],
+    ['Play-In', formatDate(SEASON.playoffs.playIn) + ' · #4 vs #5'],
+    ['Semifinals', formatDate(SEASON.playoffs.semis)],
+    ['Championship', formatDate(SEASON.playoffs.final)],
+    ['Annual dues', SEASON.dues]
+  ].map(([k, v]) => `<li class="rule-row"><span class="rule-key">${k}</span><span class="rule-val"><strong>${v}</strong></span></li>`).join('');
   document.getElementById('format-content').innerHTML = `<div class="format-grid">
-    <div class="format-card"><h3>Games</h3><table class="games-table">${gH}</table></div>
-    <div class="format-card"><h3>Match Rules</h3><ul class="rules-list">${rulesHtml}</ul></div>
-    <div class="format-card"><h3>Tie Breaker</h3><ul class="rules-list">${tbHtml}</ul></div>
-    <div class="format-card"><h3>Season Calendar</h3><ul class="rules-list">
-      <li>Season: <strong>${SEASON.label}</strong></li>
-      <li>Teams: <strong>${Object.keys(teamNames).length} teams of 3</strong></li>
-      <li>Make-up night: <strong>${formatDate(SEASON.makeupNight)}</strong></li>
-      <li>Play-In (#4 vs #5): <strong>${formatDate(SEASON.playoffs.playIn)}</strong></li>
-      <li>Semifinals: <strong>${formatDate(SEASON.playoffs.semis)}</strong></li>
-      <li>Championship: <strong>${formatDate(SEASON.playoffs.final)}</strong></li>
-      <li>Annual dues: <strong>${SEASON.dues}</strong></li>
-    </ul></div>
+    <div class="format-card"><h3>Games</h3><table class="games-table"><thead><tr><th>Game</th><th>Format</th><th>Worth</th></tr></thead><tbody>${games}</tbody></table></div>
+    <div class="format-card"><h3>Match Night</h3><ul class="rules-list clean">${night}</ul></div>
+    <div class="format-card"><h3>Tiebreakers</h3><ul class="rules-list clean">${tb}</ul></div>
+    <div class="format-card"><h3>Season Calendar</h3><ul class="rules-list clean">${cal}</ul></div>
   </div>`;
 }
 
