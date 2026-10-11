@@ -586,6 +586,8 @@
   .mu-btn.go { color: var(--cream); background: var(--green); border-color: #0a5f32; box-shadow: 0 2px 0 #06401f; }
   .mu-btn.go:hover { filter: brightness(1.12); background: var(--green); }
   .mu-btn.ghost { flex: 0 0 auto; min-width: 0; color: var(--text-muted); border-color: var(--border); }
+  .mu-btn.ghost.danger { color: var(--red-soft); border-color: rgba(208,18,43,0.4); }
+  .mu-btn.ghost.danger:hover { background: rgba(208,18,43,0.1); }
   .mu-status { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; letter-spacing: 0.02em; padding: 9px 12px; border-radius: 4px; margin-bottom: 4px; }
   .mu-status b { font-weight: 700; color: var(--cream); }
   .mu-status.wait { color: var(--gold-light); background: rgba(214,164,67,0.08); border: 1px dashed rgba(214,164,67,0.45); }
@@ -1356,6 +1358,14 @@ function proposeMakeup(id, team) {
   makeupEditing.delete(m.key);
   saveOverride(m.key, { ...(m.fromSheet ? {} : { postponed: true }), makeupDate: val, proposedBy: team, confirmed: false });
 }
+function clearMakeupDate(id) {
+  const m = makeupMatches[id - 1]; if (!m) return;
+  makeupEditing.delete(m.key);
+  saveOverride(m.key, { makeupDate: '', proposedBy: '', confirmed: false });
+}
+function cancelMakeupEdit(id) { const m = makeupMatches[id - 1]; if (m) { makeupEditing.delete(m.key); renderMakeupCards(); } }
+// Clearing the phone's date picker (Reset / Clear) takes the make-up date off too
+function muDateChanged(id, val) { const m = makeupMatches[id - 1]; if (m && !val && m.st.date) clearMakeupDate(id); }
 function confirmMakeup(id) { const m = makeupMatches[id - 1]; if (m) saveOverride(m.key, { confirmed: true }); }
 function makeupText(m) {
   const hn = shortTeam(m.home), an = shortTeam(m.away), from = fmtShort(m.originalDate);
@@ -1378,17 +1388,18 @@ function renderMakeupCards() {
       body = `<div class="mu-status done">Played${st.date ? ' ' + prettyIso(st.date) : ''} · <span class="${hN > aN ? 'score-winner' : 'score-loser'}">${m.hPts}</span>–<span class="${aN > hN ? 'score-winner' : 'score-loser'}">${m.aPts}</span></div>`;
     } else if (editing) {
       body = `<div class="mu-label">${st.state === 'none' ? 'Needs a make-up date' : 'Pick a new date'}</div>
-        <input type="date" id="mu-date-${m.id}" class="mu-date" value="${st.date || ''}" onclick="event.stopPropagation()">
+        <input type="date" id="mu-date-${m.id}" class="mu-date" value="${st.date || ''}" onclick="event.stopPropagation()" onchange="muDateChanged(${m.id},this.value)">
         <div class="mu-label small">Propose this date as captain of</div>
-        <div class="mu-btns"><button class="mu-btn" onclick="proposeMakeup(${m.id},'${m.home}')">${hn}</button><button class="mu-btn" onclick="proposeMakeup(${m.id},'${m.away}')">${an}</button></div>`;
+        <div class="mu-btns"><button class="mu-btn" onclick="proposeMakeup(${m.id},'${m.home}')">${hn}</button><button class="mu-btn" onclick="proposeMakeup(${m.id},'${m.away}')">${an}</button></div>
+        ${st.date ? `<div class="mu-btns" style="margin-top:8px"><button class="mu-btn ghost" onclick="cancelMakeupEdit(${m.id})">Cancel</button><button class="mu-btn ghost danger" onclick="clearMakeupDate(${m.id})">Clear date</button></div>` : ''}`;
     } else if (st.state === 'proposed') {
       const waiting = st.by === m.home ? m.away : m.home;
       body = `<div class="mu-status wait"><b>${prettyIso(st.date)}</b> · proposed by ${shortTeam(st.by) || 'a captain'}</div>
         <div class="mu-label small">Waiting on ${shortTeam(waiting)} to confirm</div>
-        <div class="mu-btns"><button class="mu-btn go" onclick="confirmMakeup(${m.id})">✓ Confirm for ${shortTeam(waiting)}</button><button class="mu-btn ghost" onclick="editMakeup(${m.id})">Change date</button></div>`;
+        <div class="mu-btns"><button class="mu-btn go" onclick="confirmMakeup(${m.id})">✓ Confirm for ${shortTeam(waiting)}</button><button class="mu-btn ghost" onclick="editMakeup(${m.id})">Change date</button><button class="mu-btn ghost danger" onclick="clearMakeupDate(${m.id})">Clear date</button></div>`;
     } else {
       body = `<div class="mu-status ok">✓ Confirmed · <b>${prettyIso(st.date)}</b> at 8:30</div>
-        <div class="mu-btns"><button class="mu-btn ghost" onclick="editMakeup(${m.id})">Change date</button></div>`;
+        <div class="mu-btns"><button class="mu-btn ghost" onclick="editMakeup(${m.id})">Change date</button><button class="mu-btn ghost danger" onclick="clearMakeupDate(${m.id})">Clear date</button></div>`;
     }
     const nums = [...(teamRosters[m.home] || []), ...(teamRosters[m.away] || [])].map(phoneOf).filter(Boolean);
     const textBtn = !played && nums.length ? `<a class="text-group-btn" href="${groupSmsHref(nums, makeupText(m))}">${smsIcon}Text both teams</a>` : '';
