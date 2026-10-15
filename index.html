@@ -242,18 +242,6 @@
   .push-actions button:disabled { opacity: 0.5; cursor: default; }
   .tw-remind { display: block; width: 100%; margin: 2px 0 8px; padding: 10px; border-radius: 4px; border: 1px dashed var(--gold-dim); background: rgba(214,164,67,0.08); color: var(--gold-light); font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.82rem; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; }
 
-  /* MAKE-UP RESPONSE PANEL (opened from the text link) */
-  #mu-overlay { display: none; position: fixed; inset: 0; z-index: 9100; align-items: flex-end; justify-content: center; background: rgba(5,4,3,0.72); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
-  #mu-overlay.open { display: flex; }
-  @media (min-width: 600px) { #mu-overlay.open { align-items: center; } }
-  .mu-sheet .mu-teams { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 0.05em; color: var(--cream); margin-top: 10px; }
-  .mu-sheet .mu-teams .ha { vertical-align: 5px; }
-  .mu-sheet .mu-sub { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 2px; }
-  .mu-sheet .mu-big { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.15rem; letter-spacing: 0.04em; color: var(--gold-light); margin-top: 14px; }
-  .mu-sheet .mu-date { width: 100%; margin-top: 8px; }
-  .mu-sheet .mu-pick { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin: 14px 0 6px; }
-  .mu-sheet .mu-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
   /* MATCHUP CARD + WIN PROBABILITY */
   .match-card.tappable { cursor: pointer; }
   .match-card.tappable:active { transform: scale(0.985); }
@@ -840,7 +828,6 @@
 <!-- THIS WEEK: pops up after the curtain opens -->
 <!-- MATCH REMINDERS: opt-in sheet -->
 <div id="mx-overlay" role="dialog" aria-label="Matchup" onclick="if(event.target===this)closeMatchup()"><div class="push-sheet mx-sheet" id="mx-sheet"></div></div>
-<div id="mu-overlay" role="dialog" aria-label="Make-up match" onclick="if(event.target===this)closeMuPanel()"><div class="push-sheet mu-sheet" id="mu-sheet"></div></div>
 <div id="push-overlay" role="dialog" aria-label="Match reminders" onclick="if(event.target===this)closePushPanel()"><div class="push-sheet" id="push-sheet"></div></div>
 <div id="tw-overlay" role="dialog" aria-label="This week's matches" onclick="if(event.target===this)closeThisWeek()"></div>
 
@@ -1102,8 +1089,7 @@ function renderAll() {
   const rows = mergeRows(window._sheetRows);
   window._scheduleRows = rows;
   renderStandings(rows); renderSchedule(rows); renderTeams(rows); renderMakeup(rows); renderPlayoffs(rows);
-  if (muPanelKey) renderMuPanel();
-  if (pendingMuKey) maybeOpenMuFromLink(); else maybeShowThisWeek();
+  maybeShowThisWeek();
 }
 
 // ─────────────────────────────────────────────
@@ -1575,13 +1561,11 @@ function cancelMakeupEdit(id) { const m = makeupMatches[id - 1]; if (m) { makeup
 // Clearing the phone's date picker (Reset / Clear) takes the make-up date off too
 function muDateChanged(id, val) { const m = makeupMatches[id - 1]; if (m && !val && m.st.date) clearMakeupDate(id); }
 function confirmMakeup(id) { const m = makeupMatches[id - 1]; if (m) saveOverride(m.key, { confirmed: true }); }
-// Link that opens the site straight to this make-up's confirm / propose panel
-const muLink = key => `${location.origin}/?mu=${encodeURIComponent(key.replace(/\|/g, '~'))}`;
 function makeupText(m) {
-  const hn = shortTeam(m.home), an = shortTeam(m.away), from = fmtShort(m.originalDate), link = muLink(m.key);
-  if (m.st.state === 'confirmed') return `NHDA make-up confirmed: ${hn} vs ${an} (from ${from}) is on ${prettyIso(m.st.date)} at ${SEASON.startTime} at ${SEASON.venue}. See you there! ${link}`;
-  if (m.st.state === 'proposed') { const other = m.st.by === m.home ? an : hn; return `NHDA make-up: ${hn} vs ${an} (from ${from}). Proposed ${prettyIso(m.st.date)} at ${SEASON.startTime}. ${other}, tap to confirm or propose another date: ${link}`; }
-  return `NHDA make-up: ${hn} vs ${an} (from ${from}) needs a new date. Tap to propose one: ${link}`;
+  const hn = shortTeam(m.home), an = shortTeam(m.away), from = fmtShort(m.originalDate);
+  if (m.st.state === 'confirmed') return `NHDA make-up confirmed: ${hn} vs ${an} (from ${from}) is on ${prettyIso(m.st.date)} at 8:30. See you there!`;
+  if (m.st.state === 'proposed') { const other = m.st.by === m.home ? an : hn; return `NHDA make-up: ${hn} vs ${an} (from ${from}). Proposed ${prettyIso(m.st.date)} at 8:30. ${other}, does that work? Confirm on the site: northholmesdartassociation.com`; }
+  return `NHDA make-up: ${hn} vs ${an} (from ${from}) needs a new date. What Friday works for everyone?`;
 }
 function renderMakeupCards() {
   const el = document.getElementById('makeup-content');
@@ -2118,7 +2102,7 @@ function closeTeamModal(evt) {
   document.body.style.overflow = '';
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeTeamModal(null); closeScore(); closePushPanel(); closeMuPanel(); closeMatchup(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeTeamModal(null); closeScore(); closePushPanel(); closeMatchup(); } });
 
 
 // ─────────────────────────────────────────────
@@ -2203,81 +2187,6 @@ async function testPush() {
   try { await pushApi({ action: 'test', endpoint: pushSub.endpoint }); }
   catch (e) { note = e.message === 'This phone is not signed up' ? 'This phone dropped off the list — turn reminders off and on again.' : 'Could not send the test.'; }
   pushBusy = false; renderPushPanel(note);
-}
-
-// ─────────────────────────────────────────────
-// MAKE-UP RESPONSE — the link in "Text both teams" opens this panel
-// so a captain can confirm or propose a date right from the text
-// ─────────────────────────────────────────────
-let pendingMuKey = (() => { try { const v = new URLSearchParams(location.search).get('mu'); return v ? decodeURIComponent(v).replace(/~/g, '|') : ''; } catch { return ''; } })();
-let muPanelKey = '', muMode = '';
-// ?mu=demo opens a practice make-up that never saves — safe for testing the text link
-let muDemo = null;
-function demoMatch() {
-  if (!muDemo) {
-    const d = new Date(); d.setDate(d.getDate() + ((5 - d.getDay() + 7) % 7 || 7) + 7);
-    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    muDemo = { key: 'demo', demo: true, home: 'Keller', away: 'Hoskins', originalDate: '10.16.26', hPts: '', aPts: '', fromSheet: false, st: { state: 'proposed', date: iso, by: 'Keller' } };
-  }
-  return muDemo;
-}
-const findMu = key => key === 'demo' ? demoMatch() : makeupMatches.find(x => x.key === key);
-function maybeOpenMuFromLink() {
-  if (!pendingMuKey || !window._scheduleRows || introRunning()) return;
-  const key = pendingMuKey; pendingMuKey = '';
-  try { history.replaceState(null, '', location.pathname); } catch {}
-  const m = findMu(key);
-  closeThisWeek();
-  const btn = document.querySelector('[data-section="makeup"]'); if (btn) showSection('makeup', btn);
-  if (!m) { flashToast('That make-up is no longer on the board', true); return; }
-  openMuPanel(key);
-}
-function openMuPanel(key, mode) {
-  muPanelKey = key; muMode = mode || '';
-  renderMuPanel();
-  document.getElementById('mu-overlay').classList.add('open');
-}
-function closeMuPanel() { document.getElementById('mu-overlay').classList.remove('open'); muPanelKey = ''; muMode = ''; }
-function renderMuPanel() {
-  const el = document.getElementById('mu-sheet'); if (!el || !muPanelKey) return;
-  const m = findMu(muPanelKey);
-  if (!m) { closeMuPanel(); return; }
-  const hn = shortTeam(m.home), an = shortTeam(m.away), st = m.st;
-  const played = m.hPts !== '' && m.aPts !== '';
-  const head = `<button class="tw-close" onclick="closeMuPanel()" aria-label="Close">✕</button><h3>Make-Up Match</h3>
-    <div class="mu-teams"><i class="ha h">H</i>${hn} <span style="color:var(--gold);font-size:1rem">VS</span> ${an}<i class="ha a">A</i></div>
-    <div class="mu-sub">Originally ${formatDate(m.originalDate)}</div>${m.demo ? `<div class="push-status" style="margin-top:8px">Demo · nothing is saved</div>` : ''}`;
-  const picker = (label) => `<input type="date" id="mu-sheet-date" class="mu-date" value="${st.date || ''}">
-    <div class="mu-pick">${label}</div>
-    <div class="mu-two"><button class="tw-btn-ghost" onclick="muSheetPropose('${m.home}')">${hn}</button><button class="tw-btn-ghost" onclick="muSheetPropose('${m.away}')">${an}</button></div>`;
-  let body, actions = '';
-  if (played) {
-    body = `<div class="mu-big">Played · ${m.hPts}–${m.aPts}</div>`;
-  } else if (muMode === 'propose' || st.state === 'none') {
-    body = `<div class="mu-big">${st.state === 'none' ? 'Pick a make-up date' : 'Propose a different date'}</div>${picker('Propose as captain of')}`;
-    if (st.state !== 'none') actions = `<button class="tw-btn-ghost" onclick="muMode='';renderMuPanel()">Back</button>`;
-  } else if (st.state === 'proposed') {
-    const waiting = st.by === m.home ? m.away : m.home;
-    body = `<div class="mu-big">${prettyIso(st.date)} · ${SEASON.startTime}</div><p>Proposed by ${shortTeam(st.by) || 'a captain'}. Waiting on <b>${shortTeam(waiting)}</b> to confirm.</p>`;
-    actions = `<button class="tw-btn-primary" onclick="muSheetConfirm()">✓ Confirm for ${shortTeam(waiting)}</button><button class="tw-btn-ghost" onclick="muMode='propose';renderMuPanel()">Propose a different date</button>`;
-  } else {
-    body = `<div class="mu-big">✓ Confirmed · ${prettyIso(st.date)} · ${SEASON.startTime}</div><p>At ${SEASON.venue}. It's on the schedule.</p>`;
-    actions = `<button class="tw-btn-ghost" onclick="muMode='propose';renderMuPanel()">Propose a different date</button>`;
-  }
-  el.innerHTML = head + body + `<div class="push-actions">${actions}</div>`;
-}
-function muSheetPropose(team) {
-  const m = findMu(muPanelKey); if (!m) return;
-  const val = (document.getElementById('mu-sheet-date') || {}).value;
-  if (!val) { flashToast('Pick a date first', true); return; }
-  muMode = '';
-  if (m.demo) { m.st = { state: 'proposed', date: val, by: team }; renderMuPanel(); flashToast(`Demo: proposed ${prettyIso(val)} · nothing saved`); return; }
-  saveOverride(m.key, { ...(m.fromSheet ? {} : { postponed: true }), makeupDate: val, proposedBy: team, confirmed: false });
-}
-function muSheetConfirm() {
-  const m = findMu(muPanelKey); if (!m) return;
-  if (m.demo) { m.st = { ...m.st, state: 'confirmed' }; renderMuPanel(); flashToast('Demo: confirmed · nothing saved'); return; }
-  saveOverride(m.key, { confirmed: true });
 }
 
 // ─────────────────────────────────────────────
@@ -2414,7 +2323,7 @@ function endIntro() {
   const el = document.getElementById('intro'); if (!el || el.style.display === 'none') return;
   clearTimeout(introTimer);
   el.classList.add('done');
-  setTimeout(() => { el.style.display = 'none'; el.classList.remove('play', 'done'); if (pendingMuKey) maybeOpenMuFromLink(); else maybeShowThisWeek(); }, 450);
+  setTimeout(() => { el.style.display = 'none'; el.classList.remove('play', 'done'); maybeShowThisWeek(); }, 450);
   if (document.getElementById('standings').classList.contains('active')) setTimeout(playStandingsDarts, 150);
 }
 
