@@ -196,6 +196,9 @@
   .tw-badge.soon { background: var(--gold-dim); animation: none; }
   @keyframes twPulse { 50% { box-shadow: 0 0 0 4px rgba(208,18,43,0.25); } }
   .tw-body { padding: 14px 16px 6px; }
+  .tw-venue { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-light); margin-top: 4px; }
+  .tw-key { margin: 4px 0 6px; }
+  .tw-team .ha { font-size: 0.62rem; vertical-align: 4px; }
   .tw-match { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; padding: 11px 12px; margin-bottom: 8px; border-radius: 6px;
     background: var(--chalk); border: 1px solid #2a3a30; box-shadow: inset 0 0 18px rgba(0,0,0,0.5); opacity: 0; animation: twSlide 0.4s cubic-bezier(.2,1.2,.4,1) forwards; animation-delay: var(--d); }
   @keyframes twSlide { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
@@ -349,6 +352,11 @@
   .match-teams { flex: 1; display: flex; align-items: center; gap: 8px; font-family: 'Barlow Condensed', sans-serif; font-size: 0.98rem; font-weight: 700; min-width: 0; letter-spacing: 0.02em; }
   .match-team { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .match-team.home { text-align: right; }
+  .ha { display: inline-block; font-style: normal; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.6rem; line-height: 1; letter-spacing: 0.04em; padding: 2px 4px 1px; border-radius: 2px; vertical-align: 2px; }
+  .ha.h { background: var(--gold); color: #1a1208; margin-right: 5px; }
+  .ha.a { border: 1px solid var(--text-dim); color: var(--text-muted); margin-left: 5px; }
+  .ha-key { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; letter-spacing: 0.08em; color: var(--text-dim); text-align: center; margin: 2px 0 12px; }
+  .ha-key .ha { vertical-align: 1px; }
   .match-vs { font-family: 'Bebas Neue', sans-serif; font-size: 0.85rem; color: var(--text-dim); flex-shrink: 0; width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 50%; background: rgba(0,0,0,0.35); }
   .match-score { font-family: 'Bebas Neue', sans-serif; font-size: 1.45rem; letter-spacing: 0.06em; text-align: center; min-width: 64px; color: var(--gold); flex-shrink: 0; background: var(--chalk); border: 1px solid #2a3a30; border-radius: 3px; padding: 2px 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.6); line-height: 1.3; }
   .match-score .dash { color: rgba(239,225,191,0.35); margin: 0 2px; font-size: 1rem; }
@@ -924,7 +932,9 @@ const SEASON = {
   label: '2026–27',
   makeupNight: '4.9.27',          // M.D.YY, same style as the sheet
   playoffs: { playIn: '4.23.27', semis: 'TBA', final: 'TBA' },   // use 'TBA' until a date is set
-  dues: '$15 per member'
+  dues: '$15 per member',
+  venue: 'The Dugout',            // every match is played here
+  startTime: '8:30 PM'            // every match starts at this time
 };
 const teamNames = { 'Fagen':'Team Fagan', 'Hoskins':'Team Hoskins', 'Byrne':'Team Byrne', 'Williams':'Team Williams', 'Keller':'Team Keller' };
 const teamCaptains = { 'Fagen':'Brian Fagan', 'Hoskins':'Dan Hoskins', 'Byrne':'Brad "Sorta Aint" Byrne', 'Williams':'Greg Williams', 'Keller':'Ryan Keller' };
@@ -1072,16 +1082,17 @@ function buildThisWeek() {
   matches.forEach((m, i) => {
     const scored = m.h !== null && m.a !== null;
     body += `<div class="tw-match" style="--d:${0.25 + i * 0.12}s">
-      <div class="tw-team${scored && m.h > m.a ? ' win' : ''}">${shortTeam(m.home)}<small>${recTxt(m.home)}</small></div>
+      <div class="tw-team${scored && m.h > m.a ? ' win' : ''}"><i class="ha h">H</i>${shortTeam(m.home)}<small>${recTxt(m.home)}</small></div>
       <div class="tw-vs${scored ? ' score' : ''}">${scored ? `${m.h}–${m.a}` : 'VS'}</div>
-      <div class="tw-team away${scored && m.a > m.h ? ' win' : ''}">${shortTeam(m.away)}<small>${recTxt(m.away)}</small></div>
+      <div class="tw-team away${scored && m.a > m.h ? ' win' : ''}">${shortTeam(m.away)}<i class="ha a">A</i><small>${recTxt(m.away)}</small></div>
       ${m.moved ? `<div class="tw-tag">Make-up · originally ${fmtShort(m.from)}</div>` : ''}
     </div>`;
   });
+  body += HA_KEY.replace('ha-key', 'ha-key tw-key');
   if (bye.length) body += `<div class="tw-bye">Bye · ${bye.map(shortTeam).join(', ')}</div>`;
   return `<div class="tw-card" onclick="this.classList.add('hold')">
     <button class="tw-close" onclick="closeThisWeek()" aria-label="Close">✕</button>
-    <div class="tw-head"><div class="tw-eyebrow">NHDA Winter League</div><div class="tw-title">${title}</div><div class="tw-when">${when}${badge}</div></div>
+    <div class="tw-head"><div class="tw-eyebrow">NHDA Winter League</div><div class="tw-title">${title}</div><div class="tw-when">${when}${badge}</div>${SEASON.venue ? `<div class="tw-venue">${SEASON.startTime ? SEASON.startTime + ' · ' : ''}${SEASON.venue}</div>` : ''}</div>
     <div class="tw-body">${body}</div>
     <div class="tw-actions"><button class="tw-btn-ghost" onclick="closeThisWeek()">Let's Throw</button><button class="tw-btn-primary" onclick="closeThisWeek('schedule')">Full Schedule</button></div>
     <div class="tw-timer" style="--t:10s"></div>
@@ -1270,6 +1281,7 @@ function playStandingsDarts(){
 // ─────────────────────────────────────────────
 // RENDER SCHEDULE
 // ─────────────────────────────────────────────
+const HA_KEY = `<div class="ha-key"><i class="ha h">H</i>Home &nbsp;·&nbsp; Away<i class="ha a">A</i></div>`;
 function renderSchedule(rows) {
   const allTeams=Object.keys(teamNames);
   const groups=[]; const byKey={};
@@ -1299,7 +1311,7 @@ function renderSchedule(rows) {
     }
   }
   groups.sort((a,b)=>sheetToTime(a.date)-sheetToTime(b.date));
-  let html='';
+  let html=HA_KEY;
   for(const g of groups){
     const when=g.date?formatDate(g.date):'Date TBD';
     if(g.kind==='makeup'){
@@ -1326,7 +1338,7 @@ function renderSchedule(rows) {
         const chip=s.state==='confirmed'?'<span class="mu-chip ok">✓ Confirmed</span>':'<span class="mu-chip wait">Proposed</span>';
         const score=played?`<div class="match-score"><span class="${hN>aN?'score-winner':'score-loser'}">${m.hPts}</span><span class="dash">–</span><span class="${aN>hN?'score-winner':'score-loser'}">${m.aPts}</span></div>`:chip;
         html+=`<div class="match-card moved-in${played?' completed':''}" onclick="goToMakeup('${m.home}','${m.away}')" style="cursor:pointer" title="View make-up">
-          <div class="match-teams"><span class="match-team home">${hn}</span><span class="match-vs">VS</span><span class="match-team away">${an}</span></div>
+          <div class="match-teams"><span class="match-team home"><i class="ha h" title="Home">H</i>${hn}</span><span class="match-vs">VS</span><span class="match-team away">${an}<i class="ha a" title="Away">A</i></span></div>
           ${score}<button class="score-btn${played?' edit':''}" onclick="event.stopPropagation();openScore('${key}')">${played?'✎ Edit':'+ Score'}</button>
           <div class="moved-tag">Make-up · from ${fmtShort(m.moved.from)}</div></div>`;
         continue;
@@ -1336,14 +1348,14 @@ function renderSchedule(rows) {
       if(!scored&&(sheetPPD||overrides[key]?.postponed)){
         const sel=sheetPPD?`<span class="status-lock" title="Marked PPD in the league sheet">PPD in sheet</span>`
           :`<select class="status-select ppd" onclick="event.stopPropagation()" onchange="setMatchStatus('${key}',this.value)" aria-label="Match status"><option value="sched">Scheduled</option><option value="ppd" selected>Postponed</option></select>`;
-        html+=`<div class="match-card upcoming" onclick="goToMakeup('${m.home}','${m.away}')" style="cursor:pointer" title="View make-up match"><div class="match-teams"><span class="match-team home">${hn}</span><span class="match-vs" style="color:var(--red-soft)">VS</span><span class="match-team away">${an}</span></div><div class="match-score" style="color:var(--red-soft);font-size:0.95rem">PPD</div>${sel}<button class="score-btn" onclick="event.stopPropagation();openScore('${key}')" title="Enter make-up score">+ Score</button></div>`;
+        html+=`<div class="match-card upcoming" onclick="goToMakeup('${m.home}','${m.away}')" style="cursor:pointer" title="View make-up match"><div class="match-teams"><span class="match-team home"><i class="ha h" title="Home">H</i>${hn}</span><span class="match-vs" style="color:var(--red-soft)">VS</span><span class="match-team away">${an}<i class="ha a" title="Away">A</i></span></div><div class="match-score" style="color:var(--red-soft);font-size:0.95rem">PPD</div>${sel}<button class="score-btn" onclick="event.stopPropagation();openScore('${key}')" title="Enter make-up score">+ Score</button></div>`;
         continue;
       }
       const statusSel=`<select class="status-select" onclick="event.stopPropagation()" onchange="setMatchStatus('${key}',this.value)" aria-label="Match status"><option value="sched" selected>Scheduled</option><option value="ppd">Postponed</option></select>`;
       const has=m.hPts!==''&&m.aPts!=='', hN=parseInt(m.hPts)||0, aN=parseInt(m.aPts)||0;
       const scoreBtn=`<button class="score-btn${has?' edit':''}" onclick="event.stopPropagation();openScore('${key}')" title="${has?'Edit score':'Enter score'}">${has?'✎ Edit':'+ Score'}</button>`;
-      if(has){html+=`<div class="match-card completed"><div class="match-teams"><span class="match-team home">${hn}</span><span class="match-vs">VS</span><span class="match-team away">${an}</span></div><div class="match-score"><span class="${hN>aN?'score-winner':'score-loser'}">${m.hPts}</span><span class="dash">–</span><span class="${aN>hN?'score-winner':'score-loser'}">${m.aPts}</span></div>${scoreBtn}</div>`;}
-      else{const fut=isFutureDate(g.date);html+=`<div class="match-card upcoming${fut?' future-match':''}"><div class="match-teams"><span class="match-team home" style="color:var(--text)">${hn}</span><span class="match-vs" style="color:${fut?'var(--gold)':'var(--red-soft)'}">VS</span><span class="match-team away" style="color:var(--text)">${an}</span></div><div class="match-score" style="color:${fut?'var(--gold)':'var(--red-soft)'};font-size:0.95rem">${fut?'—':'TBD'}</div>${statusSel}${scoreBtn}</div>`;}
+      if(has){html+=`<div class="match-card completed"><div class="match-teams"><span class="match-team home"><i class="ha h" title="Home">H</i>${hn}</span><span class="match-vs">VS</span><span class="match-team away">${an}<i class="ha a" title="Away">A</i></span></div><div class="match-score"><span class="${hN>aN?'score-winner':'score-loser'}">${m.hPts}</span><span class="dash">–</span><span class="${aN>hN?'score-winner':'score-loser'}">${m.aPts}</span></div>${scoreBtn}</div>`;}
+      else{const fut=isFutureDate(g.date);html+=`<div class="match-card upcoming${fut?' future-match':''}"><div class="match-teams"><span class="match-team home" style="color:var(--text)"><i class="ha h" title="Home">H</i>${hn}</span><span class="match-vs" style="color:${fut?'var(--gold)':'var(--red-soft)'}">VS</span><span class="match-team away" style="color:var(--text)">${an}<i class="ha a" title="Away">A</i></span></div><div class="match-score" style="color:${fut?'var(--gold)':'var(--red-soft)'};font-size:0.95rem">${fut?'—':'TBD'}</div>${statusSel}${scoreBtn}</div>`;}
     }
     for(const m of (g.movedOut||[])) html+=`<div class="moved-note" onclick="goToMakeup('${m.home}','${m.away}')">${shortTeam(m.home)} vs ${shortTeam(m.away)} <span>→ moved to ${prettyIso(m.st.date)}${m.st.state==='confirmed'?'':' (proposed)'}</span></div>`;
     if(bye.length) html+=`<div class="bye-note">Bye · ${bye.map(t=>teamNames[t]||t).join(', ')}</div>`;
@@ -1524,7 +1536,7 @@ function renderMakeupCards() {
     const textBtn = !played && nums.length ? `<a class="text-group-btn" href="${groupSmsHref(nums, makeupText(m))}">${smsIcon}Text both teams</a>` : '';
     html += `<div class="makeup-card ${played ? 'makeup-played' : ''} mu-${played ? 'done' : st.state}" id="makeup-match-${m.id}">
       <div style="flex:1;min-width:0">
-        <div class="match-teams" style="margin-bottom:6px"><span class="match-team home">${hn}</span><span class="match-vs">VS</span><span class="match-team away">${an}</span></div>
+        <div class="match-teams" style="margin-bottom:6px"><span class="match-team home"><i class="ha h" title="Home">H</i>${hn}</span><span class="match-vs">VS</span><span class="match-team away">${an}<i class="ha a" title="Away">A</i></span></div>
         <div class="mu-from">Originally <s>${formatDate(m.originalDate)}</s></div>
         ${body}${textBtn}
       </div>
@@ -2006,7 +2018,7 @@ function navigateToTeam(teamKey) {
   if (matches.length) {
     html += `<div class="modal-section-label">Match Results</div>`;
     for (const m of matches) {
-      const ha = m.isHome ? 'vs' : '@';
+      const ha = m.isHome ? '<i class="ha h" title="Home">H</i>vs' : '<i class="ha a" title="Away" style="margin:0 5px 0 0">A</i>@';
       if (m.played) {
         const cls = m.won ? 'win' : 'loss';
         const lbl = m.won ? 'W' : 'L';
