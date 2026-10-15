@@ -1157,7 +1157,7 @@ function buildThisWeek() {
       ${twOdds(m.home, m.away, next)}
     </div>`;
   });
-  if (body.includes('tw-wp')) body += `<div class="tw-wp-note">Win probability based on each team's results against common opponents and head-to-head. Just for fun.</div>`;
+  if (body.includes('tw-wp')) body += `<div class="tw-wp-note">Win probability</div>`;
   body += HA_KEY.replace('ha-key', 'ha-key tw-key');
   if (bye.length) body += `<div class="tw-bye">Bye · ${bye.map(shortTeam).join(', ')}</div>`;
   return `<div class="tw-card" onclick="this.classList.add('hold')">
