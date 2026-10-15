@@ -1917,9 +1917,8 @@ function playerRow(name, isCap, kind) {
   const c = contactFor(name);
   const digits = c && c.phone ? c.phone.replace(/[^\d+]/g, '') : '';
   const stop = 'onclick="event.stopPropagation()"';
-  const dot = kind === 'modal' ? '<div class="modal-player-dot"></div>' : '<div class="player-dot"></div>';
   const tag = isCap ? (kind === 'modal' ? '<span class="modal-cap-tag">Captain</span>' : '<span class="captain-star">Captain</span>') : '';
-  return `<li class="player-row">${dot}
+  return `<li class="player-row">
     <div class="player-info">
       <div class="player-name">${esc(name)}${tag}</div>
       ${c && c.phone ? `<a class="contact-line" href="tel:${esc(digits)}" ${stop}>${esc(c.phone)}</a>` : ''}
