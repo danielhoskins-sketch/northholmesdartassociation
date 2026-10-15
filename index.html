@@ -1118,7 +1118,7 @@ function buildThisWeek() {
     <button class="tw-close" onclick="closeThisWeek()" aria-label="Close">✕</button>
     <div class="tw-head"><div class="tw-eyebrow">NHDA Winter League</div><div class="tw-title">${title}</div><div class="tw-when">${when}${badge}</div>${SEASON.venue ? `<div class="tw-venue">${SEASON.startTime ? SEASON.startTime + ' · ' : ''}${SEASON.venue}</div>` : ''}</div>
     <div class="tw-body">${body}</div>
-    ${pushOfferable() ? `<div style="padding:0 16px"><button class="tw-remind" onclick="closeThisWeek();openPushPanel()">🎯 Remind me the night before</button></div>` : ''}
+    ${pushOfferable() ? `<div style="padding:0 16px"><button class="tw-remind" onclick="closeThisWeek();openPushPanel()">Remind me the night before</button></div>` : ''}
     <div class="tw-actions"><button class="tw-btn-ghost" onclick="closeThisWeek()">Let's Throw</button><button class="tw-btn-primary" onclick="closeThisWeek('schedule')">Full Schedule</button></div>
     <div class="tw-timer" style="--t:10s"></div>
   </div>`;
@@ -2100,7 +2100,7 @@ function renderPushPanel(note) {
   let body, actions = '';
   if (!pushSupported() && isIOS() && !isStandalone()) {
     body = `<p>On iPhone, reminders only work from the NHDA app on your Home Screen.</p>
-      <p><b>1.</b> Tap the Share button in Safari<br><b>2.</b> Tap <b>Add to Home Screen</b><br><b>3.</b> Open NHDA from your Home Screen and tap the dartboard 🎯</p>`;
+      <p><b>1.</b> Tap the Share button in Safari<br><b>2.</b> Tap <b>Add to Home Screen</b><br><b>3.</b> Open NHDA from your Home Screen and tap the dartboard</p>`;
   } else if (!pushSupported()) {
     body = `<p>This browser can't receive reminders. Try Chrome on Android, or the NHDA Home Screen app on iPhone (iOS 16.4 or newer).</p>`;
   } else if (Notification.permission === 'denied') {

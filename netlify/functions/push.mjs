@@ -36,7 +36,7 @@ export default async (req) => {
   if (body.action === 'test') {
     const id = idFor(body.endpoint); const one = subs[id];
     if (!one) return json({ error: 'This phone is not signed up' }, 404);
-    const r = await sendAll({ [id]: one }, { title: '🎯 NHDA reminders are on', body: "You'll get a heads-up at 6 PM the night before each match night.", tag: 'nhda-test' });
+    const r = await sendAll({ [id]: one }, { title: 'NHDA reminders are on', body: "You'll get a heads-up at 6 PM the night before each match night.", tag: 'nhda-test' });
     if (r.gone.length) { delete subs[id]; await writeSubs(subs); }
     return json({ ok: r.sent === 1 });
   }

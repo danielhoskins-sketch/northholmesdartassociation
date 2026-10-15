@@ -79,7 +79,7 @@ export function reminderText(night) {
   if (night.kind === 'match') {
     const list = night.matches.map(m => `${teamName(m.home)} (H) vs ${teamName(m.away)}${m.makeup ? ' — make-up' : ''}`).join(' · ');
     return {
-      title: `🎯 Match night tomorrow · ${START_TIME}`,
+      title: `Match night tomorrow · ${START_TIME}`,
       body: `${VENUE}: ${list}${night.bye.length ? `. Bye: ${night.bye.map(teamName).join(', ')}` : ''}`
     };
   }
