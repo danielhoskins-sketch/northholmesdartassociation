@@ -2174,11 +2174,22 @@ async function testPush() {
 // ─────────────────────────────────────────────
 let pendingMuKey = (() => { try { const v = new URLSearchParams(location.search).get('mu'); return v ? decodeURIComponent(v).replace(/~/g, '|') : ''; } catch { return ''; } })();
 let muPanelKey = '', muMode = '';
+// ?mu=demo opens a practice make-up that never saves — safe for testing the text link
+let muDemo = null;
+function demoMatch() {
+  if (!muDemo) {
+    const d = new Date(); d.setDate(d.getDate() + ((5 - d.getDay() + 7) % 7 || 7) + 7);
+    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    muDemo = { key: 'demo', demo: true, home: 'Keller', away: 'Hoskins', originalDate: '10.16.26', hPts: '', aPts: '', fromSheet: false, st: { state: 'proposed', date: iso, by: 'Keller' } };
+  }
+  return muDemo;
+}
+const findMu = key => key === 'demo' ? demoMatch() : makeupMatches.find(x => x.key === key);
 function maybeOpenMuFromLink() {
   if (!pendingMuKey || !window._scheduleRows || introRunning()) return;
   const key = pendingMuKey; pendingMuKey = '';
   try { history.replaceState(null, '', location.pathname); } catch {}
-  const m = makeupMatches.find(x => x.key === key);
+  const m = findMu(key);
   closeThisWeek();
   const btn = document.querySelector('[data-section="makeup"]'); if (btn) showSection('makeup', btn);
   if (!m) { flashToast('That make-up is no longer on the board', true); return; }
@@ -2192,13 +2203,13 @@ function openMuPanel(key, mode) {
 function closeMuPanel() { document.getElementById('mu-overlay').classList.remove('open'); muPanelKey = ''; muMode = ''; }
 function renderMuPanel() {
   const el = document.getElementById('mu-sheet'); if (!el || !muPanelKey) return;
-  const m = makeupMatches.find(x => x.key === muPanelKey);
+  const m = findMu(muPanelKey);
   if (!m) { closeMuPanel(); return; }
   const hn = shortTeam(m.home), an = shortTeam(m.away), st = m.st;
   const played = m.hPts !== '' && m.aPts !== '';
   const head = `<button class="tw-close" onclick="closeMuPanel()" aria-label="Close">✕</button><h3>Make-Up Match</h3>
     <div class="mu-teams"><i class="ha h">H</i>${hn} <span style="color:var(--gold);font-size:1rem">VS</span> ${an}<i class="ha a">A</i></div>
-    <div class="mu-sub">Originally ${formatDate(m.originalDate)}</div>`;
+    <div class="mu-sub">Originally ${formatDate(m.originalDate)}</div>${m.demo ? `<div class="push-status" style="margin-top:8px">Demo · nothing is saved</div>` : ''}`;
   const picker = (label) => `<input type="date" id="mu-sheet-date" class="mu-date" value="${st.date || ''}">
     <div class="mu-pick">${label}</div>
     <div class="mu-two"><button class="tw-btn-ghost" onclick="muSheetPropose('${m.home}')">${hn}</button><button class="tw-btn-ghost" onclick="muSheetPropose('${m.away}')">${an}</button></div>`;
@@ -2219,14 +2230,16 @@ function renderMuPanel() {
   el.innerHTML = head + body + `<div class="push-actions">${actions}</div>`;
 }
 function muSheetPropose(team) {
-  const m = makeupMatches.find(x => x.key === muPanelKey); if (!m) return;
+  const m = findMu(muPanelKey); if (!m) return;
   const val = (document.getElementById('mu-sheet-date') || {}).value;
   if (!val) { flashToast('Pick a date first', true); return; }
   muMode = '';
+  if (m.demo) { m.st = { state: 'proposed', date: val, by: team }; renderMuPanel(); flashToast(`Demo: proposed ${prettyIso(val)} · nothing saved`); return; }
   saveOverride(m.key, { ...(m.fromSheet ? {} : { postponed: true }), makeupDate: val, proposedBy: team, confirmed: false });
 }
 function muSheetConfirm() {
-  const m = makeupMatches.find(x => x.key === muPanelKey); if (!m) return;
+  const m = findMu(muPanelKey); if (!m) return;
+  if (m.demo) { m.st = { ...m.st, state: 'confirmed' }; renderMuPanel(); flashToast('Demo: confirmed · nothing saved'); return; }
   saveOverride(m.key, { confirmed: true });
 }
 
