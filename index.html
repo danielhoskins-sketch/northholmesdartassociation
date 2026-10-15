@@ -254,6 +254,42 @@
   .mu-sheet .mu-pick { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin: 14px 0 6px; }
   .mu-sheet .mu-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
+  /* MATCHUP CARD + WIN PROBABILITY */
+  .match-card.tappable { cursor: pointer; }
+  .match-card.tappable:active { transform: scale(0.985); }
+  #mx-overlay { display: none; position: fixed; inset: 0; z-index: 9100; align-items: flex-end; justify-content: center; background: rgba(5,4,3,0.72); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  #mx-overlay.open { display: flex; }
+  @media (min-width: 600px) { #mx-overlay.open { align-items: center; } }
+  .mx-sheet { max-height: 90vh; overflow-y: auto; }
+  .mx-when { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.78rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); padding-right: 40px; }
+  .mx-head { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; margin-top: 14px; }
+  .mx-team { min-width: 0; }
+  .mx-team.away { text-align: right; }
+  .mx-name { font-family: 'Alfa Slab One', serif; font-size: 1.45rem; color: var(--cream); line-height: 1.05; }
+  .mx-name .ha { vertical-align: 6px; }
+  .mx-rec { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 0.78rem; letter-spacing: 0.1em; color: var(--text-muted); margin-top: 4px; }
+  .mx-mid { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.1em; color: var(--gold); text-align: center; }
+  .mx-mid.score { font-size: 2rem; color: var(--cream); letter-spacing: 0.04em; }
+  .wp { margin-top: 20px; }
+  .wp-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); text-align: center; margin-bottom: 8px; }
+  .wp-row { display: flex; align-items: center; gap: 10px; }
+  .wp-pct { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; line-height: 1; min-width: 58px; color: var(--cream); }
+  .wp-pct.right { text-align: right; }
+  .wp-pct.fav { color: var(--gold-light); }
+  .wp-bar { flex: 1; height: 14px; border-radius: 7px; background: var(--green); overflow: hidden; position: relative; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.5); }
+  .wp-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 50%; background: var(--red); transition: width 0.9s cubic-bezier(.2,.9,.3,1); }
+  .wp-fill::after { content: ''; position: absolute; right: -1px; top: 0; bottom: 0; width: 2px; background: var(--cream); }
+  .wp-note { font-size: 0.82rem; color: var(--text-muted); text-align: center; margin-top: 8px; line-height: 1.4; }
+  .mx-sec { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin: 20px 0 6px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .mx-tbl { width: 100%; border-collapse: collapse; font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; }
+  .mx-tbl th { font-weight: 700; font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); text-align: center; padding: 4px 0; }
+  .mx-tbl th:first-child, .mx-tbl td:first-child { text-align: left; }
+  .mx-tbl td { padding: 7px 0; border-bottom: 1px dashed var(--border); text-align: center; color: var(--text); }
+  .mx-tbl tr:last-child td { border-bottom: none; }
+  .mx-tbl .w { color: var(--green-light); font-weight: 700; }
+  .mx-tbl .l { color: var(--red-soft); }
+  .mx-tbl .na { color: var(--text-dim); }
+
   /* TEAM MODAL */
   #team-modal-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.78); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); overflow-y: auto; padding: 0; }
   #team-modal-overlay.open { display: flex; align-items: flex-end; }
@@ -803,6 +839,7 @@
 
 <!-- THIS WEEK: pops up after the curtain opens -->
 <!-- MATCH REMINDERS: opt-in sheet -->
+<div id="mx-overlay" role="dialog" aria-label="Matchup" onclick="if(event.target===this)closeMatchup()"><div class="push-sheet mx-sheet" id="mx-sheet"></div></div>
 <div id="mu-overlay" role="dialog" aria-label="Make-up match" onclick="if(event.target===this)closeMuPanel()"><div class="push-sheet mu-sheet" id="mu-sheet"></div></div>
 <div id="push-overlay" role="dialog" aria-label="Match reminders" onclick="if(event.target===this)closePushPanel()"><div class="push-sheet" id="push-sheet"></div></div>
 <div id="tw-overlay" role="dialog" aria-label="This week's matches" onclick="if(event.target===this)closeThisWeek()"></div>
@@ -1394,8 +1431,8 @@ function renderSchedule(rows) {
       const statusSel=`<select class="status-select" onclick="event.stopPropagation()" onchange="setMatchStatus('${key}',this.value)" aria-label="Match status"><option value="sched" selected>Scheduled</option><option value="ppd">Postponed</option></select>`;
       const has=m.hPts!==''&&m.aPts!=='', hN=parseInt(m.hPts)||0, aN=parseInt(m.aPts)||0;
       const scoreBtn=`<button class="score-btn${has?' edit':''}" onclick="event.stopPropagation();openScore('${key}')" title="${has?'Edit score':'Enter score'}">${has?'✎ Edit':'+ Score'}</button>`;
-      if(has){html+=`<div class="match-card completed"><div class="match-teams"><span class="match-team home"><i class="ha h" title="Home">H</i>${hn}</span><span class="match-vs">VS</span><span class="match-team away">${an}<i class="ha a" title="Away">A</i></span></div><div class="match-score"><span class="${hN>aN?'score-winner':'score-loser'}">${m.hPts}</span><span class="dash">–</span><span class="${aN>hN?'score-winner':'score-loser'}">${m.aPts}</span></div>${scoreBtn}</div>`;}
-      else{const fut=isFutureDate(g.date);html+=`<div class="match-card upcoming${fut?' future-match':''}"><div class="match-teams"><span class="match-team home" style="color:var(--text)"><i class="ha h" title="Home">H</i>${hn}</span><span class="match-vs" style="color:${fut?'var(--gold)':'var(--red-soft)'}">VS</span><span class="match-team away" style="color:var(--text)">${an}<i class="ha a" title="Away">A</i></span></div><div class="match-score" style="color:${fut?'var(--gold)':'var(--red-soft)'};font-size:0.95rem">${fut?'—':'TBD'}</div>${statusSel}${scoreBtn}</div>`;}
+      if(has){html+=`<div class="match-card completed tappable" onclick="openMatchup('${key}')" title="Matchup details"><div class="match-teams"><span class="match-team home"><i class="ha h" title="Home">H</i>${hn}</span><span class="match-vs">VS</span><span class="match-team away">${an}<i class="ha a" title="Away">A</i></span></div><div class="match-score"><span class="${hN>aN?'score-winner':'score-loser'}">${m.hPts}</span><span class="dash">–</span><span class="${aN>hN?'score-winner':'score-loser'}">${m.aPts}</span></div>${scoreBtn}</div>`;}
+      else{const fut=isFutureDate(g.date);html+=`<div class="match-card upcoming${fut?' future-match':''} tappable" onclick="openMatchup('${key}')" title="Matchup details"><div class="match-teams"><span class="match-team home" style="color:var(--text)"><i class="ha h" title="Home">H</i>${hn}</span><span class="match-vs" style="color:${fut?'var(--gold)':'var(--red-soft)'}">VS</span><span class="match-team away" style="color:var(--text)">${an}<i class="ha a" title="Away">A</i></span></div><div class="match-score" style="color:${fut?'var(--gold)':'var(--red-soft)'};font-size:0.95rem">${fut?'—':'TBD'}</div>${statusSel}${scoreBtn}</div>`;}
     }
     for(const m of (g.movedOut||[])) html+=`<div class="moved-note" onclick="goToMakeup('${m.home}','${m.away}')">${shortTeam(m.home)} vs ${shortTeam(m.away)} <span>→ moved to ${prettyIso(m.st.date)}${m.st.state==='confirmed'?'':' (proposed)'}</span></div>`;
     if(bye.length) html+=`<div class="bye-note">Bye · ${bye.map(t=>teamNames[t]||t).join(', ')}</div>`;
@@ -2081,7 +2118,7 @@ function closeTeamModal(evt) {
   document.body.style.overflow = '';
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeTeamModal(null); closeScore(); closePushPanel(); closeMuPanel(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeTeamModal(null); closeScore(); closePushPanel(); closeMuPanel(); closeMatchup(); } });
 
 
 // ─────────────────────────────────────────────
@@ -2242,6 +2279,78 @@ function muSheetConfirm() {
   if (m.demo) { m.st = { ...m.st, state: 'confirmed' }; renderMuPanel(); flashToast('Demo: confirmed · nothing saved'); return; }
   saveOverride(m.key, { confirmed: true });
 }
+
+// ─────────────────────────────────────────────
+// MATCHUP CARD — tap a match on the Schedule.
+// Win probability: each team's game-win rate against the opponents both
+// teams have played (all games if none in common), blended with their
+// head-to-head games, turned into a per-game edge (log5) and then into
+// the chance of winning 3+ of the 5 games. Only results from before the
+// match count, so a finished match shows its pre-match odds.
+// ─────────────────────────────────────────────
+const effDate = mm => { const o = overrides[mm.key] || {}; return o.makeupDate ? isoToSheet(o.makeupDate) : mm.date; };
+function matchupOdds(home, away, before) {
+  const cutoff = before ? sheetToTime(before) : Infinity;
+  const games = Object.values(matchIndex).filter(mm => mm.h !== null && sheetToTime(effDate(mm)) < cutoff);
+  // per team, per opponent: games won / played
+  const vs = {};
+  const add = (t, o, w, n) => { const r = ((vs[t] = vs[t] || {})[o] = vs[t][o] || { w: 0, n: 0, list: [] }); r.w += w; r.n += n; };
+  for (const g of games) { add(g.home, g.away, g.h, 5); add(g.away, g.home, g.a, 5); }
+  for (const g of games) { vs[g.home][g.away].list.push(`${g.h}–${g.a}`); vs[g.away][g.home].list.push(`${g.a}–${g.h}`); }
+  const A = vs[home] || {}, B = vs[away] || {};
+  const common = Object.keys(A).filter(o => o !== away && o !== home && B[o]);
+  const sum = (T, opps) => opps.reduce((acc, o) => ({ w: acc.w + T[o].w, n: acc.n + T[o].n }), { w: 0, n: 0 });
+  let basis = 'common', a, b;
+  if (common.length) { a = sum(A, common); b = sum(B, common); }
+  else { basis = 'overall'; a = sum(A, Object.keys(A).filter(o => o !== away)); b = sum(B, Object.keys(B).filter(o => o !== home)); }
+  // smoothed game-win rates (pulls small samples toward 50%)
+  const rate = x => (x.w + 5) / (x.n + 10);
+  const pa = rate(a), pb = rate(b);
+  let q = (pa * (1 - pb)) / (pa * (1 - pb) + pb * (1 - pa));
+  const h2h = A[away];
+  if (h2h && h2h.n) q = (q * 10 + h2h.w) / (10 + h2h.n);
+  const C = [1, 5, 10, 10, 5, 1];
+  let pMatch = 0; for (let k = 3; k <= 5; k++) pMatch += C[k] * q ** k * (1 - q) ** (5 - k);
+  const anyData = a.n + b.n + (h2h ? h2h.n : 0) > 0;
+  return { pHome: anyData ? pMatch : 0.5, anyData, basis, common, A, B, h2h, a, b };
+}
+function recordOf(t) { for (let i = 1; i < (window._scheduleRows || []).length; i++) { const r = window._scheduleRows[i]; if (r[5] === t) return { w: r[7], l: r[8], rank: r[11] }; } return null; }
+function openMatchup(key) {
+  const mm = matchIndex[key]; if (!mm) return;
+  const el = document.getElementById('mx-sheet');
+  const hn = shortTeam(mm.home), an = shortTeam(mm.away);
+  const played = mm.h !== null;
+  const odds = matchupOdds(mm.home, mm.away, effDate(mm));
+  const ph = Math.round(odds.pHome * 100), pa = 100 - ph;
+  const rec = t => { const r = recordOf(t); return r ? `#${r.rank} · ${r.w}–${r.l}` : ''; };
+  const when = (() => { const p = effDate(mm).split('.'); return new Date(2000 + +p[2], +p[0] - 1, +p[1]).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); })();
+  const note = !odds.anyData ? 'No games played yet — a coin flip for now.'
+    : odds.basis === 'common' ? `Based on games against ${odds.common.length} common opponent${odds.common.length > 1 ? 's' : ''}${odds.h2h ? ' and head-to-head' : ''}.`
+    : `No common opponents yet — based on each team's games so far${odds.h2h ? ' and head-to-head' : ''}.`;
+  const fmt = (T, o) => { const r = T[o]; if (!r) return '<span class="na">—</span>'; return r.list.map(sc => { const [x, y] = sc.split('–').map(Number); return `<span class="${x > y ? 'w' : 'l'}">${sc}</span>`; }).join(', '); };
+  let rows = '';
+  const opps = odds.basis === 'common' ? odds.common : [...new Set([...Object.keys(odds.A), ...Object.keys(odds.B)])].filter(o => o !== mm.home && o !== mm.away);
+  for (const o of opps) rows += `<tr><td>vs ${shortTeam(o)}</td><td>${fmt(odds.A, o)}</td><td>${fmt(odds.B, o)}</td></tr>`;
+  const table = rows ? `<div class="mx-sec">${odds.basis === 'common' ? 'Common opponents' : 'Results so far'}</div>
+    <table class="mx-tbl"><tr><th>Opponent</th><th>${hn}</th><th>${an}</th></tr>${rows}</table>` : '';
+  const h2h = odds.h2h ? `<div class="mx-sec">Head-to-head</div><table class="mx-tbl"><tr><td>${hn} vs ${an}</td><td>${fmt(odds.A, mm.away)}</td></tr></table>` : '';
+  el.innerHTML = `<button class="tw-close" onclick="closeMatchup()" aria-label="Close">✕</button>
+    <div class="mx-when">${when} · ${SEASON.startTime} · ${SEASON.venue}</div>
+    <div class="mx-head">
+      <div class="mx-team"><div class="mx-name"><i class="ha h">H</i>${hn}</div><div class="mx-rec">${rec(mm.home)}</div></div>
+      <div class="mx-mid${played ? ' score' : ''}">${played ? `${mm.h}–${mm.a}` : 'VS'}</div>
+      <div class="mx-team away"><div class="mx-name">${an}<i class="ha a">A</i></div><div class="mx-rec">${rec(mm.away)}</div></div>
+    </div>
+    <div class="wp">
+      <div class="wp-label">${played ? 'Pre-match win probability' : 'Win probability'}</div>
+      <div class="wp-row"><div class="wp-pct${ph > pa ? ' fav' : ''}">${ph}%</div><div class="wp-bar"><div class="wp-fill" id="wp-fill"></div></div><div class="wp-pct right${pa > ph ? ' fav' : ''}">${pa}%</div></div>
+      <div class="wp-note">${note}</div>
+    </div>${table}${h2h}`;
+  document.getElementById('mx-overlay').classList.add('open');
+  const fill = document.getElementById('wp-fill');
+  requestAnimationFrame(() => requestAnimationFrame(() => { fill.style.width = ph + '%'; }));
+}
+function closeMatchup() { document.getElementById('mx-overlay').classList.remove('open'); }
 
 let refreshInterval = null;
 
