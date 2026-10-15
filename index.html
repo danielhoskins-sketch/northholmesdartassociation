@@ -178,6 +178,45 @@
     background: radial-gradient(circle, var(--red) 0 22%, var(--green) 23% 45%, transparent 46%), radial-gradient(circle, transparent 0 62%, var(--cream) 63% 100%); box-shadow: 0 0 0 2px #000; }
   .section-header .eyebrow { margin-left: auto; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); border: 1px solid var(--gold-dim); padding: 3px 8px; border-radius: 2px; white-space: nowrap; }
 
+  /* THIS WEEK: match-night card that pops up after the curtain */
+  #tw-overlay { display: none; position: fixed; inset: 0; z-index: 9000; align-items: center; justify-content: center; padding: 20px; padding-top: calc(20px + var(--safe-top)); padding-bottom: calc(20px + var(--safe-bottom));
+    background: rgba(5,4,3,0.72); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  #tw-overlay.open { display: flex; animation: fadeIn 0.25s ease both; opacity: 0; }
+  #tw-overlay.open.out { animation: twOut 0.3s ease forwards; opacity: 1; }
+  @keyframes twOut { from { opacity: 1; } to { opacity: 0; } }
+  .tw-card { position: relative; width: 100%; max-width: 380px; background: linear-gradient(180deg, #241b12, #120e0a); border: 1px solid var(--gold-dim); border-radius: 10px; overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.75), 0 0 40px rgba(214,164,67,0.12); animation: twPop 0.5s cubic-bezier(.2,1.4,.4,1) both; }
+  @keyframes twPop { 0% { transform: translateY(40px) scale(0.86); opacity: 0; } 100% { transform: none; opacity: 1; } }
+  .tw-head { padding: 18px 20px 14px; text-align: center; border-bottom: 4px solid transparent; border-image: var(--ring) 1; }
+  .tw-eyebrow { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--gold); }
+  .tw-eyebrow::before, .tw-eyebrow::after { content: '◆'; color: var(--red); font-size: 0.5rem; margin: 0 8px; vertical-align: middle; }
+  .tw-title { font-family: 'Alfa Slab One', serif; font-size: 1.9rem; color: var(--cream); line-height: 1.05; margin-top: 6px; text-shadow: 0 3px 0 #000; }
+  .tw-when { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 0.95rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-top: 6px; }
+  .tw-badge { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 2px; background: var(--red); color: var(--cream); font-weight: 700; font-size: 0.72rem; letter-spacing: 0.14em; vertical-align: 1px; animation: twPulse 1.2s ease-in-out infinite; }
+  .tw-badge.soon { background: var(--gold-dim); animation: none; }
+  @keyframes twPulse { 50% { box-shadow: 0 0 0 4px rgba(208,18,43,0.25); } }
+  .tw-body { padding: 14px 16px 6px; }
+  .tw-match { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; padding: 11px 12px; margin-bottom: 8px; border-radius: 6px;
+    background: var(--chalk); border: 1px solid #2a3a30; box-shadow: inset 0 0 18px rgba(0,0,0,0.5); opacity: 0; animation: twSlide 0.4s cubic-bezier(.2,1.2,.4,1) forwards; animation-delay: var(--d); }
+  @keyframes twSlide { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
+  .tw-team { font-family: 'Bebas Neue', sans-serif; font-size: 1.35rem; letter-spacing: 0.05em; color: var(--cream); line-height: 1; }
+  .tw-team.away { text-align: right; }
+  .tw-team small { display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted); margin-top: 3px; }
+  .tw-team.win { color: var(--gold-light); }
+  .tw-vs { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.1em; color: var(--gold); text-align: center; }
+  .tw-vs.score { font-size: 1.4rem; color: var(--cream); }
+  .tw-tag { grid-column: 1 / -1; font-family: 'Barlow Condensed', sans-serif; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red-soft); margin-top: -2px; }
+  .tw-bye { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); text-align: center; padding: 4px 0 2px; }
+  .tw-actions { display: flex; gap: 10px; padding: 12px 16px 16px; }
+  .tw-actions button { flex: 1; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.9rem; letter-spacing: 0.14em; text-transform: uppercase; padding: 12px 10px; border-radius: 4px; cursor: pointer; }
+  .tw-btn-primary { background: linear-gradient(180deg, #e9bd5c, #a87c2e); color: #1a1208; border: 1px solid var(--gold); }
+  .tw-btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .tw-timer { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--gold); transform-origin: 0 50%; animation: twTimer var(--t, 9s) linear forwards; }
+  .tw-card:hover .tw-timer, .tw-card.hold .tw-timer { animation-play-state: paused; }
+  @keyframes twTimer { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+  .tw-close { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 50%; background: rgba(0,0,0,0.35); border: 1px solid var(--border); color: var(--text); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  @media (prefers-reduced-motion: reduce) { .tw-card, .tw-match, .tw-badge { animation: none !important; opacity: 1; } .tw-timer { display: none; } }
+
   /* TEAM MODAL */
   #team-modal-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.78); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); overflow-y: auto; padding: 0; }
   #team-modal-overlay.open { display: flex; align-items: flex-end; }
@@ -719,6 +758,9 @@
   <div class="intro-skip">Tap to skip</div>
 </div>
 
+<!-- THIS WEEK: pops up after the curtain opens -->
+<div id="tw-overlay" role="dialog" aria-label="This week's matches" onclick="if(event.target===this)closeThisWeek()"></div>
+
 <!-- PASSWORD GATE -->
 <div id="password-gate">
   <div class="gate-inner">
@@ -916,7 +958,8 @@ async function saveOverride(key, patch) {
   overrides[key] = { ...(overrides[key] || {}), ...patch };
   rerenderMakeupViews();
   try {
-    const r = await fetch('/api/makeups', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pw: CORRECT_PASSWORD, key, ...patch }) });
+    const r = await fetch('/api/makeups', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: authToken(), key, ...patch }) });
+    if (r.status === 401) { try { sessionStorage.removeItem(SESSION_KEY); } catch {} overrides = JSON.parse(before); rerenderMakeupViews(); flashToast('Login expired — reloading so you can sign back in', true); setTimeout(() => location.reload(), 1800); return; }
     if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.status);
     overrides = await r.json();
     rerenderMakeupViews();
@@ -974,6 +1017,87 @@ function renderAll() {
   const rows = mergeRows(window._sheetRows);
   window._scheduleRows = rows;
   renderStandings(rows); renderSchedule(rows); renderTeams(rows); renderMakeup(rows); renderPlayoffs(rows);
+  maybeShowThisWeek();
+}
+
+// ─────────────────────────────────────────────
+// THIS WEEK — match-night card that pops up once per visit,
+// right after the opening curtain (or as soon as the data lands)
+// ─────────────────────────────────────────────
+const TW_SEEN_KEY = 'nhda_tw_seen';
+let twTimer = null;
+function introRunning() {
+  const intro = document.getElementById('intro'), launch = document.getElementById('launch');
+  return (intro && intro.style.display === 'block') || (launch && launch.classList.contains('play'));
+}
+function maybeShowThisWeek() {
+  if (maybeShowThisWeek._done || !window._scheduleRows || introRunning()) return;
+  let seen = false; try { seen = sessionStorage.getItem(TW_SEEN_KEY) === '1'; } catch {}
+  if (seen) { maybeShowThisWeek._done = true; return; }
+  const html = buildThisWeek();
+  maybeShowThisWeek._done = true;
+  try { sessionStorage.setItem(TW_SEEN_KEY, '1'); } catch {}
+  if (html) openThisWeek(html);
+}
+function buildThisWeek() {
+  const rows = window._scheduleRows || [];
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  // Every regular-season match on its effective date (make-ups move to their new date)
+  const nights = {};
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i], d = (r[0] || '').trim();
+    if (!d || rowKind(d) !== 'match') continue;
+    const home = (r[1] || '').trim(), away = (r[3] || '').trim(); if (!home || !away) continue;
+    const key = mkKey(d, home, away);
+    let date = d, moved = false;
+    if (isPostponed(key)) { const st = makeupState(key); if (st.state === 'none') continue; date = isoToSheet(st.date); moved = true; }
+    const hp = parseInt(r[2]), ap = parseInt(r[4]);
+    (nights[date] = nights[date] || []).push({ home, away, h: Number.isFinite(hp) ? hp : null, a: Number.isFinite(ap) ? ap : null, moved, from: d });
+  }
+  const next = Object.keys(nights).filter(d => sheetToTime(d) >= today.getTime()).sort((a, b) => sheetToTime(a) - sheetToTime(b))[0];
+  if (!next) return '';
+  const matches = nights[next];
+  const days = Math.round((sheetToTime(next) - today.getTime()) / 86400000);
+  // Current records from the standings columns
+  const rec = {};
+  for (let i = 1; i < rows.length; i++) { const r = rows[i]; if (!r[5]) break; rec[r[5]] = { w: r[7], l: r[8], rank: r[11] }; }
+  const recTxt = t => rec[t] ? `#${rec[t].rank} · ${rec[t].w}–${rec[t].l}` : '';
+  const playing = new Set(matches.flatMap(m => [m.home, m.away]));
+  const bye = Object.keys(teamNames).filter(t => !playing.has(t));
+  const dt = new Date(sheetToTime(next));
+  const when = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const title = days === 0 ? 'Match Night Tonight' : days <= 7 ? 'This Week' : 'Next Match Night';
+  const badge = days === 0 ? '<span class="tw-badge">Tonight</span>' : days === 1 ? '<span class="tw-badge soon">Tomorrow</span>' : days <= 7 ? `<span class="tw-badge soon">In ${days} days</span>` : '';
+  let body = '';
+  matches.forEach((m, i) => {
+    const scored = m.h !== null && m.a !== null;
+    body += `<div class="tw-match" style="--d:${0.25 + i * 0.12}s">
+      <div class="tw-team${scored && m.h > m.a ? ' win' : ''}">${shortTeam(m.home)}<small>${recTxt(m.home)}</small></div>
+      <div class="tw-vs${scored ? ' score' : ''}">${scored ? `${m.h}–${m.a}` : 'VS'}</div>
+      <div class="tw-team away${scored && m.a > m.h ? ' win' : ''}">${shortTeam(m.away)}<small>${recTxt(m.away)}</small></div>
+      ${m.moved ? `<div class="tw-tag">Make-up · originally ${fmtShort(m.from)}</div>` : ''}
+    </div>`;
+  });
+  if (bye.length) body += `<div class="tw-bye">Bye · ${bye.map(shortTeam).join(', ')}</div>`;
+  return `<div class="tw-card" onclick="this.classList.add('hold')">
+    <button class="tw-close" onclick="closeThisWeek()" aria-label="Close">✕</button>
+    <div class="tw-head"><div class="tw-eyebrow">NHDA Winter League</div><div class="tw-title">${title}</div><div class="tw-when">${when}${badge}</div></div>
+    <div class="tw-body">${body}</div>
+    <div class="tw-actions"><button class="tw-btn-ghost" onclick="closeThisWeek()">Let's Throw</button><button class="tw-btn-primary" onclick="closeThisWeek('schedule')">Full Schedule</button></div>
+    <div class="tw-timer" style="--t:10s"></div>
+  </div>`;
+}
+function openThisWeek(html) {
+  const ov = document.getElementById('tw-overlay'); if (!ov) return;
+  ov.innerHTML = html; ov.classList.remove('out'); ov.classList.add('open');
+  const timer = ov.querySelector('.tw-timer');
+  if (timer) timer.addEventListener('animationend', () => closeThisWeek(), { once: true });
+}
+function closeThisWeek(goTo) {
+  const ov = document.getElementById('tw-overlay'); if (!ov || !ov.classList.contains('open')) return;
+  ov.classList.add('out');
+  setTimeout(() => { ov.classList.remove('open', 'out'); ov.innerHTML = ''; }, 300);
+  if (goTo) { const btn = document.querySelector(`[data-section="${goTo}"]`); if (btn) showSection(goTo, btn); }
 }
 
 
@@ -1775,7 +1899,7 @@ function renderContacts() { if (window._scheduleRows) renderTeams(window._schedu
 async function loadContacts() {
   // 1) Private list kept on Netlify (served after the site password)
   try {
-    const r = await fetch('/api/contacts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pw: CORRECT_PASSWORD }), cache: 'no-store' });
+    const r = await fetch('/api/contacts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: authToken() }), cache: 'no-store' });
     if (r.ok) { const d = await r.json(); if (d.contacts && d.contacts.length) { contacts = d.contacts; renderContacts(); return; } }
   } catch {}
   // 2) Fallback: the member tab of the league sheet
@@ -1915,17 +2039,30 @@ let refreshInterval = null;
 <script>
 // PASSWORD GATE
 applySeasonText();
-const CORRECT_PASSWORD = 'doobie';
-const SESSION_KEY = 'nhda_auth';
+// The password is checked on the server (/api/login), which hands back a signed token.
+const SESSION_KEY = 'nhda_token';
+function authToken() { try { return sessionStorage.getItem(SESSION_KEY) || ''; } catch { return ''; } }
 
-function checkPassword() {
+let checkingPw = false;
+async function checkPassword() {
+  if (checkingPw) return;
   const input = document.getElementById('pw-input');
+  const err = document.getElementById('gate-error');
   const val = input.value.trim();
-  if (val === CORRECT_PASSWORD) {
-    sessionStorage.setItem(SESSION_KEY, '1');
+  if (!val) { input.focus(); return; }
+  checkingPw = true; err.textContent = '';
+  let ok = false, msg = 'Incorrect password. Try again.';
+  try {
+    const r = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pw: val }), cache: 'no-store' });
+    const data = await r.json().catch(() => ({}));
+    if (r.ok && data.token) { try { sessionStorage.setItem(SESSION_KEY, data.token); } catch {} ok = true; }
+    else if (r.status !== 401) msg = 'Could not reach the server. Try again.';
+  } catch { msg = 'Could not reach the server. Check your connection.'; }
+  checkingPw = false;
+  if (ok) {
     unlockSite();
   } else {
-    document.getElementById('gate-error').textContent = 'Incorrect password. Try again.';
+    err.textContent = msg;
     input.value = '';
     input.classList.remove('shake');
     void input.offsetWidth;
@@ -1957,7 +2094,7 @@ function endIntro() {
   const el = document.getElementById('intro'); if (!el || el.style.display === 'none') return;
   clearTimeout(introTimer);
   el.classList.add('done');
-  setTimeout(() => { el.style.display = 'none'; el.classList.remove('play', 'done'); }, 450);
+  setTimeout(() => { el.style.display = 'none'; el.classList.remove('play', 'done'); maybeShowThisWeek(); }, 450);
   if (document.getElementById('standings').classList.contains('active')) setTimeout(playStandingsDarts, 150);
 }
 
@@ -1979,7 +2116,7 @@ function unlockSite() {
   }, 300);
 }
 
-if (sessionStorage.getItem(SESSION_KEY) === '1') {
+if (authToken()) {
   playLaunch(playIntro);
   document.getElementById('password-gate').style.display = 'none';
   document.getElementById('app-content').style.display = 'block';

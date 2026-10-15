@@ -8,9 +8,9 @@
 //   (score: { h, a } or null to clear; a new makeupDate resets confirmed; proposedBy must be one of the two teams)
 
 import { getStore } from '@netlify/blobs';
+import { authorized } from '../lib/auth.mjs';
 
 const SEASON_KEY = 'makeups-2026-27';
-const PASSWORD = process.env.NHDA_PASSWORD || 'doobie';
 const KEY_RE = /^\d{1,2}\.\d{1,2}\.\d{2}\|[^|]{1,40}\|[^|]{1,40}$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const HEADERS = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
@@ -26,7 +26,7 @@ export default async (req) => {
 
   let body;
   try { body = await req.json(); } catch { return json({ error: 'Bad request' }, 400); }
-  if (!body || body.pw !== PASSWORD) return json({ error: 'Not authorized' }, 401);
+  if (!authorized(body)) return json({ error: 'Not authorized' }, 401);
 
   const key = typeof body.key === 'string' ? body.key.trim() : '';
   if (!KEY_RE.test(key)) return json({ error: 'Unknown match' }, 400);
