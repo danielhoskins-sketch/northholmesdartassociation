@@ -214,6 +214,7 @@
   .tw-wp span:last-child { text-align: right; }
   .tw-wp span.fav { color: var(--gold-light); }
   .wp-bar.sm { height: 8px; border-radius: 4px; }
+  .tw-wp-note { font-size: 0.72rem; line-height: 1.4; color: var(--text-dim); text-align: center; font-style: italic; margin: 2px 6px 8px; }
   .tw-bye { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); text-align: center; padding: 4px 0 2px; }
   .tw-actions { display: flex; gap: 10px; padding: 12px 16px 16px; }
   .tw-actions button { flex: 1; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.9rem; letter-spacing: 0.14em; text-transform: uppercase; padding: 12px 10px; border-radius: 4px; cursor: pointer; }
@@ -1156,6 +1157,7 @@ function buildThisWeek() {
       ${twOdds(m.home, m.away, next)}
     </div>`;
   });
+  if (body.includes('tw-wp')) body += `<div class="tw-wp-note">Win probability based on each team's results against common opponents and head-to-head. Just for fun.</div>`;
   body += HA_KEY.replace('ha-key', 'ha-key tw-key');
   if (bye.length) body += `<div class="tw-bye">Bye · ${bye.map(shortTeam).join(', ')}</div>`;
   return `<div class="tw-card" onclick="this.classList.add('hold')">
