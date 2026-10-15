@@ -111,14 +111,14 @@
   /* SMOKE after the curtain opens */
   .smoke { position: absolute; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; }
   .puff { position: absolute; left: var(--x); top: var(--y); width: var(--s); height: var(--s); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2); border-radius: 50%;
-    background: radial-gradient(circle at 50% 50%, rgba(232,226,214,0.75) 0%, rgba(205,198,186,0.45) 30%, rgba(170,162,150,0.18) 55%, rgba(150,142,130,0) 70%);
+    background: radial-gradient(circle at 50% 50%, rgba(236,231,221,0.42) 0%, rgba(214,208,197,0.24) 30%, rgba(185,178,166,0.09) 55%, rgba(160,152,140,0) 70%);
     filter: blur(14px); opacity: 0; transform: scale(0.35); will-change: transform, opacity; }
   #intro.play .puff { animation: smokeBillow 3.5s cubic-bezier(.2,.6,.3,1) calc(2.7s + var(--d)) forwards; }
   @keyframes smokeBillow {
     0%   { opacity: 0; transform: translate(0,0) scale(0.35) rotate(0deg); }
-    14%  { opacity: 0.95; }
-    50%  { opacity: 0.85; }
-    75%  { opacity: 0.45; }
+    14%  { opacity: 0.8; }
+    50%  { opacity: 0.65; }
+    75%  { opacity: 0.3; }
     100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.9) rotate(25deg); }
   }
 
