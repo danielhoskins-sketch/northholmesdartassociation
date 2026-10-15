@@ -220,6 +220,28 @@
   .tw-close { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 50%; background: rgba(0,0,0,0.35); border: 1px solid var(--border); color: var(--text); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   @media (prefers-reduced-motion: reduce) { .tw-card, .tw-match, .tw-badge { animation: none !important; opacity: 1; } .tw-timer { display: none; } }
 
+  /* MATCH REMINDERS (push) */
+  .header-right-row { display: flex; align-items: center; gap: 10px; }
+  .bell-btn { position: relative; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border); background: rgba(0,0,0,0.3); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+  .bell-btn svg { width: 24px; height: 24px; filter: grayscale(0.85) brightness(0.7); transition: filter 0.2s; }
+  .bell-btn.on { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(214,164,67,0.25), 0 0 12px rgba(214,164,67,0.35); }
+  .bell-btn.on svg { filter: none; }
+  .bell-btn.on::after { content: ''; position: absolute; top: -1px; right: -1px; width: 8px; height: 8px; border-radius: 50%; background: var(--green-light); border: 1.5px solid var(--bg); }
+  #push-overlay { display: none; position: fixed; inset: 0; z-index: 9100; align-items: flex-end; justify-content: center; background: rgba(5,4,3,0.72); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  #push-overlay.open { display: flex; }
+  @media (min-width: 600px) { #push-overlay.open { align-items: center; } }
+  .push-sheet { width: 100%; max-width: 420px; background: linear-gradient(180deg, #241b12, #120e0a); border: 1px solid var(--gold-dim); border-bottom: none; border-radius: 14px 14px 0 0; padding: 22px 20px calc(20px + var(--safe-bottom)); position: relative; animation: slideUp 0.28s cubic-bezier(0.32,0.72,0,1) both; }
+  @media (min-width: 600px) { .push-sheet { border-radius: 10px; border-bottom: 1px solid var(--gold-dim); } }
+  .push-sheet h3 { font-family: 'Alfa Slab One', serif; font-weight: 400; font-size: 1.5rem; color: var(--cream); line-height: 1.1; padding-right: 36px; }
+  .push-sheet p { font-size: 0.92rem; color: var(--text-muted); line-height: 1.5; margin-top: 10px; }
+  .push-sheet p b { color: var(--text); font-weight: 500; }
+  .push-status { display: inline-block; margin-top: 12px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase; padding: 3px 9px; border-radius: 2px; background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+  .push-status.on { background: var(--green); color: var(--cream); border-color: var(--green-light); }
+  .push-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+  .push-actions button { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.92rem; letter-spacing: 0.14em; text-transform: uppercase; padding: 13px 10px; border-radius: 4px; cursor: pointer; }
+  .push-actions button:disabled { opacity: 0.5; cursor: default; }
+  .tw-remind { display: block; width: 100%; margin: 2px 0 8px; padding: 10px; border-radius: 4px; border: 1px dashed var(--gold-dim); background: rgba(214,164,67,0.08); color: var(--gold-light); font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.82rem; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; }
+
   /* TEAM MODAL */
   #team-modal-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.78); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); overflow-y: auto; padding: 0; }
   #team-modal-overlay.open { display: flex; align-items: flex-end; }
@@ -767,6 +789,8 @@
 </div>
 
 <!-- THIS WEEK: pops up after the curtain opens -->
+<!-- MATCH REMINDERS: opt-in sheet -->
+<div id="push-overlay" role="dialog" aria-label="Match reminders" onclick="if(event.target===this)closePushPanel()"><div class="push-sheet" id="push-sheet"></div></div>
 <div id="tw-overlay" role="dialog" aria-label="This week's matches" onclick="if(event.target===this)closeThisWeek()"></div>
 
 <!-- PASSWORD GATE -->
@@ -816,7 +840,7 @@
       </div>
       <div class="header-right">
         <div class="season-pill" data-season></div>
-        <div class="live-dot" id="live-indicator" style="display:none">Live</div>
+        <div class="header-right-row"><button id="bell-btn" class="bell-btn" onclick="openPushPanel()" aria-label="Match reminders" title="Match reminders" style="display:none"><svg class="board-svg" viewBox="0 0 200 200" aria-hidden="true"><use href="#dartboard"/></svg></button><div class="live-dot" id="live-indicator" style="display:none">Live</div></div>
       </div>
     </div>
   </header>
@@ -1094,6 +1118,7 @@ function buildThisWeek() {
     <button class="tw-close" onclick="closeThisWeek()" aria-label="Close">✕</button>
     <div class="tw-head"><div class="tw-eyebrow">NHDA Winter League</div><div class="tw-title">${title}</div><div class="tw-when">${when}${badge}</div>${SEASON.venue ? `<div class="tw-venue">${SEASON.startTime ? SEASON.startTime + ' · ' : ''}${SEASON.venue}</div>` : ''}</div>
     <div class="tw-body">${body}</div>
+    ${pushOfferable() ? `<div style="padding:0 16px"><button class="tw-remind" onclick="closeThisWeek();openPushPanel()">🎯 Remind me the night before</button></div>` : ''}
     <div class="tw-actions"><button class="tw-btn-ghost" onclick="closeThisWeek()">Let's Throw</button><button class="tw-btn-primary" onclick="closeThisWeek('schedule')">Full Schedule</button></div>
     <div class="tw-timer" style="--t:10s"></div>
   </div>`;
@@ -2041,8 +2066,92 @@ function closeTeamModal(evt) {
   document.body.style.overflow = '';
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeTeamModal(null); closeScore(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeTeamModal(null); closeScore(); closePushPanel(); } });
 
+
+// ─────────────────────────────────────────────
+// MATCH REMINDERS — push notification at 6 PM Central the day before match night
+// ─────────────────────────────────────────────
+const pushSupported = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isStandalone = () => window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+let pushSub = null, pushBusy = false;
+// Show the "remind me" offer only to phones that can turn it on and haven't yet
+function pushOfferable() { return !pushSub && ((pushSupported() && Notification.permission !== 'denied') || (isIOS() && !isStandalone())); }
+async function swReg() { return pushSupported() ? (await navigator.serviceWorker.getRegistration('/')) || navigator.serviceWorker.register('/sw.js') : null; }
+async function refreshPushState() {
+  const bell = document.getElementById('bell-btn');
+  const canShow = pushSupported() || isIOS();
+  if (bell) bell.style.display = canShow ? 'inline-flex' : 'none';
+  try { const reg = await swReg(); pushSub = reg ? await reg.pushManager.getSubscription() : null; } catch { pushSub = null; }
+  if (bell) bell.classList.toggle('on', !!pushSub);
+  if (pushSub) document.querySelectorAll('.tw-remind').forEach(b => b.parentElement.remove());
+}
+function b64ToBytes(b64) { const s = atob((b64 + '='.repeat((4 - b64.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(s, c => c.charCodeAt(0)); }
+async function pushApi(payload) {
+  const r = await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: authToken(), ...payload }), cache: 'no-store' });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || 'Server error');
+  return data;
+}
+function renderPushPanel(note) {
+  const el = document.getElementById('push-sheet'); if (!el) return;
+  const when = `<b>6 PM the night before</b> each match night`;
+  let body, actions = '';
+  if (!pushSupported() && isIOS() && !isStandalone()) {
+    body = `<p>On iPhone, reminders only work from the NHDA app on your Home Screen.</p>
+      <p><b>1.</b> Tap the Share button in Safari<br><b>2.</b> Tap <b>Add to Home Screen</b><br><b>3.</b> Open NHDA from your Home Screen and tap the dartboard 🎯</p>`;
+  } else if (!pushSupported()) {
+    body = `<p>This browser can't receive reminders. Try Chrome on Android, or the NHDA Home Screen app on iPhone (iOS 16.4 or newer).</p>`;
+  } else if (Notification.permission === 'denied') {
+    body = `<p>Notifications are blocked for this site. Turn them on in your phone's settings for ${isStandalone() ? 'the NHDA app' : 'this browser'}, then come back and tap the dartboard.</p>`;
+  } else if (pushSub) {
+    body = `<p>You'll get a heads-up at ${when}: who's playing, ${SEASON.startTime} at ${SEASON.venue}.</p><span class="push-status on">✓ Reminders on</span>`;
+    actions = `<button class="tw-btn-primary" onclick="testPush()">Send me a test</button><button class="tw-btn-ghost" onclick="disablePush()">Turn off reminders</button>`;
+  } else {
+    body = `<p>Get a notification at ${when}: who's playing, ${SEASON.startTime} at ${SEASON.venue}.</p><span class="push-status">Off</span>`;
+    actions = `<button class="tw-btn-primary" onclick="enablePush()">Turn on reminders</button>`;
+  }
+  el.innerHTML = `<button class="tw-close" onclick="closePushPanel()" aria-label="Close">✕</button><h3>Match Night Reminders</h3>${body}${note ? `<p style="color:var(--gold-light)">${note}</p>` : ''}<div class="push-actions">${actions}</div>`;
+  el.querySelectorAll('.push-actions button').forEach(b => b.disabled = pushBusy);
+}
+async function openPushPanel() {
+  await refreshPushState();
+  renderPushPanel();
+  document.getElementById('push-overlay').classList.add('open');
+}
+function closePushPanel() { document.getElementById('push-overlay').classList.remove('open'); }
+async function enablePush() {
+  if (pushBusy) return; pushBusy = true; renderPushPanel('Turning on…');
+  let note = '';
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') throw new Error(perm === 'denied' ? 'Notifications were blocked.' : 'Notifications were not allowed.');
+    const { publicKey } = await (await fetch('/api/push', { cache: 'no-store' })).json();
+    if (!publicKey) throw new Error('Reminders are not set up yet.');
+    const reg = await swReg(); await navigator.serviceWorker.ready;
+    let sub;
+    try { sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(publicKey) }); }
+    catch { throw new Error("This phone couldn't sign up for notifications. Try again in a minute."); }
+    await pushApi({ action: 'subscribe', sub: sub.toJSON() });
+    pushSub = sub; flashToast('Reminders on · 6 PM the night before');
+  } catch (e) { note = e.message || 'Could not turn on reminders.'; }
+  pushBusy = false; await refreshPushState(); renderPushPanel(note);
+}
+async function disablePush() {
+  if (pushBusy || !pushSub) return; pushBusy = true; renderPushPanel('Turning off…');
+  let note = '';
+  try { const ep = pushSub.endpoint; await pushSub.unsubscribe(); await pushApi({ action: 'unsubscribe', endpoint: ep }).catch(() => {}); flashToast('Reminders off'); }
+  catch (e) { note = 'Could not turn off reminders. Try again.'; }
+  pushBusy = false; await refreshPushState(); renderPushPanel(note);
+}
+async function testPush() {
+  if (pushBusy || !pushSub) return; pushBusy = true; renderPushPanel('Sending…');
+  let note = 'Test sent — it should pop up in a few seconds.';
+  try { await pushApi({ action: 'test', endpoint: pushSub.endpoint }); }
+  catch (e) { note = e.message === 'This phone is not signed up' ? 'This phone dropped off the list — turn reminders off and on again.' : 'Could not send the test.'; }
+  pushBusy = false; renderPushPanel(note);
+}
 
 let refreshInterval = null;
 
@@ -2141,18 +2250,7 @@ if (authToken()) {
 
 function registerSW() {
   if (!('serviceWorker' in navigator)) return;
-  const swCode = `
-const CACHE = 'nhda-v1';
-const ASSETS = [location.href];
-self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS))); self.skipWaiting(); });
-self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))); self.clients.claim(); });
-self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
-  if (e.request.url.includes('google')) { e.respondWith(fetch(e.request).then(r => { caches.open(CACHE).then(c=>c.put(e.request,r.clone())); return r; }).catch(()=>caches.match(e.request))); return; }
-  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
-});`;
-  const blob = new Blob([swCode], {type:'application/javascript'});
-  navigator.serviceWorker.register(URL.createObjectURL(blob), {scope: '/'}).catch(() => {});
+  navigator.serviceWorker.register('/sw.js').catch(() => {}).finally(refreshPushState);
 }
 
 let deferredPrompt = null;
