@@ -1947,7 +1947,7 @@ function playerRow(name, isCap, kind) {
     </div>` : ''}
   </li>`;
 }
-function renderContacts() { if (window._scheduleRows) renderTeams(window._scheduleRows); }
+function renderContacts() { if (window._scheduleRows) { renderTeams(window._scheduleRows); renderMakeupCards(); } }
 
 async function loadContacts() {
   // 1) Private list kept on Netlify (served after the site password)
