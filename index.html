@@ -284,6 +284,50 @@
   .mx-tbl .l { color: var(--red-soft); }
   .mx-tbl .na { color: var(--text-dim); }
 
+  /* PICK'EM */
+  #pk-overlay { display: none; position: fixed; inset: 0; z-index: 9100; align-items: flex-end; justify-content: center; background: rgba(5,4,3,0.72); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  #pk-overlay.open { display: flex; }
+  @media (min-width: 600px) { #pk-overlay.open { align-items: center; } }
+  .pk-sheet { max-height: 90vh; overflow-y: auto; }
+  .pk-sub { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-top: 6px; }
+  .pk-who { font-size: 0.88rem; color: var(--text-muted); margin-top: 8px; }
+  .pk-who b { color: var(--text); font-weight: 500; }
+  .pk-who button { background: none; border: none; color: var(--gold-light); font: inherit; text-decoration: underline; cursor: pointer; padding: 0 2px; }
+  .pk-match { margin-top: 14px; }
+  .pk-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pk-btn { position: relative; padding: 12px 8px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--chalk); color: var(--cream); cursor: pointer; text-align: center; box-shadow: inset 0 0 18px rgba(0,0,0,0.5); }
+  .pk-btn .nm { display: block; font-family: 'Bebas Neue', sans-serif; font-size: 1.35rem; letter-spacing: 0.05em; line-height: 1; }
+  .pk-btn .nm .ha { vertical-align: 3px; }
+  .pk-btn .od { display: block; font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 0.72rem; letter-spacing: 0.1em; color: var(--text-muted); margin-top: 4px; }
+  .pk-btn.on { border-color: var(--gold); background: linear-gradient(180deg, #e9bd5c, #a87c2e); color: #1a1208; box-shadow: 0 0 0 2px rgba(214,164,67,0.25); }
+  .pk-btn.on .od { color: #3a2a10; }
+  .pk-btn.on .od::before { content: '✓ '; font-weight: 700; }
+  .pk-btn.on .ha.h { background: #1a1208; color: var(--gold-light); }
+  .pk-btn.on .ha.a { border-color: #1a1208; color: #1a1208; }
+  .pk-btn:disabled { cursor: default; }
+  .pk-btn.win { border-color: var(--green-light); }
+  .pk-btn.lose { opacity: 0.55; }
+  .pk-names { font-size: 0.78rem; color: var(--text-muted); line-height: 1.35; margin-top: 6px; text-align: center; }
+  .pk-foot { font-size: 0.8rem; color: var(--text-dim); text-align: center; font-style: italic; margin-top: 14px; }
+  .pk-team-h { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin: 14px 0 6px; }
+  .pk-names-grid { display: grid; grid-template-columns: 1fr; gap: 6px; }
+  .pk-name-btn { text-align: left; padding: 11px 12px; border-radius: 4px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 1rem; letter-spacing: 0.03em; cursor: pointer; }
+  #pickem-board { margin-top: 26px; }
+  .pkb-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 6px; }
+  .pkb-head h3 { font-family: 'Alfa Slab One', serif; font-weight: 400; font-size: 1.4rem; color: var(--cream); }
+  .pkb-head span { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); }
+  .pkb-tbl { width: 100%; border-collapse: collapse; font-family: 'Barlow Condensed', sans-serif; }
+  .pkb-tbl th { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); text-align: right; padding: 6px 0; }
+  .pkb-tbl th:nth-child(2), .pkb-tbl td:nth-child(2) { text-align: left; }
+  .pkb-tbl td { padding: 9px 0; border-bottom: 1px dashed var(--border); text-align: right; font-size: 1rem; color: var(--text); }
+  .pkb-tbl td:first-child { width: 30px; text-align: left; font-family: 'Bebas Neue', sans-serif; font-size: 1.15rem; color: var(--text-muted); }
+  .pkb-tbl td small { display: block; font-size: 0.7rem; letter-spacing: 0.08em; color: var(--text-dim); text-transform: uppercase; }
+  .pkb-tbl tr.me td { color: var(--gold-light); }
+  .pkb-tbl tr.lead td:first-child { color: var(--gold-light); }
+  .pkb-empty { font-size: 0.9rem; color: var(--text-muted); padding: 10px 0 4px; }
+  .pkb-btn { display: block; width: 100%; margin-top: 12px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.92rem; letter-spacing: 0.14em; text-transform: uppercase; padding: 13px 10px; border-radius: 4px; cursor: pointer; }
+  .tw-pick { border-style: solid; }
+
   /* TEAM MODAL */
   #team-modal-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.78); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); overflow-y: auto; padding: 0; }
   #team-modal-overlay.open { display: flex; align-items: flex-end; }
@@ -833,6 +877,7 @@
 
 <!-- THIS WEEK: pops up after the curtain opens -->
 <!-- MATCH REMINDERS: opt-in sheet -->
+<div id="pk-overlay" role="dialog" aria-label="Pick'em" onclick="if(event.target===this)closePicks()"><div class="push-sheet pk-sheet" id="pk-sheet"></div></div>
 <div id="mx-overlay" role="dialog" aria-label="Matchup" onclick="if(event.target===this)closeMatchup()"><div class="push-sheet mx-sheet" id="mx-sheet"></div></div>
 <div id="push-overlay" role="dialog" aria-label="Match reminders" onclick="if(event.target===this)closePushPanel()"><div class="push-sheet" id="push-sheet"></div></div>
 <div id="tw-overlay" role="dialog" aria-label="This week's matches" onclick="if(event.target===this)closeThisWeek()"></div>
@@ -894,6 +939,7 @@
     <div class="container">
       <div class="section-header"><h2>Standings</h2><span class="eyebrow" data-season></span></div>
       <div id="standings-content"><div class="loading-state"><div class="loading-spinner"></div><p>Loading...</p></div></div>
+      <div id="pickem-board"></div>
     </div>
   </section>
 
@@ -1096,6 +1142,7 @@ function renderAll() {
   window._scheduleRows = rows;
   renderStandings(rows); renderSchedule(rows); renderTeams(rows); renderMakeup(rows); renderPlayoffs(rows);
   maybeShowThisWeek();
+  renderPickemBoard();
 }
 
 // ─────────────────────────────────────────────
@@ -1164,6 +1211,7 @@ function buildThisWeek() {
     <button class="tw-close" onclick="closeThisWeek()" aria-label="Close">✕</button>
     <div class="tw-head"><div class="tw-eyebrow">NHDA Winter League</div><div class="tw-title">${title}</div><div class="tw-when">${when}${badge}</div>${SEASON.venue ? `<div class="tw-venue">${SEASON.startTime ? SEASON.startTime + ' · ' : ''}${SEASON.venue}</div>` : ''}</div>
     <div class="tw-body">${body}</div>
+    ${pickNight() ? `<div style="padding:0 16px"><button class="tw-remind tw-pick" onclick="closeThisWeek();openPicks()">${pickButtonLabel()}</button></div>` : ''}
     ${pushOfferable() ? `<div style="padding:0 16px"><button class="tw-remind" onclick="closeThisWeek();openPushPanel()">Remind me the night before</button></div>` : ''}
     <div class="tw-actions"><button class="tw-btn-ghost" onclick="closeThisWeek()">Let's Throw</button><button class="tw-btn-primary" onclick="closeThisWeek('schedule')">Full Schedule</button></div>
     <div class="tw-timer" style="--t:10s"></div>
@@ -2013,6 +2061,7 @@ async function init() {
     renderAll();
     renderFormat(formatRows);
     loadContacts();
+    loadPicks();
   } catch(err) {
     console.error(err);
     ['standings-content','schedule-content','teams-content','format-content','makeup-content','playoffs-content'].forEach(id=>showError(id,`Error: ${err.message}`));
@@ -2117,7 +2166,7 @@ function closeTeamModal(evt) {
   document.body.style.overflow = '';
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeTeamModal(null); closeScore(); closePushPanel(); closeMatchup(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeTeamModal(null); closeScore(); closePushPanel(); closeMatchup(); closePicks(); } });
 
 
 // ─────────────────────────────────────────────
@@ -2269,12 +2318,164 @@ function openMatchup(key) {
       <div class="wp-label">${played ? 'Pre-match win probability' : 'Win probability'}</div>
       <div class="wp-row"><div class="wp-pct${ph > pa ? ' fav' : ''}">${ph}%</div><div class="wp-bar"><div class="wp-fill" id="wp-fill"></div></div><div class="wp-pct right${pa > ph ? ' fav' : ''}">${pa}%</div></div>
       <div class="wp-note">${note}</div>
-    </div>${table}${h2h}`;
+    </div>${matchupPicks(mm)}${table}${h2h}`;
   document.getElementById('mx-overlay').classList.add('open');
   const fill = document.getElementById('wp-fill');
   requestAnimationFrame(() => requestAnimationFrame(() => { fill.style.width = ph + '%'; }));
 }
 function closeMatchup() { document.getElementById('mx-overlay').classList.remove('open'); }
+
+// ─────────────────────────────────────────────
+// PICK'EM — pick the winner of each match; 1 point per correct pick.
+// Honor system: players choose their name (kept on this phone).
+// Picks lock at 8:30 PM Chicago time on match night; until then only your
+// own picks are visible. Scored automatically once results are in.
+// ─────────────────────────────────────────────
+const PICKER_KEY = 'nhda_picker';
+let allPicks = {}, pickerChoosing = false;
+function getPicker() { try { return localStorage.getItem(PICKER_KEY) || ''; } catch { return ''; } }
+function setPicker(n) { try { n ? localStorage.setItem(PICKER_KEY, n) : localStorage.removeItem(PICKER_KEY); } catch {} }
+const allPlayers = () => Object.values(teamRosters).flat();
+const teamOfPlayer = n => Object.keys(teamRosters).find(t => teamRosters[t].includes(n)) || '';
+// 8:30 PM in Chicago on a sheet date (M.D.YY), as a timestamp — handles CST/CDT
+function chiLock(sheetDate) {
+  const [m, d, yy] = sheetDate.split('.').map(Number), y = 2000 + yy;
+  const [hh, mm] = (SEASON.startTime.match(/(\d+):(\d+)/) || [0, 8, 30]).slice(1).map(Number);
+  const h = hh + (/pm/i.test(SEASON.startTime) && hh < 12 ? 12 : 0);
+  const guess = Date.UTC(y, m - 1, d, h + 6, mm);
+  let off = -6;
+  try { const tz = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', timeZoneName: 'shortOffset' }).formatToParts(new Date(guess)).find(p => p.type === 'timeZoneName').value; off = Number((tz.match(/GMT([+-]\d+)/) || [0, -6])[1]); } catch {}
+  return Date.UTC(y, m - 1, d, h - off, mm);
+}
+function lockFor(key) {
+  const st = makeupState(key);
+  if (isPostponed(key)) return st.state === 'none' ? null : chiLock(isoToSheet(st.date));
+  return chiLock(key.split('|')[0]);
+}
+const isLocked = key => { const l = lockFor(key); return l === null || Date.now() >= l; };
+// The next match night (same night the This Week card shows), with match keys
+function pickNight() {
+  const rows = window._scheduleRows || []; if (!rows.length) return null;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const nights = {};
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i], d = (r[0] || '').trim();
+    if (!d || rowKind(d) !== 'match') continue;
+    const home = (r[1] || '').trim(), away = (r[3] || '').trim(); if (!home || !away) continue;
+    const key = mkKey(d, home, away);
+    let date = d;
+    if (isPostponed(key)) { const st = makeupState(key); if (st.state === 'none') continue; date = isoToSheet(st.date); }
+    (nights[date] = nights[date] || []).push({ key, home, away });
+  }
+  const next = Object.keys(nights).filter(d => sheetToTime(d) >= today.getTime()).sort((a, b) => sheetToTime(a) - sheetToTime(b))[0];
+  return next ? { date: next, matches: nights[next] } : null;
+}
+function myPick(key) { const me = getPicker(); return me && allPicks[key] ? allPicks[key][me] || '' : ''; }
+function pickButtonLabel() {
+  const n = pickNight(); if (!n) return "Pick'em";
+  if (n.matches.every(m => isLocked(m.key))) return "Pick'em · see who picked who";
+  const done = n.matches.filter(m => myPick(m.key)).length;
+  return getPicker() && done === n.matches.length ? `✓ Your picks are in · ${done}/${n.matches.length}` : `Make your picks · ${done}/${n.matches.length}`;
+}
+async function loadPicks() {
+  try {
+    const r = await fetch('/api/picks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: authToken(), action: 'get', name: getPicker() || undefined }), cache: 'no-store' });
+    if (!r.ok) return;
+    allPicks = (await r.json()).picks || {};
+  } catch { return; }
+  renderPickemBoard();
+  if (document.getElementById('pk-overlay').classList.contains('open')) renderPicks();
+}
+async function makePick(key, team) {
+  const me = getPicker(); if (!me) { pickerChoosing = true; renderPicks(); return; }
+  if (isLocked(key)) { flashToast('Picks are locked for this match', true); return; }
+  if (myPick(key) === team) return;
+  const before = JSON.stringify(allPicks);
+  allPicks[key] = { ...(allPicks[key] || {}), [me]: team };
+  renderPicks();
+  try {
+    const r = await fetch('/api/picks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: authToken(), action: 'set', name: me, key, team }), cache: 'no-store' });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || 'Could not save your pick');
+    allPicks = data.picks || allPicks;
+    flashToast(`Picked ${shortTeam(team)}`);
+  } catch (e) { allPicks = JSON.parse(before); flashToast(e.message || 'Could not save your pick', true); }
+  renderPicks(); renderPickemBoard();
+}
+function openPicks() { pickerChoosing = !getPicker(); renderPicks(); document.getElementById('pk-overlay').classList.add('open'); }
+function closePicks() { const o = document.getElementById('pk-overlay'); if (o) o.classList.remove('open'); }
+function choosePicker(n) { setPicker(n); pickerChoosing = false; renderPicks(); loadPicks(); }
+function renderPicks() {
+  const el = document.getElementById('pk-sheet'); if (!el) return;
+  const close = `<button class="tw-close" onclick="closePicks()" aria-label="Close">✕</button>`;
+  if (pickerChoosing || !getPicker()) {
+    let names = '';
+    for (const t of Object.keys(teamRosters)) names += `<div class="pk-team-h">${teamNames[t] || t}</div><div class="pk-names-grid">${teamRosters[t].map(n => `<button class="pk-name-btn" onclick="choosePicker('${n.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">${esc(n)}</button>`).join('')}</div>`;
+    el.innerHTML = `${close}<h3>Who's picking?</h3><p>Tap your name. This phone will remember it.</p>${names}`;
+    return;
+  }
+  const n = pickNight();
+  if (!n) { el.innerHTML = `${close}<h3>Pick'em</h3><p>No upcoming matches to pick right now.</p>`; return; }
+  const me = getPicker();
+  const when = new Date(sheetToTime(n.date)).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  const allLocked = n.matches.every(m => isLocked(m.key));
+  let rows = '';
+  for (const m of n.matches) {
+    const locked = isLocked(m.key), mine = myPick(m.key), mm = matchIndex[m.key] || {};
+    const played = mm.h !== null && mm.h !== undefined, winner = played ? (mm.h > mm.a ? m.home : m.away) : '';
+    const odds = typeof matchupOdds === 'function' ? Math.round(matchupOdds(m.home, m.away, n.date).pHome * 100) : 50;
+    const who = t => Object.entries(allPicks[m.key] || {}).filter(([, v]) => v === t).map(([k]) => k === me ? `<b style="color:var(--gold-light)">${esc(k)}</b>` : esc(k));
+    const btn = (t, pct, side) => `<button class="pk-btn${mine === t ? ' on' : ''}${played ? (winner === t ? ' win' : ' lose') : ''}" ${locked ? 'disabled' : `onclick="makePick('${m.key}','${t}')"`}>
+        <span class="nm">${side === 'h' ? '<i class="ha h">H</i>' : ''}${shortTeam(t)}${side === 'a' ? '<i class="ha a">A</i>' : ''}</span>
+        <span class="od">${played ? (winner === t ? `Won ${side === 'h' ? mm.h + '–' + mm.a : mm.a + '–' + mm.h}` : 'Lost') : `${pct}% to win`}</span></button>`;
+    const names = locked ? `<div class="pk-two">${[m.home, m.away].map(t => `<div class="pk-names">${who(t).join(', ') || '—'}</div>`).join('')}</div>` : '';
+    rows += `<div class="pk-match"><div class="pk-two">${btn(m.home, odds, 'h')}${btn(m.away, 100 - odds, 'a')}</div>${names}</div>`;
+  }
+  const foot = allLocked ? `Picks are locked. Here's who picked who.` : `Picks lock at ${SEASON.startTime} on match night. Nobody sees your picks until then.`;
+  el.innerHTML = `${close}<h3>Pick'em</h3>
+    <div class="pk-sub">${when} · ${SEASON.startTime} · ${SEASON.venue}</div>
+    <div class="pk-who">Picking as <b>${esc(me)}</b> · <button onclick="pickerChoosing=true;renderPicks()">Not you?</button></div>
+    ${rows}<div class="pk-foot">${foot}</div>`;
+}
+// Season leaderboard: 1 point per correct pick, scored once a result is in
+function pickemTable() {
+  const tally = {};
+  for (const [key, byName] of Object.entries(allPicks)) {
+    const mm = matchIndex[key]; if (!mm || mm.h === null) continue;
+    const winner = mm.h > mm.a ? mm.home : mm.away;
+    for (const [name, team] of Object.entries(byName)) { const t = (tally[name] = tally[name] || { name, w: 0, n: 0 }); t.n++; if (team === winner) t.w++; }
+  }
+  const list = Object.values(tally).sort((a, b) => (b.w - a.w) || ((b.w / b.n) - (a.w / a.n)) || a.name.localeCompare(b.name));
+  let rank = 0, prev = null;
+  list.forEach((t, i) => { if (!prev || t.w !== prev.w || (t.w / t.n) !== (prev.w / prev.n)) rank = i + 1; t.rank = rank; prev = t; });
+  return list;
+}
+function renderPickemBoard() {
+  const el = document.getElementById('pickem-board'); if (!el || !window._scheduleRows) return;
+  const list = pickemTable(), me = getPicker(), n = pickNight();
+  const when = n ? new Date(sheetToTime(n.date)).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : '';
+  let body;
+  if (!list.length) body = `<div class="pkb-empty">No picks scored yet. Pick the winners${when ? ` for ${when}` : ''} and climb the board.</div>`;
+  else {
+    body = `<table class="pkb-tbl"><thead><tr><th></th><th>Player</th><th>Correct</th><th>Pct</th></tr></thead><tbody>` +
+      list.map(t => `<tr class="${t.name === me ? 'me' : ''}${t.rank === 1 ? ' lead' : ''}"><td>${t.rank}</td><td>${esc(t.name)}<small>${shortTeam(teamOfPlayer(t.name))}</small></td><td>${t.w}–${t.n - t.w}</td><td>${Math.round(100 * t.w / t.n)}%</td></tr>`).join('') +
+      `</tbody></table>`;
+  }
+  el.innerHTML = `<div class="pkb-head"><h3>Pick'em</h3><span>1 pt per correct pick</span></div>${body}${n ? `<button class="tw-btn-primary pkb-btn" onclick="openPicks()">${pickButtonLabel()}</button>` : ''}`;
+}
+// Pick'em lines on the Schedule matchup card
+function matchupPicks(mm) {
+  const byName = allPicks[mm.key] || {}, me = getPicker();
+  const n = pickNight(), open = n && n.matches.some(m => m.key === mm.key) && !isLocked(mm.key);
+  if (open) {
+    const mine = myPick(mm.key);
+    return `<div class="mx-sec">Pick'em</div><p style="font-size:0.9rem;color:var(--text-muted)">${mine ? `Your pick: <b style="color:var(--gold-light)">${shortTeam(mine)}</b>. ` : ''}Picks are hidden until ${SEASON.startTime}.</p>
+      <button class="tw-btn-ghost pkb-btn" style="padding:11px" onclick="closeMatchup();openPicks()">${mine ? 'Change your pick' : 'Make your pick'}</button>`;
+  }
+  if (!Object.keys(byName).length || !isLocked(mm.key)) return '';
+  const side = t => Object.entries(byName).filter(([, v]) => v === t).map(([k]) => esc(k)).join(', ') || '—';
+  return `<div class="mx-sec">Pick'em</div><table class="mx-tbl"><tr><td>${shortTeam(mm.home)}</td><td style="text-align:left">${side(mm.home)}</td></tr><tr><td>${shortTeam(mm.away)}</td><td style="text-align:left">${side(mm.away)}</td></tr></table>`;
+}
 
 let refreshInterval = null;
 
