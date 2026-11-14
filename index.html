@@ -331,7 +331,7 @@
   .modal-match-result.upcoming-future { color: var(--gold); }
 
   /* BOTTOM NAV */
-  #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; background: linear-gradient(180deg,#1c150f,#0f0c09); border-top: 1px solid #3a2d1f; box-shadow: 0 -6px 18px rgba(0,0,0,0.5); display: none; grid-template-columns: repeat(6,1fr); padding-bottom: var(--safe-bottom); height: calc(var(--bottom-nav-h) + var(--safe-bottom)); }
+  #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; background: linear-gradient(180deg,#1c150f,#0f0c09); border-top: 1px solid #3a2d1f; box-shadow: 0 -6px 18px rgba(0,0,0,0.5); display: none; grid-template-columns: repeat(7,1fr); padding-bottom: var(--safe-bottom); height: calc(var(--bottom-nav-h) + var(--safe-bottom)); }
   .tab-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 6px 2px; cursor: pointer; color: var(--text-dim); transition: color 0.15s; font-family: 'Barlow Condensed', sans-serif; font-size: 0.56rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; -webkit-tap-highlight-color: transparent; position: relative; }
   .tab-btn svg { width: 20px; height: 20px; transition: transform 0.15s; }
   .tab-btn.active { color: var(--cream); }
@@ -805,6 +805,98 @@
   .section.active .container > *:nth-child(2) { animation-delay: 0.05s; }
   .section.active .container > *:nth-child(3) { animation-delay: 0.1s; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+  /* ═══ NHDA EXCHANGE — Kalshi-style pick'em on league matches (points only) ═══ */
+  .xc-note { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; letter-spacing: 0.08em; color: var(--text-dim); text-align: center; margin: 14px 0 4px; line-height: 1.45; }
+  .xc-acct { background: linear-gradient(180deg, var(--surface2), var(--surface)); border: 1px solid var(--border); border-radius: 6px; padding: 14px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.35); }
+  .xc-acct h3 { font-family: 'Alfa Slab One', serif; font-weight: 400; font-size: 1.1rem; color: var(--cream); letter-spacing: 0.03em; margin-bottom: 4px; }
+  .xc-acct p { font-size: 0.86rem; color: var(--text-muted); line-height: 1.45; margin-bottom: 12px; }
+  .xc-form { display: grid; gap: 8px; grid-template-columns: 1fr; }
+  @media (min-width: 560px) { .xc-form { grid-template-columns: 2fr 1fr; } }
+  .xc-input { width: 100%; font: inherit; font-size: 1rem; color: var(--text); background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; outline: none; }
+  .xc-input:focus { border-color: var(--gold-dim); box-shadow: 0 0 0 3px rgba(214,164,67,0.15); }
+  select.xc-input option { background: #17130f; }
+  .xc-btns { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .xc-btn { cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.86rem; letter-spacing: 0.1em; text-transform: uppercase; border-radius: 4px; padding: 10px 16px; border: 1px solid #0a5f32; background: var(--green); color: var(--cream); box-shadow: 0 2px 0 #06401f; }
+  .xc-btn:active { transform: translateY(2px); box-shadow: none; }
+  .xc-btn.ghost { background: rgba(0,0,0,0.35); border-color: var(--border); color: var(--text-muted); box-shadow: none; }
+  .xc-btn.red { background: var(--red); border-color: #8f0c1e; box-shadow: 0 2px 0 #5c0814; }
+  .xc-btn[disabled] { opacity: 0.45; pointer-events: none; }
+  .xc-err { color: var(--red-soft); font-size: 0.84rem; min-height: 1.1em; margin-top: 8px; }
+  .xc-wallet { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; align-items: stretch; }
+  .xc-stat { background: var(--chalk); border: 1px solid #2a3a30; border-radius: 4px; padding: 8px 10px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+  .xc-stat b { display: block; font-family: 'Bebas Neue', sans-serif; font-size: 1.55rem; line-height: 1.05; color: #fff7e3; letter-spacing: 0.03em; }
+  .xc-stat em { font-style: normal; }
+  @media (max-width: 420px) { .xc-bar { flex-basis: 40px; } .xc-move { display: none; } .xc-buy { min-width: 58px; } }
+  .xc-stat span { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(239,225,191,0.55); font-weight: 700; }
+  .xc-who { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; letter-spacing: 0.06em; color: var(--cream); font-size: 1rem; }
+  .xc-who button { background: none; border: none; color: var(--text-dim); font: inherit; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; }
+  .xc-tabs { display: flex; gap: 6px; margin: 4px 0 14px; overflow-x: auto; scrollbar-width: none; }
+  .xc-tabs::-webkit-scrollbar { display: none; }
+  .xc-tab { flex-shrink: 0; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 999px; padding: 7px 14px; }
+  .xc-tab.on { color: #1a1208; background: var(--gold); border-color: var(--gold); }
+  .xc-night { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); display: flex; align-items: center; gap: 10px; margin: 18px 0 10px; }
+  .xc-night::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--gold-dim), transparent); }
+  .xc-card { background: linear-gradient(180deg, var(--surface2), var(--surface)); border: 1px solid var(--border); border-radius: 6px; padding: 12px 12px 10px; margin-bottom: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.35); }
+  .xc-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+  .xc-q { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.02rem; color: var(--cream); letter-spacing: 0.02em; }
+  .xc-pill { flex-shrink: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; border-radius: 3px; padding: 3px 7px; border: 1px solid; }
+  .xc-pill.open { color: var(--green-light); border-color: rgba(47,168,102,0.5); }
+  .xc-pill.closed { color: var(--gold); border-color: var(--gold-dim); }
+  .xc-pill.paused { color: var(--red-soft); border-color: rgba(208,18,43,0.5); }
+  .xc-pill.settled { color: var(--text-muted); border-color: var(--border); }
+  .xc-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px dashed var(--border); }
+  .xc-row:first-of-type { border-top: none; }
+  .xc-team { flex: 1; min-width: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .xc-team small { font-weight: 600; color: var(--text-dim); font-size: 0.7rem; letter-spacing: 0.08em; margin-left: 4px; }
+  .xc-bar { flex: 0 0 64px; height: 6px; border-radius: 3px; background: rgba(239,225,191,0.1); overflow: hidden; }
+  .xc-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--green), var(--green-light)); border-radius: 3px; transition: width 0.4s; }
+  .xc-pct { font-family: 'Bebas Neue', sans-serif; font-size: 1.35rem; color: #fff7e3; min-width: 44px; text-align: right; letter-spacing: 0.02em; }
+  .xc-move { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700; min-width: 30px; }
+  .xc-move.up { color: var(--green-light); } .xc-move.down { color: var(--red-soft); }
+  .xc-buy { flex-shrink: 0; cursor: pointer; min-width: 64px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.84rem; letter-spacing: 0.04em; border-radius: 4px; padding: 7px 8px; border: 1px solid rgba(47,168,102,0.55); color: var(--green-light); background: rgba(13,122,64,0.14); }
+  .xc-buy:hover { background: rgba(13,122,64,0.28); }
+  .xc-buy.won { border-color: var(--gold-dim); color: var(--gold-light); background: rgba(214,164,67,0.12); pointer-events: none; }
+  .xc-buy.lost { border-color: var(--border); color: var(--text-dim); background: none; pointer-events: none; }
+  .xc-buy[disabled] { opacity: 0.4; pointer-events: none; }
+  .xc-meta { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; letter-spacing: 0.06em; color: var(--text-dim); }
+  .xc-meta b { color: var(--gold); font-weight: 700; }
+  .xc-empty { text-align: center; color: var(--text-dim); font-size: 0.9rem; padding: 26px 12px; border: 1px dashed var(--border); border-radius: 6px; }
+  .xc-list { background: var(--chalk); border: 8px solid #4a321c; border-image: linear-gradient(135deg,#6b4826,#3a2513 30%,#5c3d20 55%,#2f1e10 80%,#5a3b1f) 8; padding: 6px 10px; box-shadow: inset 0 0 30px rgba(0,0,0,0.5); }
+  .xc-li { display: flex; align-items: center; gap: 10px; padding: 10px 2px; border-bottom: 1px dashed var(--chalk-line); font-family: 'Barlow Condensed', sans-serif; color: var(--cream); }
+  .xc-li:last-child { border-bottom: none; }
+  .xc-li .rk { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; width: 26px; text-align: center; color: rgba(239,225,191,0.55); }
+  .xc-li .nm { flex: 1; min-width: 0; font-weight: 700; font-size: 1.02rem; }
+  .xc-li .nm small { display: block; font-weight: 500; font-size: 0.74rem; color: rgba(239,225,191,0.55); letter-spacing: 0.03em; }
+  .xc-li .vl { font-family: 'Bebas Neue', sans-serif; font-size: 1.35rem; color: #fff7e3; text-align: right; }
+  .xc-li .vl small { display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; }
+  .xc-li.me { background: rgba(214,164,67,0.08); }
+  .xc-up { color: var(--green-light) !important; } .xc-down { color: var(--red-soft) !important; }
+  .xc-how { margin-top: 16px; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: 6px; padding: 4px 14px; }
+  .xc-how summary { cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.82rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); padding: 8px 0; }
+  .xc-how ul { margin: 4px 0 12px 18px; color: var(--text-muted); font-size: 0.88rem; line-height: 1.55; }
+  /* Trade ticket (bottom sheet) */
+  #xc-sheet { display: none; position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); align-items: flex-end; justify-content: center; }
+  #xc-sheet.open { display: flex; }
+  @media (min-width: 600px) { #xc-sheet.open { align-items: center; } }
+  .xc-ticket { width: 100%; max-width: 440px; background: linear-gradient(180deg,#231b13,#15100b); border: 1px solid #3a2d1f; border-radius: 12px 12px 0 0; padding: 16px 16px calc(18px + var(--safe-bottom)); box-shadow: 0 -10px 30px rgba(0,0,0,0.6); animation: fadeUp 0.2s ease both; }
+  @media (min-width: 600px) { .xc-ticket { border-radius: 12px; } }
+  .xc-ticket h3 { font-family: 'Alfa Slab One', serif; font-weight: 400; font-size: 1.2rem; color: var(--cream); margin-bottom: 2px; }
+  .xc-ticket .sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+  .xc-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+  .xc-seg button { cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.9rem; letter-spacing: 0.04em; padding: 9px 6px; border-radius: 4px; border: 1px solid var(--border); background: rgba(0,0,0,0.35); color: var(--text-muted); }
+  .xc-seg button.on { border-color: var(--green-light); color: var(--cream); background: rgba(13,122,64,0.35); }
+  .xc-seg.sellmode button.on { border-color: var(--red-soft); background: rgba(208,18,43,0.25); }
+  .xc-seg button[disabled] { opacity: 0.35; pointer-events: none; }
+  .xc-qty { display: flex; align-items: center; gap: 8px; margin: 6px 0 4px; }
+  .xc-qty button { cursor: pointer; width: 42px; height: 42px; flex-shrink: 0; border-radius: 50%; border: 1px solid var(--border); background: rgba(0,0,0,0.35); color: var(--cream); font-size: 1.3rem; }
+  .xc-qty input { flex: 1; text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 1.9rem; letter-spacing: 0.04em; }
+  .xc-chips { display: flex; gap: 6px; margin-bottom: 12px; }
+  .xc-chips button { flex: 1; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.78rem; padding: 6px 0; border-radius: 3px; border: 1px solid var(--border); background: none; color: var(--text-muted); }
+  .xc-quote { background: var(--chalk); border: 1px solid #2a3a30; border-radius: 4px; padding: 10px 12px; font-family: 'Barlow Condensed', sans-serif; color: var(--cream); font-size: 0.95rem; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+  .xc-quote div { display: flex; justify-content: space-between; padding: 2px 0; }
+  .xc-quote span { color: rgba(239,225,191,0.6); }
+  .xc-quote .big { font-family: 'Bebas Neue', sans-serif; font-size: 1.25rem; letter-spacing: 0.03em; }
 </style>
 </head>
 <body>
@@ -940,6 +1032,34 @@
     </div>
   </section>
 
+  <!-- MARKETS — NHDA Exchange: Kalshi-style pick'em on league matches, played for points -->
+  <section id="markets" class="section">
+    <div class="container">
+      <div class="section-header"><h2>Markets</h2><span class="eyebrow">NHDA Exchange</span></div>
+      <div id="xc-acct"></div>
+      <div class="xc-tabs" id="xc-tabs">
+        <button class="xc-tab on" data-v="board" onclick="mxView('board')">Markets</button>
+        <button class="xc-tab" data-v="mine" onclick="mxView('mine')">My Bets</button>
+        <button class="xc-tab" data-v="leaders" onclick="mxView('leaders')">Leaderboard</button>
+        <button class="xc-tab" data-v="activity" onclick="mxView('activity')">Activity</button>
+      </div>
+      <div id="xc-content"><div class="loading-state"><div class="loading-spinner"></div><p>Loading markets...</p></div></div>
+      <details class="xc-how">
+        <summary>How it works</summary>
+        <ul>
+          <li>Every league match is a market: <b>who wins?</b> Each contract pays <b>100 pts</b> if that team wins, 0 if it loses.</li>
+          <li>Prices run 1–99¢ and read as the room's odds: 64¢ means the crowd gives that team about a 64% chance.</li>
+          <li>Buying pushes a team's price up; selling pushes it down. Cash out any time before first throw.</li>
+          <li>Markets open two weeks before match night, lock at <b>8:30 PM</b> on match night, and pay out as soon as the score is posted. Postponed matches pause until a make-up date is confirmed.</li>
+          <li>Everyone starts with <b>1,000 pts</b>. Go broke with nothing riding and you can take a 500-pt bailout — it shows on the leaderboard.</li>
+        </ul>
+      </details>
+      <p class="xc-note">For fun only — league points have no cash value and can't be bought or redeemed.<br>Kalshi-style market; not affiliated with Kalshi.</p>
+    </div>
+  </section>
+
+  <div id="xc-sheet" onclick="if(event.target===this)mxClose()"><div class="xc-ticket" id="xc-ticket"></div></div>
+
   <footer>North Holmes Dart Association · Winter League <span data-season></span></footer>
 
 </div><!-- /#app-content -->
@@ -961,6 +1081,10 @@
   <button class="tab-btn" onclick="showSection('playoffs',this)" data-section="playoffs">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
     Playoffs
+  </button>
+  <button class="tab-btn" onclick="showSection('markets',this)" data-section="markets">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg>
+    Markets
   </button>
   <button class="tab-btn" onclick="showSection('teams',this)" data-section="teams">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -2020,6 +2144,7 @@ function showSection(id, btn) {
   btn.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
   if(id==='standings') playStandingsDarts();
+  if(id==='markets') mxOpen(); else mxStop();
 }
 
 function goToMakeup(home, away) {
@@ -2268,6 +2393,299 @@ function openMatchup(key) {
 function closeMatchup() { document.getElementById('mx-overlay').classList.remove('open'); }
 
 let refreshInterval = null;
+
+// ─────────────────────────────────────────────
+// NHDA EXCHANGE — Kalshi-style pick'em on league matches, played for points
+// Server: netlify/functions/market.mjs  (prices from an LMSR market maker)
+// ─────────────────────────────────────────────
+const MX_TOKEN = 'nhda_ptoken';
+const mx = { board: null, me: null, view: 'board', timer: null, t: null, busy: false, loaded: false };
+const mxEsc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function mxPtoken() { try { return localStorage.getItem(MX_TOKEN) || ''; } catch { return ''; } }
+function mxSetPtoken(t) { try { t ? localStorage.setItem(MX_TOKEN, t) : localStorage.removeItem(MX_TOKEN); } catch {} }
+const mxTeam = t => shortTeam(t);
+const mxC = p => `${Math.max(1, Math.min(99, Math.round(p * 100)))}¢`;
+const mxPts = n => `${Math.round(n).toLocaleString()} pts`;
+const mxSigned = n => `${n > 0 ? '+' : n < 0 ? '−' : ''}${Math.abs(Math.round(n)).toLocaleString()}`;
+const mxWhen = ms => new Date(ms).toLocaleString('en-US', { timeZone: 'America/Chicago', weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+const mxNight = ms => new Date(ms).toLocaleDateString('en-US', { timeZone: 'America/Chicago', weekday: 'long', month: 'short', day: 'numeric' });
+const mxMarket = key => (mx.board && mx.board.markets.find(m => m.key === key)) || null;
+const mxPos = key => (mx.me && mx.me.positions.find(p => p.key === key)) || null;
+function mxAgo(ms) {
+  const s = Math.max(0, (Date.now() - ms) / 1000);
+  if (s < 60) return 'just now'; if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`; return `${Math.floor(s / 86400)}d ago`;
+}
+
+// LMSR quote — the same math the server uses
+function mxQuote(p, n, b) {
+  const e = Math.exp(n / b), cost = 100 * b * Math.log(p * e + (1 - p));
+  return { cost, after: p * e / (p * e + 1 - p) };
+}
+
+async function mxApi(body) {
+  const r = await fetch('/api/market', body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), cache: 'no-store' } : { cache: 'no-store' });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) { const e = new Error(data.error || 'Could not reach the exchange'); e.status = r.status; throw e; }
+  return data;
+}
+async function mxRefresh() {
+  try {
+    if (mxPtoken()) {
+      try { const d = await mxApi({ action: 'me', ptoken: mxPtoken() }); mx.me = d.me; mx.board = d.board; }
+      catch (e) { if (e.status === 401) { mxSetPtoken(''); mx.me = null; mx.board = await mxApi(); } else throw e; }
+    } else mx.board = await mxApi();
+    mx.loaded = true; mxRender();
+  } catch (e) {
+    if (!mx.loaded) document.getElementById('xc-content').innerHTML = `<div class="error-state"><h3>Exchange offline</h3><p>${mxEsc(e.message)}</p></div>`;
+  }
+}
+function mxOpen() {
+  mxRender(); mxRefresh();
+  clearInterval(mx.timer); mx.timer = setInterval(() => { if (!document.hidden && !mx.t) mxRefresh(); }, 45000);
+}
+function mxStop() { clearInterval(mx.timer); mx.timer = null; }
+function mxView(v) {
+  mx.view = v;
+  document.querySelectorAll('#xc-tabs .xc-tab').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  mxRender();
+}
+
+// ── Account ──
+function mxRenderAcct() {
+  const el = document.getElementById('xc-acct');
+  if (!mx.me) {
+    const names = Object.values(teamRosters).flat();
+    el.innerHTML = `<div class="xc-acct">
+      <h3>Trade the league</h3>
+      <p>Buy and sell contracts on who wins each match — 100 pts per winning contract. Everyone starts with 1,000 pts.</p>
+      <div class="xc-form">
+        <select class="xc-input" id="xc-name" onchange="document.getElementById('xc-other').style.display=this.value==='*'?'block':'none'">
+          <option value="">Who are you?</option>
+          ${names.map(n => `<option value="${mxEsc(n)}">${mxEsc(n)}</option>`).join('')}
+          <option value="*">Someone else…</option>
+        </select>
+        <input class="xc-input" id="xc-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="4-digit PIN" autocomplete="off">
+        <input class="xc-input" id="xc-other" style="display:none" maxlength="32" placeholder="Your name">
+      </div>
+      <div class="xc-btns">
+        <button class="xc-btn" onclick="mxAuth('join')">Join · get 1,000 pts</button>
+        <button class="xc-btn ghost" onclick="mxAuth('signin')">Sign in</button>
+      </div>
+      <div class="xc-err" id="xc-err"></div>
+    </div>`;
+    return;
+  }
+  const me = mx.me, lb = (mx.board && mx.board.leaderboard) || [];
+  const rank = lb.findIndex(r => r.name === me.name) + 1;
+  const pnl = (lb[rank - 1] || {}).pnl || 0;
+  el.innerHTML = `<div class="xc-acct">
+    <div class="xc-who"><span>${mxEsc(me.name)}</span><button onclick="mxSignOut()">Sign out</button></div>
+    <div class="xc-wallet">
+      <div class="xc-stat"><b>${Math.round(me.cash).toLocaleString()}</b><span>Cash</span></div>
+      <div class="xc-stat"><b>${Math.round(me.worth).toLocaleString()}</b><span>Worth <em class="${pnl > 0 ? 'xc-up' : pnl < 0 ? 'xc-down' : ''}">${mxSigned(pnl) || '±0'}</em></span></div>
+      <div class="xc-stat"><b>${rank ? '#' + rank : '—'}</b><span>Rank · ${lb.length}</span></div>
+    </div>
+    ${me.canBailout ? `<div class="xc-btns"><button class="xc-btn red" onclick="mxBailout()">Take a 500-pt bailout</button></div>` : ''}
+  </div>`;
+}
+async function mxAuth(action) {
+  const err = document.getElementById('xc-err');
+  const sel = document.getElementById('xc-name').value;
+  const name = sel === '*' ? document.getElementById('xc-other').value.trim() : sel;
+  const pin = document.getElementById('xc-pin').value.trim();
+  if (!name) { err.textContent = 'Pick your name first.'; return; }
+  if (!/^\d{4}$/.test(pin)) { err.textContent = 'PIN must be 4 digits.'; return; }
+  if (mx.busy) return; mx.busy = true; err.textContent = '';
+  try {
+    const d = await mxApi({ action, token: authToken(), name, pin });
+    mxSetPtoken(d.ptoken); mx.me = d.me; mx.board = d.board; mxRender();
+    flashToast(action === 'join' ? `Welcome to the Exchange — ${mxPts(d.me.cash)} to play with` : `Signed in as ${d.me.name}`);
+  } catch (e) { err.textContent = e.message; }
+  mx.busy = false;
+}
+function mxSignOut() { mxSetPtoken(''); mx.me = null; mxRender(); }
+async function mxBailout() {
+  try { const d = await mxApi({ action: 'bailout', ptoken: mxPtoken() }); mx.me = d.me; mx.board = d.board; mxRender(); flashToast('Bailout approved · 500 pts added'); }
+  catch (e) { flashToast(e.message, true); }
+}
+
+// ── Views ──
+function mxRender() {
+  mxRenderAcct();
+  const box = document.getElementById('xc-content');
+  if (!mx.board) return;
+  box.innerHTML = mx.view === 'mine' ? mxMine() : mx.view === 'leaders' ? mxLeaders() : mx.view === 'activity' ? mxActivity() : mxBoard();
+  if (mx.t) mxTicketRender();
+}
+function mxCard(m) {
+  const live = m.status === 'open';
+  const pill = { open: ['open', 'Open'], closed: ['closed', 'Locked · in play'], final: ['closed', 'Final · paying out'], paused: ['paused', 'Postponed'],
+    settled: ['settled', m.final ? `Final ${m.final.h}–${m.final.a}` : 'Final'] }[m.status] || ['settled', m.status];
+  const pos = mxPos(m.key);
+  const row = (side) => {
+    const team = side === 'home' ? m.home : m.away, p = side === 'home' ? m.ph : 1 - m.ph;
+    const p0 = side === 'home' ? m.seed : 1 - m.seed, mv = Math.round(p * 100) - Math.round(p0 * 100);
+    let btn;
+    if (m.status === 'settled') btn = `<button class="xc-buy ${m.settled === side ? 'won' : 'lost'}">${m.settled === side ? 'Won' : 'Lost'}</button>`;
+    else btn = `<button class="xc-buy" ${live ? '' : 'disabled'} onclick="mxTicket('${mxEsc(m.key)}','${side}','buy')">Buy ${mxC(p)}</button>`;
+    return `<div class="xc-row">
+      <div class="xc-team">${side === 'home' ? '<i class="ha h">H</i>' : ''}${mxEsc(mxTeam(team))}</div>
+      <div class="xc-bar"><i style="width:${Math.round(p * 100)}%"></i></div>
+      <div class="xc-pct">${m.status === 'settled' ? (m.settled === side ? '100¢' : '0¢') : mxC(p)}</div>
+      <div class="xc-move ${mv > 0 ? 'up' : mv < 0 ? 'down' : ''}">${m.status !== 'settled' && mv ? (mv > 0 ? '▲' : '▼') + Math.abs(mv) : ''}</div>
+      ${btn}
+    </div>`;
+  };
+  const meta = [];
+  if (live) meta.push(`Locks ${mxWhen(m.closesAt)}`);
+  if (m.status === 'paused') meta.push('Trading resumes once a make-up date is confirmed');
+  if (m.makeup) meta.push('Make-up match');
+  meta.push(`${m.vol} contracts traded`);
+  if (pos) meta.push(`<b>You: ${[pos.h ? `${pos.h} ${mxEsc(mxTeam(m.home))}` : '', pos.a ? `${pos.a} ${mxEsc(mxTeam(m.away))}` : ''].filter(Boolean).join(' + ')}</b>`);
+  return `<div class="xc-card">
+    <div class="xc-card-top"><div class="xc-q">Who wins? ${mxEsc(mxTeam(m.home))} vs ${mxEsc(mxTeam(m.away))}</div><span class="xc-pill ${pill[0]}">${pill[1]}</span></div>
+    ${row('home')}${row('away')}
+    <div class="xc-meta">${meta.join('<span>·</span>')}</div>
+  </div>`;
+}
+function mxBoard() {
+  const ms = mx.board.markets;
+  const live = ms.filter(m => ['open', 'closed', 'final'].includes(m.status)).sort((a, b) => a.closesAt - b.closesAt);
+  const paused = ms.filter(m => m.status === 'paused');
+  const done = ms.filter(m => m.status === 'settled').sort((a, b) => b.settledAt - a.settledAt).slice(0, 6);
+  let html = '';
+  if (!live.length && !paused.length) html += `<div class="xc-empty">No markets open right now. Markets open ${mx.board.rules.OPEN_DAYS} days before each match night.</div>`;
+  let night = '';
+  for (const m of live) {
+    const n = mxNight(m.closesAt);
+    if (n !== night) { html += `<div class="xc-night">${n}</div>`; night = n; }
+    html += mxCard(m);
+  }
+  if (paused.length) html += `<div class="xc-night">Postponed</div>` + paused.map(mxCard).join('');
+  if (done.length) html += `<div class="xc-night">Recent results</div>` + done.map(mxCard).join('');
+  return html;
+}
+function mxMine() {
+  if (!mx.me) return `<div class="xc-empty">Join or sign in above to see your bets.</div>`;
+  let html = '';
+  if (!mx.me.positions.length) html += `<div class="xc-empty">Nothing riding right now. Pick a market and buy a side.</div>`;
+  else {
+    html += `<div class="xc-night">Open positions</div><div class="xc-list">`;
+    for (const p of mx.me.positions) {
+      const m = mxMarket(p.key); if (!m) continue;
+      const pl = p.value - p.spent;
+      const held = [p.h ? `${p.h} × ${mxTeam(m.home)}` : '', p.a ? `${p.a} × ${mxTeam(m.away)}` : ''].filter(Boolean).join(' + ');
+      const side = p.h ? 'home' : 'away';
+      html += `<div class="xc-li">
+        <div class="nm">${mxEsc(held)}<small>${mxEsc(mxTeam(m.home))} vs ${mxEsc(mxTeam(m.away))} · cost ${mxPts(p.spent)} · ${m.status === 'open' ? 'locks ' + mxWhen(m.closesAt) : m.status === 'paused' ? 'postponed' : 'locked'}</small></div>
+        <div class="vl">${Math.round(p.value).toLocaleString()}<small class="${pl > 0 ? 'xc-up' : pl < 0 ? 'xc-down' : ''}">${mxSigned(pl)}</small></div>
+        ${m.status === 'open' ? `<button class="xc-btn ghost" style="padding:7px 10px" onclick="mxTicket('${mxEsc(m.key)}','${side}','sell')">Sell</button>` : ''}
+      </div>`;
+    }
+    html += `</div>`;
+  }
+  if (mx.me.history.length) {
+    html += `<div class="xc-night">Settled</div><div class="xc-list">`;
+    for (const h of mx.me.history) {
+      const [, home, away] = h.key.split('|'); const pl = h.paid - h.spent;
+      html += `<div class="xc-li"><div class="nm">${mxEsc(mxTeam(home))} vs ${mxEsc(mxTeam(away))}<small>held ${[h.h ? `${h.h} ${mxTeam(home)}` : '', h.a ? `${h.a} ${mxTeam(away)}` : ''].filter(Boolean).map(mxEsc).join(' + ')} · paid ${mxPts(h.paid)}</small></div>
+        <div class="vl"><span class="${pl > 0 ? 'xc-up' : pl < 0 ? 'xc-down' : ''}">${mxSigned(pl)}</span></div></div>`;
+    }
+    html += `</div>`;
+  }
+  return html;
+}
+function mxLeaders() {
+  const lb = mx.board.leaderboard;
+  if (!lb.length) return `<div class="xc-empty">No traders yet — be the first to join.</div>`;
+  return `<div class="xc-list">${lb.map((r, i) => `<div class="xc-li ${mx.me && mx.me.name === r.name ? 'me' : ''}">
+    <div class="rk">${i + 1}</div>
+    <div class="nm">${mxEsc(r.name)}<small>${r.cash.toLocaleString()} cash · ${r.open} open${r.bailouts ? ` · ${r.bailouts} bailout${r.bailouts > 1 ? 's' : ''}` : ''}</small></div>
+    <div class="vl">${r.worth.toLocaleString()}<small class="${r.pnl > 0 ? 'xc-up' : r.pnl < 0 ? 'xc-down' : ''}">${mxSigned(r.pnl)}</small></div>
+  </div>`).join('')}</div>`;
+}
+function mxActivity() {
+  const t = mx.board.trades;
+  if (!t.length) return `<div class="xc-empty">No trades yet.</div>`;
+  return `<div class="xc-list">${t.map(x => {
+    const [, home, away] = x.key.split('|'); const team = x.side === 'home' ? home : away;
+    return `<div class="xc-li"><div class="nm">${mxEsc(x.name)} ${x.n > 0 ? 'bought' : 'sold'} ${Math.abs(x.n)} ${mxEsc(mxTeam(team))}
+      <small>${mxEsc(mxTeam(home))} vs ${mxEsc(mxTeam(away))} · ${mxAgo(x.at)}</small></div><div class="vl">${x.price}¢<small>${x.pts.toLocaleString()} pts</small></div></div>`;
+  }).join('')}</div>`;
+}
+
+// ── Trade ticket ──
+function mxTicket(key, side, mode) {
+  if (!mx.me) {
+    flashToast('Join or sign in to trade', true);
+    document.getElementById('xc-acct').scrollIntoView({ behavior: 'smooth', block: 'center' }); return;
+  }
+  const pos = mxPos(key), held = pos ? (side === 'home' ? pos.h : pos.a) : 0;
+  mx.t = { key, side, mode, n: mode === 'sell' ? held || 1 : 5 };
+  document.getElementById('xc-sheet').classList.add('open');
+  mxTicketRender();
+}
+function mxClose() { mx.t = null; document.getElementById('xc-sheet').classList.remove('open'); }
+function mxHeld() { const p = mxPos(mx.t.key); return p ? (mx.t.side === 'home' ? p.h : p.a) : 0; }
+function mxMaxBuy(p, b) {
+  let lo = 0, hi = mx.board.rules.MAX_PER_TRADE;
+  while (lo < hi) { const mid = Math.ceil((lo + hi) / 2); if (mxQuote(p, mid, b).cost <= mx.me.cash) lo = mid; else hi = mid - 1; }
+  return lo;
+}
+function mxSet(k, v) {
+  const t = mx.t; if (!t) return;
+  if (k === 'mode' || k === 'side') { t[k] = v; if (t.mode === 'sell') t.n = Math.max(1, mxHeld()); }
+  else t.n = v;
+  mxTicketRender();
+}
+function mxTicketRender() {
+  const t = mx.t, m = mxMarket(t.key), box = document.getElementById('xc-ticket');
+  if (!m || m.status !== 'open') { box.innerHTML = `<h3>Trading closed</h3><div class="sub">This market just locked.</div><button class="xc-btn ghost" onclick="mxClose()">Close</button>`; return; }
+  const b = mx.board.rules.LIQUIDITY, cap = mx.board.rules.MAX_PER_TRADE;
+  const p = t.side === 'home' ? m.ph : 1 - m.ph, team = mxTeam(t.side === 'home' ? m.home : m.away);
+  const held = mxHeld(), maxN = t.mode === 'buy' ? mxMaxBuy(p, b) : Math.min(held, cap);
+  t.n = Math.max(0, Math.min(Math.floor(+t.n || 0), maxN));
+  const q = mxQuote(p, t.mode === 'buy' ? t.n : -t.n, b), amt = Math.abs(q.cost);
+  const avg = t.n ? amt / t.n : 0;
+  const quote = t.mode === 'buy'
+    ? `<div><span>Avg price</span><b>${t.n ? Math.round(avg) + '¢' : '—'}</b></div>
+       <div><span>Cost</span><b class="big">${mxPts(amt)}</b></div>
+       <div><span>Pays if ${mxEsc(team)} wins</span><b>${mxPts(t.n * 100)} <span class="xc-up">(${mxSigned(t.n * 100 - amt)})</span></b></div>
+       <div><span>${mxEsc(team)} price after</span><b>${mxC(q.after)}</b></div>`
+    : `<div><span>You hold</span><b>${held} × ${mxEsc(team)}</b></div>
+       <div><span>Avg price</span><b>${t.n ? Math.round(avg) + '¢' : '—'}</b></div>
+       <div><span>You receive</span><b class="big">${mxPts(amt)}</b></div>
+       <div><span>${mxEsc(team)} price after</span><b>${mxC(q.after)}</b></div>`;
+  box.innerHTML = `<h3>${mxEsc(team)} to win</h3>
+    <div class="sub">${mxEsc(mxTeam(m.home))} vs ${mxEsc(mxTeam(m.away))} · locks ${mxWhen(m.closesAt)}</div>
+    <div class="xc-seg"><button class="${t.side === 'home' ? 'on' : ''}" onclick="mxSet('side','home')">${mxEsc(mxTeam(m.home))} ${mxC(m.ph)}</button><button class="${t.side === 'away' ? 'on' : ''}" onclick="mxSet('side','away')">${mxEsc(mxTeam(m.away))} ${mxC(1 - m.ph)}</button></div>
+    <div class="xc-seg ${t.mode === 'sell' ? 'sellmode' : ''}"><button class="${t.mode === 'buy' ? 'on' : ''}" onclick="mxSet('mode','buy')">Buy</button><button class="${t.mode === 'sell' ? 'on' : ''}" ${held ? '' : 'disabled'} onclick="mxSet('mode','sell')">Sell${held ? ` (${held})` : ''}</button></div>
+    <div class="xc-qty"><button onclick="mxSet('n',${t.n - 1})">−</button><input class="xc-input" type="number" inputmode="numeric" min="1" max="${maxN}" value="${t.n}" onchange="mxSet('n',this.value)"><button onclick="mxSet('n',${t.n + 1})">+</button></div>
+    <div class="xc-chips">${[1, 5, 10, 25].map(v => `<button onclick="mxSet('n',${v})">${v}</button>`).join('')}<button onclick="mxSet('n',${maxN})">Max</button></div>
+    <div class="xc-quote">${quote}</div>
+    <div class="xc-btns"><button class="xc-btn ${t.mode === 'sell' ? 'red' : ''}" style="flex:1" ${t.n ? '' : 'disabled'} onclick="mxSubmit()">${t.mode === 'buy' ? `Buy ${t.n} for ${mxPts(amt)}` : `Sell ${t.n} for ${mxPts(amt)}`}</button><button class="xc-btn ghost" onclick="mxClose()">Cancel</button></div>
+    <div class="xc-err" id="xc-terr">${t.mode === 'buy' && !maxN ? 'Not enough points for one contract.' : ''}</div>`;
+}
+async function mxSubmit() {
+  const t = mx.t; if (!t || !t.n || mx.busy) return;
+  const m = mxMarket(t.key), p = t.side === 'home' ? m.ph : 1 - m.ph;
+  const q = mxQuote(p, t.mode === 'buy' ? t.n : -t.n, mx.board.rules.LIQUIDITY), amt = Math.abs(q.cost);
+  const limit = t.mode === 'buy' ? amt * 1.01 + 1 : Math.max(0, amt * 0.99 - 1);
+  mx.busy = true;
+  try {
+    const d = await mxApi({ action: 'trade', ptoken: mxPtoken(), key: t.key, side: t.side, n: t.mode === 'buy' ? t.n : -t.n, limit });
+    const team = mxTeam(t.side === 'home' ? m.home : m.away), n = t.n, mode = t.mode;
+    mx.me = d.me; mx.board = d.board; mxClose(); mxRender();
+    flashToast(`${mode === 'buy' ? 'Bought' : 'Sold'} ${n} ${team} · ${mxPts(amt)}`);
+  } catch (e) {
+    if (e.status === 401) { mxSetPtoken(''); mx.me = null; mxClose(); mxRender(); }
+    else if (e.status === 409) { await mxRefresh(); }
+    flashToast(e.message, true);
+    const el = document.getElementById('xc-terr'); if (el) el.textContent = e.message;
+  }
+  mx.busy = false;
+}
 
 </script>
 
